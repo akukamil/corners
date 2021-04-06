@@ -1589,7 +1589,6 @@ function change_theme() {
 }
 
 
-
 var callback_users_getCurrentUser = function(method,result,data){
 	if (result) {
 			console.log(result);
@@ -1616,7 +1615,13 @@ function load_ok() {
 		},
 		
 		function(error) {
-		alert("Ошибка инициализации");
+			my_uid = prompt('Введите ваш ID');
+			my_name="user"+my_uid;			
+			
+			firebase.database().ref("players/"+[my_uid]).set({first_name:my_name,last_name:"last_name",pic_url:"https://icdn.lenta.ru/images/2021/04/06/15/20210406154607646/pic_5c40f602f09dfd21c37e94d3257087a6.jpg"});
+
+			alert("добро пожаловать "+my_name);
+			load();
 		}
 	);
 	
