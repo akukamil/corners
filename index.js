@@ -1588,6 +1588,33 @@ function change_theme() {
 	
 }
 
+
+
+var callback_users_getCurrentUser = function(method,result,data){
+	if (result) {
+			console.log(result);
+	} else {
+			console.log(data);
+	}
+};
+
+function load_ok() {
+	
+	var rParams = FAPI.Util.getRequestParameters();
+	FAPI.init(rParams["api_server"], rParams["apiconnection"],
+
+		function() {
+		alert("Инициализация прошла успешно");
+		FAPI.Client.call({"method":"users.getCurrentUser", "fields":"first_name,last_name,location,pic128x128"}, callback_users_getCurrentUser);
+		},
+		
+		function(error) {
+		alert("Ошибка инициализации");
+		}
+	);
+	
+}
+
 function load() {
 	
 	
