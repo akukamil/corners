@@ -1,0 +1,1 @@
+C:\Users\AbdullaevKU\Documents\miniweb\miniweb.exe -r C:\Users\AbdullaevKU\Documents\GitHub\corners
