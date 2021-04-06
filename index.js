@@ -1,7 +1,7 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}; 
 
-
+var my_name, my_uid;
 var valid_moves;
 var g_process=()=>{};
 
@@ -741,17 +741,17 @@ class game_class {
 		//************сетевые манипуляции********************//
 		
 		//записываем что мы в онлайне и простаиваем
-		firebase.database().ref("states/"+[my_name]).set("online");
+		firebase.database().ref("states/"+[my_uid]).set("online");
 		
 		//обновляем почтовый ящик и подписываемся на новые сообщения
-		firebase.database().ref("inbox/"+[my_name]).set({sender:"-",message:"-",timestamp:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
-		firebase.database().ref("inbox/"+[my_name]).on('value', (snapshot) => { this.process_new_message(snapshot.val());});
+		firebase.database().ref("inbox/"+[my_uid]).set({sender:"-",message:"-",timestamp:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
+		firebase.database().ref("inbox/"+[my_uid]).on('value', (snapshot) => { this.process_new_message(snapshot.val());});
 				
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
 				
 		//отключение от игры
-		firebase.database().ref("states/"+[my_name]).onDisconnect().set("offline");
+		firebase.database().ref("states/"+[my_uid]).onDisconnect().set("offline");
 		
 		
 	}	
@@ -808,7 +808,7 @@ class game_class {
 		firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
 		
 		//устанавливаем статус в базе данных
-		firebase.database().ref("states/"+[my_name]).set("online");	
+		firebase.database().ref("states/"+[my_uid]).set("online");	
 		
 
 	
@@ -921,7 +921,7 @@ class game_class {
 		
 		//обновляем мой рейтинг
 		this.my_rating=Math.round(this.calc_my_new_rating(game_result));
-		firebase.database().ref("rating/"+[my_name]).set(this.my_rating);
+		firebase.database().ref("rating/"+[my_uid]).set(this.my_rating);
 		
 		this.opponent_name="";
 		this.state="online";
@@ -948,7 +948,7 @@ class game_class {
 		
 		
 		//отправляем сообщени о сдаче и завершаем игру
-		firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_name,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:10}});
+		firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:10}});
 		this.finish_game(11);
 		
 	}
@@ -970,7 +970,7 @@ class game_class {
 			return;	
 		}	
 						
-		if (this.who_play_next!==my_name)	{
+		if (this.who_play_next!==my_uid)	{
 			this.add_message("Не твоя очередь");
 			return;		
 		}
@@ -1061,9 +1061,9 @@ class game_class {
 		if (msg.message==="REQ" && this.state==="idle")
 		{		
 			//отправляем сообщение о начале игры
-			firebase.database().ref("inbox/"+msg.sender).set({sender:my_name,message:"OK",timestamp:Date.now(),data:0});			
+			firebase.database().ref("inbox/"+msg.sender).set({sender:my_uid,message:"OK",timestamp:Date.now(),data:0});			
 			
-			this.start_game(msg.sender, 2, my_name);
+			this.start_game(msg.sender, 2, my_uid);
 		}
 		
 		//получение положительного ответа от игрока которому мы отправляли запрос который уже создал игру
@@ -1135,7 +1135,7 @@ class game_class {
 		this.move_start_time=Date.now()+30000;
 		
 		//обозначаем кто ходит
-		this.who_play_next=my_name;		
+		this.who_play_next=my_uid;		
 		this.who_play_next_text="Ваш ход";
 
 		
@@ -1191,7 +1191,7 @@ class game_class {
 		this.state="idle";
 	
 		//устанавливаем статус в базе данных
-		firebase.database().ref("states/"+[my_name]).set("idle");
+		firebase.database().ref("states/"+[my_uid]).set("idle");
 
 		//запускаем поиск через определенное время
 		this.search_timeout_handler=setTimeout(this.search_and_send_request.bind(this), Math.floor(Math.random()*5000));
@@ -1229,7 +1229,7 @@ class game_class {
 		firebase.database().ref("states/"+this.opponent_name).on('value', (snapshot) => { this.opponent_state_changed(snapshot.val());});
 		
 		//записываем что игрок перешел в сосотяние игры
-		firebase.database().ref("states/"+[my_name]).set("playing");
+		firebase.database().ref("states/"+[my_uid]).set("playing");
 
 		//считываем рейтинг оппонента
 		firebase.database().ref("rating/"+this.opponent_name).once('value').then((snapshot) => {
@@ -1264,7 +1264,7 @@ class game_class {
 		c.add_animation(objects.whose_move_cont,'y',true,'easeOutCubic',-200,objects.whose_move_cont.sy,0.02);
 		
 		
-		if (this.who_play_next===my_name)
+		if (this.who_play_next===my_uid)
 			this.who_play_next_text="Ваш ход";
 		else
 			this.who_play_next_text="Ход соперника";
@@ -1283,8 +1283,8 @@ class game_class {
 
 		for (var player in this.players_states) {
 
-			if (player!==my_name && this.players_states[player]==="idle")	{			
-				firebase.database().ref("inbox/"+player).set({sender:my_name,message:"REQ",timestamp:Date.now(),data:"-"});	
+			if (player!==my_uid && this.players_states[player]==="idle")	{			
+				firebase.database().ref("inbox/"+player).set({sender:my_uid,message:"REQ",timestamp:Date.now(),data:"-"});	
 				this.pending_player=player;
 				this.state="wait";
 				this.wait_start=Date.now();
@@ -1375,7 +1375,7 @@ class game_class {
 		
 		
 		//отправляем ход с состоянием оппоненту
-		firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_name,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});
+		firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});
 
 		//проверяем не закончена ли игра
 		if (board_state!==0)
@@ -1400,7 +1400,7 @@ class game_class {
 		c.add_animation(objects.stickers_cont,'y',false,'easeInCubic',objects.stickers_cont.sy,M_HEIGHT,0.02);
 		
 		if (id!==-1){
-			firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_name,message:"MSG",timestamp:Date.now(),data:id});			
+			firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"MSG",timestamp:Date.now(),data:id});			
 			this.add_message("Стикер отправлен сопернику");
 			
 			
@@ -1485,15 +1485,15 @@ class game_class {
 		var sec_left=Math.round((this.move_start_time-Date.now())/1000);
 		objects.text_4.text=this.who_play_next_text+" ("+sec_left+")";
 				
-		if (sec_left<0 && this.who_play_next===my_name)	{			
-			firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_name,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:14}});
+		if (sec_left<0 && this.who_play_next===my_uid)	{			
+			firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:14}});
 			this.finish_game(13);
 			return;			
 		}
 		
 		if (sec_left<-5) {
 			if (this.who_play_next===this.opponent_name)	{			
-			firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_name,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
+			firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
 			this.finish_game(14);
 			return;
 			}
@@ -1596,7 +1596,10 @@ var callback_users_getCurrentUser = function(method,result,data){
 			
 		//создаем данные об игроке
 		firebase.database().ref("players/"+[result.uid]).set({first_name:result.first_name,last_name:result.last_name,pic_url:result.pic128x128});
-		console.log("данные записаны в базу");
+		my_name=result.first_name;
+		my_uid=result.uid;
+		alert("добро пожаловать "+my_name);
+		load();
 			
 	} else {
 			console.log(data);
@@ -1730,9 +1733,9 @@ function load() {
 
 
 		//обновляем или записываем информацию о рейтинге
-		firebase.database().ref("rating/"+my_name).once('value').then((snapshot) => {
+		firebase.database().ref("rating/"+my_uid).once('value').then((snapshot) => {
 		  if (snapshot.val()===null) {
-			  firebase.database().ref("rating/"+my_name).set(1400);	
+			  firebase.database().ref("rating/"+my_uid).set(1400);	
 			  game.my_rating=1400;	
 		  }
 		  else {
