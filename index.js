@@ -1592,12 +1592,10 @@ function change_theme() {
 
 var callback_users_getCurrentUser = function(method,result,data){
 	if (result) {
-		
-		
 			console.log(result);
 			
 		//создаем данные об игроке
-		firebase.database().ref("players/"+[result.uid]).set("ergre");
+		firebase.database().ref("players/"+[result.uid]).set({first_name:result.first_name,last_name:result.last_name,pic_url:result.pix128x128});
 		console.log("данные записаны в базу");
 			
 	} else {
@@ -1607,7 +1605,6 @@ var callback_users_getCurrentUser = function(method,result,data){
 
 function load_ok() {
 	
-	firebase.database().ref("players/test").set("ergre");
 	var rParams = FAPI.Util.getRequestParameters();
 	FAPI.init(rParams["api_server"], rParams["apiconnection"],
 
