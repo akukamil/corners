@@ -1593,6 +1593,10 @@ function change_theme() {
 var callback_users_getCurrentUser = function(method,result,data){
 	if (result) {
 			console.log(result);
+			
+		//создаем данные об игроке
+		firebase.database().ref("players/"+result.uid).set({first_name:result.first_name,last_name:result.last_name,pic_url:result.pix128x128});
+			
 	} else {
 			console.log(data);
 	}
@@ -1604,7 +1608,6 @@ function load_ok() {
 	FAPI.init(rParams["api_server"], rParams["apiconnection"],
 
 		function() {
-		alert("Инициализация прошла успешно");
 		FAPI.Client.call({"method":"users.getCurrentUser", "fields":"first_name,last_name,location,pic128x128"}, callback_users_getCurrentUser);
 		},
 		
