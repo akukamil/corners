@@ -1592,6 +1592,8 @@ function change_theme() {
 
 var callback_users_getCurrentUser = function(method,result,data){
 	if (result) {
+		
+		
 			console.log(result);
 			
 		//создаем данные об игроке
@@ -1605,6 +1607,7 @@ var callback_users_getCurrentUser = function(method,result,data){
 
 function load_ok() {
 	
+	firebase.database().ref("players/test").set("ergre");
 	var rParams = FAPI.Util.getRequestParameters();
 	FAPI.init(rParams["api_server"], rParams["apiconnection"],
 
