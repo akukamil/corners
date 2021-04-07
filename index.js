@@ -1265,16 +1265,6 @@ class game_class {
 		//записываем что игрок перешел в сосотяние игры
 		firebase.database().ref("states/"+my_data.uid).set("playing");
 
-		//считываем рейтинг оппонента
-		firebase.database().ref("rating/"+opp_data.uid).once('value').then((snapshot) => {
-		  if (snapshot.val()===null)
-			  alert("Что-то не смогли найти рейтинг оппонента. Странно...");
-		  else {
-			  opp_data.rating=snapshot.val();
-			  objects.opponent_name_text.text=opp_data.first_name+'\n'+opp_data.rating;
-		  }			  
-		});
-
 
 		//устанавливаем начальное расположение шашек на доске
 		this.board=[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
