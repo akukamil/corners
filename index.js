@@ -1374,7 +1374,7 @@ class game_class {
 	send_move(move_data) {
 		
 		if (this.state!=="playing") {
-			alert("Игра не создана");
+			//alert("Игра не создана");
 			return;			
 		}	
 				
@@ -1633,7 +1633,7 @@ var callback_from_ok = function(method,result,data){
 		my_first_name=result.first_name;
 		my_avatar_url=result.pic128x128;
 
-		alert("добро пожаловать "+my_first_name);
+		//alert("добро пожаловать "+my_first_name);
 		load();
 	}
 };
@@ -1651,7 +1651,7 @@ function load_ok() {
 					//получаем информацию об игроке из одноклассников
 					my_data=result;
 					my_data.rating=0;
-					alert("добро пожаловать "+my_data.first_name);
+					//alert("добро пожаловать "+my_data.first_name);
 					load();
 				} else {
 					alert("Не получилось загрузить информацию из ОК, хотя инициализация прошла успешно.");
@@ -1669,7 +1669,7 @@ function load_ok() {
 			my_data.rating=0;
 			my_data.pic128x128="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
 
-			alert("добро пожаловать "+my_data.first_name);
+			//alert("добро пожаловать "+my_data.first_name);
 			load();
 		}
 	);
