@@ -1787,7 +1787,7 @@ function load() {
 			var data=snapshot.val();
 			if (snapshot.val()===null) {
 				my_data.rating=1400;			  
-				firebase.database().ref("players/"+my_data.uid).set(my_data);	
+				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic128x128: my_data.pic128x128});	
 			}
 			else {
 				my_data.rating=data.rating;			  
