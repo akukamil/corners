@@ -815,7 +815,7 @@ class game_class {
 		objects.game_buttons_cont.visible=false;
 		
 		objects.cur_move_cont.visible=false;
-		objects.player_name_cont.visible=false;
+		//objects.player_name_cont.visible=false;
 		objects.opponent_name_cont.visible=false;
 		objects.whose_move_cont.visible=false;
 		
@@ -1478,22 +1478,29 @@ class game_class {
 		c.add_animation(objects.leaderboard_cont,'y',true,'easeOutBack',M_HEIGHT,objects.leaderboard_cont.sy,0.02);
 		
 		//обновляем или записываем информацию о рейтинге
-		firebase.database().ref("rating").once('value').then((snapshot) => {
-		  if (snapshot.val()===null) {
+		firebase.database().ref("players").once('value').then((snapshot) => {
+			if (snapshot.val()===null) {
 			  alert("Что-то не получилось получить данные о рейтингах");
-		  }
-		  else {
-			  
-				var leaderboard=Object.entries(snapshot.val());		
-	
-				leaderboard.sort(function(a, b){return b[1] - a[1]});
-				let len=Math.min(5,leaderboard.length);
-				for (let i=0;i<len;i++) {
-				  console.log(leaderboard[i][0],leaderboard[i][1]);
-					eval(`objects.list${i}.player_name_text`).text=leaderboard[i][0];
-					eval(`objects.list${i}.player_rating_text`).text=leaderboard[i][1];
+			}
+			else {
+				
+				var players_data=snapshot.val();
+				
+				
+				var players_array = [];
+				for (var player in players_data) {
+					players_array.push([players_data[player].first_name, players_data[player].last_name, players_data[player].rating]);
 				}
-		  }
+
+				players_array.sort(function(a, b) {	return b[2] - a[2];});
+				
+				
+				let len=Math.min(5,players_array.length);
+				for (let i=0;i<len;i++) {
+					eval(`objects.list${i}.player_name_text`).text=players_array[i][0]+" "+players_array[i][1];
+					eval(`objects.list${i}.player_rating_text`).text=players_array[i][2];
+				}
+			}
 
 		});
 		
