@@ -1,7 +1,7 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}; 
 
-var my_name, my_uid, my_avatar_url;
+var my_data={},opp_data={};
 var valid_moves;
 var g_process=()=>{};
 
@@ -690,8 +690,8 @@ class game_class {
 	constructor() {		
 		
 		//имя оппонента
-		this.opponent_name="";
-		this.opponent_rating=0;
+		opp_data.uid="";
+		opp_data.rating=0;
 		
 		//это данные для плавного перемещения шашки
 		this.target_point=0;
@@ -709,7 +709,7 @@ class game_class {
 		this.selected_checker=0;
 		
 		//мой рейтинг
-		this.my_rating=0;
+		my_data.rating=0;
 		
 		//таймаут
 		this.my_sticker_show=0;
@@ -741,17 +741,17 @@ class game_class {
 		//************сетевые манипуляции********************//
 		
 		//записываем что мы в онлайне и простаиваем
-		firebase.database().ref("states/"+[my_uid]).set("online");
+		firebase.database().ref("states/"+my_data.uid).set("online");
 		
 		//обновляем почтовый ящик и подписываемся на новые сообщения
-		firebase.database().ref("inbox/"+[my_uid]).set({sender:"-",message:"-",timestamp:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
-		firebase.database().ref("inbox/"+[my_uid]).on('value', (snapshot) => { this.process_new_message(snapshot.val());});
+		firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",timestamp:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
+		firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { this.process_new_message(snapshot.val());});
 				
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
 				
 		//отключение от игры
-		firebase.database().ref("states/"+[my_uid]).onDisconnect().set("offline");
+		firebase.database().ref("states/"+my_data.uid).onDisconnect().set("offline");
 		
 		
 	}	
@@ -779,36 +779,36 @@ class game_class {
 	
 	calc_my_new_rating(res)	{
 		
-		var Ea = 1 / (1 + Math.pow(10, ((this.opponent_rating-this.my_rating)/400)));
+		var Ea = 1 / (1 + Math.pow(10, ((opp_data.rating-my_data.rating)/400)));
 		if (res===1) 
-			return this.my_rating + 16 * (1 - Ea);
+			return Math.round(my_data.rating + 16 * (1 - Ea));
 		if (res===0) 
-			return this.my_rating + 16 * (0.5 - Ea);
+			return Math.round(my_data.rating + 16 * (0.5 - Ea));
 		if (res===-1)
-			return this.my_rating + 16 * (0 - Ea);
+			return Math.round(my_data.rating + 16 * (0 - Ea));
 	}
 	
 	calc_oppnent_new_rating(res)	{
 		
-		var Ea = 1 / (1 + Math.pow(10, ((this.opponent_rating-this.my_rating)/400)));
+		var Ea = 1 / (1 + Math.pow(10, ((opp_data.rating-my_data.rating)/400)));
 		if (res===1) 
-			return this.opponent_rating + 16 * (1 - Ea);
+			return Math.round(opp_data.rating + 16 * (1 - Ea));
 		if (res===0) 
-			return this.opponent_rating + 16 * (0.5 - Ea);
+			return Math.round(opp_data.rating + 16 * (0.5 - Ea));
 		if (res===-1) 
-			return this.opponent_rating + 16 * (0 - Ea);
+			return Math.round(opp_data.rating + 16 * (0 - Ea));
 	}
 	
 	finish_game(state) {
 		
 		//отключаем подписку на обновление состояния оппонента
-		firebase.database().ref("states/"+this.opponent_name).off();
+		firebase.database().ref("states/"+opp_data.uid).off();
 		
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
 		
 		//устанавливаем статус в базе данных
-		firebase.database().ref("states/"+[my_uid]).set("online");	
+		firebase.database().ref("states/"+my_data.uid).set("online");	
 		
 
 	
@@ -900,7 +900,8 @@ class game_class {
 			case 12:	
 				this.add_big_message("Победа! Соперник поникул игру!");
 				var new_opponent_rating=this.calc_oppnent_new_rating(-1);
-				firebase.database().ref("rating/"+[this.opponent_name]).set(Math.round(new_opponent_rating));
+				firebase.database().ref("rating/"+[opp_data.uid]).set(new_opponent_rating);
+				firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 				game_result=1;	
 			break;
 			
@@ -912,7 +913,8 @@ class game_class {
 			case 14:	
 				this.add_big_message("Победа! соперник не сделал ход!"); //возможно пропала связь
 				var new_opponent_rating=this.calc_oppnent_new_rating(-1);
-				firebase.database().ref("rating/"+[this.opponent_name]).set(Math.round(new_opponent_rating));
+				firebase.database().ref("rating/"+[opp_data.uid]).set(new_opponent_rating);
+				firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 				game_result=1;	
 			break;
 			
@@ -920,10 +922,12 @@ class game_class {
 		}
 		
 		//обновляем мой рейтинг
-		this.my_rating=Math.round(this.calc_my_new_rating(game_result));
-		firebase.database().ref("rating/"+[my_uid]).set(this.my_rating);
+		my_data.rating=this.calc_my_new_rating(game_result);
+		firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
+		firebase.database().ref("rating/"+my_data.uid).set(my_data.rating);
 		
-		this.opponent_name="";
+		
+		opp_data.uid="";
 		this.state="online";
 		
 	}
@@ -948,7 +952,7 @@ class game_class {
 		
 		
 		//отправляем сообщени о сдаче и завершаем игру
-		firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:10}});
+		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:10}});
 		this.finish_game(11);
 		
 	}
@@ -970,7 +974,7 @@ class game_class {
 			return;	
 		}	
 						
-		if (this.who_play_next!==my_uid)	{
+		if (this.who_play_next!==my_data.uid)	{
 			this.add_message("Не твоя очередь");
 			return;		
 		}
@@ -1030,7 +1034,7 @@ class game_class {
 				
 				this.selected_checker=0;
 				objects.selected_frame.visible=false;		
-				this.who_play_next=this.opponent_name;
+				this.who_play_next=opp_data.uid;
 			}
 			else
 			{
@@ -1061,9 +1065,9 @@ class game_class {
 		if (msg.message==="REQ" && this.state==="idle")
 		{		
 			//отправляем сообщение о начале игры
-			firebase.database().ref("inbox/"+msg.sender).set({sender:my_uid,message:"OK",timestamp:Date.now(),data:0});			
+			firebase.database().ref("inbox/"+msg.sender).set({sender:my_data.uid,message:"OK",timestamp:Date.now(),data:0});			
 			
-			this.start_game(msg.sender, 2, my_uid);
+			this.start_game(msg.sender, 2, my_data.uid);
 		}
 		
 		//получение положительного ответа от игрока которому мы отправляли запрос который уже создал игру
@@ -1135,7 +1139,7 @@ class game_class {
 		this.move_start_time=Date.now()+30000;
 		
 		//обозначаем кто ходит
-		this.who_play_next=my_uid;		
+		this.who_play_next=my_data.uid;		
 		this.who_play_next_text="Ваш ход";
 
 		
@@ -1191,43 +1195,49 @@ class game_class {
 		this.state="idle";
 	
 		//устанавливаем статус в базе данных
-		firebase.database().ref("states/"+[my_uid]).set("idle");
+		firebase.database().ref("states/"+my_data.uid).set("idle");
 
 		//запускаем поиск через определенное время
 		this.search_timeout_handler=setTimeout(this.search_and_send_request.bind(this), Math.floor(Math.random()*5000));
 	}
 	
-	read_opponent_data(opponent_id) {
+	read_opponent_data(opp_uid) {
 		
-		firebase.database().ref("players/"+this.opponent_name).once('value').then((snapshot) => {
+		firebase.database().ref("players/"+opp_uid).once('value').then((snapshot) => {
 		  if (snapshot.val()===null) {
 			  alert("Не получилось загрузить данные о сопернике");
 		  }
 		  else {
+			  
+			  
+			opp_data={...opp_data,...snapshot.val()};			  
 		
 			//загружаем аватар соперника
 			var loaderOptions = {loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE};
 			var player_data=snapshot.val();
 			var loader = new PIXI.Loader(); // PixiJS exposes a premade instance for you to use.
-			loader.add('opponent_avatar', player_data.pic_url,loaderOptions);
+			loader.add('opponent_avatar', opp_data.pic128x128,loaderOptions);
 			loader.load((loader, resources) => {objects.opponent_avatar.texture = resources.opponent_avatar.texture;});
 			
+			//также отображаем имя
+			objects.opponent_name_text.text=opp_data.first_name+"\n"+opp_data.rating;
 		  }
 		});
 		
 	}
 	
-	start_game(opponent, checkers, who_next) {
+	start_game(opp_uid, checkers, who_next) {
 
-		this.opponent_name = opponent;			
+
+		opp_data.uid=opp_uid;
+		
 		this.my_checkers = checkers;
 		this.who_play_next=who_next;
 		this.selected_checker=0;
 		console.log(who_next);
 		
 		//нужно загрузить данные о сопернике и его фото
-		this.read_opponent_data(this.opponent_name);
-
+		this.read_opponent_data(opp_data.uid);
 		
 		
 		//сообщение о цвете шашек
@@ -1244,35 +1254,36 @@ class game_class {
 		
 		//убираем окно ожидания
 		c.add_animation(objects.search_opponent_window,'y',false,'easeInCubic', objects.search_opponent_window.sy,-390,0.02);
-		
-		
+				
 		
 		//отключаем подписку на обновление пользователей
 		firebase.database().ref("states").off();
 		
 		//добавляем подписку на состояние оппонента
-		firebase.database().ref("states/"+this.opponent_name).on('value', (snapshot) => { this.opponent_state_changed(snapshot.val());});
+		firebase.database().ref("states/"+opp_data.uid).on('value', (snapshot) => { this.opponent_state_changed(snapshot.val());});
 		
 		//записываем что игрок перешел в сосотяние игры
-		firebase.database().ref("states/"+[my_uid]).set("playing");
+		firebase.database().ref("states/"+my_data.uid).set("playing");
 
 		//считываем рейтинг оппонента
-		firebase.database().ref("rating/"+this.opponent_name).once('value').then((snapshot) => {
+		firebase.database().ref("rating/"+opp_data.uid).once('value').then((snapshot) => {
 		  if (snapshot.val()===null)
 			  alert("Что-то не смогли найти рейтинг оппонента. Странно...");
 		  else {
-			  this.opponent_rating=snapshot.val();
-			  objects.opponent_name_text.text=this.opponent_name+'\n'+this.opponent_rating;
+			  opp_data.rating=snapshot.val();
+			  objects.opponent_name_text.text=opp_data.first_name+'\n'+opp_data.rating;
 		  }			  
 		});
+
 
 		//устанавливаем начальное расположение шашек на доске
 		this.board=[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 		this.redraw_board();	
 		
+		
+		
 		//отображаем информацию об игроках
-		objects.player_name_text.text=my_name+"\n"+this.my_rating;		
-		objects.opponent_name_text.text=this.opponent_name;
+		objects.player_name_text.text=my_data.first_name+"\n"+my_data.rating;				
 		c.add_animation(objects.player_name_cont,'x',true,'easeOutCubic',-190,objects.player_name_cont.sx,0.02);
 		c.add_animation(objects.opponent_name_cont,'x',true,'easeOutCubic',M_WIDTH,objects.opponent_name_cont.sx,0.02);
 
@@ -1283,13 +1294,11 @@ class game_class {
 		
 		//отображаем кнопку сдаться
 		objects.game_buttons_cont.visible=true;
-
 		
 		//обозначаем кто ходит
 		c.add_animation(objects.whose_move_cont,'y',true,'easeOutCubic',-200,objects.whose_move_cont.sy,0.02);
-		
-		
-		if (this.who_play_next===my_uid)
+				
+		if (this.who_play_next===my_data.uid)
 			this.who_play_next_text="Ваш ход";
 		else
 			this.who_play_next_text="Ход соперника";
@@ -1306,14 +1315,14 @@ class game_class {
 		if (this.state!=="idle") return;
 			
 
-		for (var player in this.players_states) {
+		for (var player_id in this.players_states) {
 
-			if (player!=my_uid && this.players_states[player]==="idle")	{			
-				firebase.database().ref("inbox/"+player).set({sender:my_uid,message:"REQ",timestamp:Date.now(),data:"-"});	
-				this.pending_player=player;
+			if (player_id!=my_data.uid && this.players_states[player_id]==="idle")	{			
+				firebase.database().ref("inbox/"+player_id).set({sender:my_data.uid,message:"REQ",timestamp:Date.now(),data:"-"});	
+				this.pending_player=player_id;
 				this.state="wait";
 				this.wait_start=Date.now();
-				console.log("sent REQ to "+player);
+				console.log("sent REQ to "+player_id);
 				return;
 			}
 		}
@@ -1400,7 +1409,7 @@ class game_class {
 		
 		
 		//отправляем ход с состоянием оппоненту
-		firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});
+		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});
 
 		//проверяем не закончена ли игра
 		if (board_state!==0)
@@ -1413,7 +1422,7 @@ class game_class {
 		this.move_start_time=Date.now()+30000;
 				
 		//обозначаем кто ходит
-		this.who_play_next=this.opponent_name;	
+		this.who_play_next=opp_data.uid;	
 		this.who_play_next_text="Ход соперника";
 	}
 	
@@ -1425,7 +1434,7 @@ class game_class {
 		c.add_animation(objects.stickers_cont,'y',false,'easeInCubic',objects.stickers_cont.sy,M_HEIGHT,0.02);
 		
 		if (id!==-1){
-			firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"MSG",timestamp:Date.now(),data:id});			
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MSG",timestamp:Date.now(),data:id});			
 			this.add_message("Стикер отправлен сопернику");
 			
 			
@@ -1510,15 +1519,15 @@ class game_class {
 		var sec_left=Math.round((this.move_start_time-Date.now())/1000);
 		objects.text_4.text=this.who_play_next_text+" ("+sec_left+")";
 				
-		if (sec_left<0 && this.who_play_next===my_uid)	{			
-			firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:14}});
+		if (sec_left<0 && this.who_play_next===my_data.uid)	{			
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:14}});
 			this.finish_game(13);
 			return;			
 		}
 		
 		if (sec_left<-5) {
-			if (this.who_play_next===this.opponent_name)	{			
-			firebase.database().ref("inbox/"+this.opponent_name).set({sender:my_uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
+			if (this.who_play_next===opp_data.uid)	{			
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
 			this.finish_game(14);
 			return;
 			}
@@ -1614,22 +1623,21 @@ function change_theme() {
 }
 
 
-var callback_users_getCurrentUser = function(method,result,data){
+var callback_from_ok = function(method,result,data){
+	
 	if (result) {
-			console.log(result);
 			
 		//создаем данные об игроке
-		firebase.database().ref("players/"+[result.uid]).set({first_name:result.first_name,last_name:result.last_name,pic_url:result.pic128x128});
-		my_name=result.first_name;
-		my_uid=result.uid;
+		//firebase.database().ref("players/"+[result.uid]).set({first_name:result.first_name,last_name:result.last_name,pic_url:result.pic128x128});
+		
+		
+		//получаем информацию об игроке из одноклассников
+		my_uid=result.uid;		
+		my_first_name=result.first_name;
 		my_avatar_url=result.pic128x128;
 
-		
-		alert("добро пожаловать "+my_name);
+		alert("добро пожаловать "+my_first_name);
 		load();
-			
-	} else {
-			console.log(data);
 	}
 };
 
@@ -1638,22 +1646,33 @@ function load_ok() {
 	var rParams = FAPI.Util.getRequestParameters();
 	FAPI.init(rParams["api_server"], rParams["apiconnection"],
 
-		function() {
-		FAPI.Client.call({"method":"users.getCurrentUser", "fields":"first_name,last_name,location,pic128x128"}, callback_users_getCurrentUser);
+		//успешная инициализация одноклассников
+		function() {			
+			FAPI.Client.call({"method":"users.getCurrentUser", "fields":"first_name,last_name,uid,pic128x128"}, 			
+			function(method,result,data){
+				if (result) {
+					//получаем информацию об игроке из одноклассников
+					my_data=result;
+					my_data.rating=0;
+					alert("добро пожаловать "+my_data.first_name);
+					load();
+				} else {
+					alert("Не получилось загрузить информацию из ОК, хотя инициализация прошла успешно.");
+				}
+			})
 		},
 		
-		function(error) {
+		//неуспешная инициализация одноклассников
+		function(error){
 			
-			my_uid = prompt('Введите ваш ID');
-			if (my_uid===null) my_uid=42656;
-			my_name="user"+my_uid;			
-			
+			//одноклассники не работают устанавливаем тестовый вариант
+			my_data.uid=prompt('Введите ID', 123);;
+			my_data.first_name="test";		
+			my_data.last_name="ok";	
+			my_data.rating=0;
+			my_data.pic128x128="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
 
-			my_avatar_url="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
-						
-			firebase.database().ref("players/"+[my_uid]).set({first_name:my_name,last_name:"last_name",pic_url:my_avatar_url});
-
-			alert("добро пожаловать "+my_name);
+			alert("добро пожаловать "+my_data.first_name);
 			load();
 		}
 	);
@@ -1678,7 +1697,6 @@ function load() {
 	for (var i=0;i<16;i++) {
 		game_res.add("sticker_texture_"+i, "stickers/"+i+".png");
 	}
-	
 	
 	
 	game_res.load(()=>{
@@ -1764,36 +1782,34 @@ function load() {
 			}
 		}
 
-
-
-
-		//обновляем или записываем информацию о рейтинге
-		firebase.database().ref("rating/"+my_uid).once('value').then((snapshot) => {
-		  if (snapshot.val()===null) {
-			  firebase.database().ref("rating/"+my_uid).set(1400);	
-			  game.my_rating=1400;	
-		  }
-		  else {
-			  game.my_rating=snapshot.val();			  
-		  }
-
+		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
+		firebase.database().ref("players/"+my_data.uid).once('value').then((snapshot) => {			
+			var data=snapshot.val();
+			if (snapshot.val()===null) {
+				my_data.rating=1400;			  
+				firebase.database().ref("players/"+my_data.uid).set(my_data);	
+			}
+			else {
+				my_data.rating=data.rating;			  
+			}			
+			
+			//обновляем информацию так как считали рейтинг
+			objects.player_name_text.text=my_data.first_name+"\n"+my_data.rating;	
 		});
 
 		//показыаем основное меню
 		game.show_main_menu();
 		
 		
-		//обновляем мой аватар
-		var loaderOptions = {loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE};
-		var loader2 = new PIXI.Loader(); // PixiJS exposes a premade instance for you to use.
-		loader2.add('my_avatar', my_avatar_url,loaderOptions);
+		//обновляем мой аватар и отображаем мою карточку
+		var loader2 = new PIXI.Loader();
+		loader2.add('my_avatar', my_data.pic128x128,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 		loader2.load((loader, resources) => {
 			objects.my_avatar.texture = resources.my_avatar.texture;
+			
 		});
 		
-		//objects.start_buttons_text1.tint=0xff0000;
-		
-		//change_theme();
+
 		//запускаем главный цикл
 		main_loop(); 		
 		
