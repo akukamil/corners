@@ -17,12 +17,7 @@ class list_item_class {
 	
 	constructor (x,y,w,h) {
 									
-		this.item_bcg=new PIXI.Sprite(game_res.resources["player_rating_bcg"].texture);
-		this.item_bcg.x=x;
-		this.item_bcg.y=y;
-		this.item_bcg.width=w;
-		this.item_bcg.height=h;
-				
+			
 		this.player_name_text=new PIXI.BitmapText('', {font: '25px Century Gothic'});
 		this.player_name_text.x=x+20;
 		this.player_name_text.y=y+20;
@@ -900,7 +895,6 @@ class game_class {
 			case 12:	
 				this.add_big_message("Победа! Соперник поникул игру!");
 				var new_opponent_rating=this.calc_oppnent_new_rating(-1);
-				firebase.database().ref("rating/"+[opp_data.uid]).set(new_opponent_rating);
 				firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 				game_result=1;	
 			break;
@@ -913,7 +907,6 @@ class game_class {
 			case 14:	
 				this.add_big_message("Победа! соперник не сделал ход!"); //возможно пропала связь
 				var new_opponent_rating=this.calc_oppnent_new_rating(-1);
-				firebase.database().ref("rating/"+[opp_data.uid]).set(new_opponent_rating);
 				firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 				game_result=1;	
 			break;
@@ -924,7 +917,6 @@ class game_class {
 		//обновляем мой рейтинг
 		my_data.rating=this.calc_my_new_rating(game_result);
 		firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
-		firebase.database().ref("rating/"+my_data.uid).set(my_data.rating);
 		
 		
 		opp_data.uid="";
@@ -1497,7 +1489,10 @@ class game_class {
 				
 				let len=Math.min(5,players_array.length);
 				for (let i=0;i<len;i++) {
-					eval(`objects.list${i}.player_name_text`).text=players_array[i][0]+" "+players_array[i][1];
+					let player_name=players_array[i][0]+" "+players_array[i][1];					
+					let trimmedString = player_name.length > 15 ?  player_name.substring(0, 12) + "..." : player_name;
+					
+					eval(`objects.list${i}.player_name_text`).text=trimmedString;
 					eval(`objects.list${i}.player_rating_text`).text=players_array[i][2];
 				}
 			}
@@ -1787,7 +1782,9 @@ function load() {
 				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic128x128: my_data.pic128x128});	
 			}
 			else {
-				my_data.rating=data.rating;			  
+				my_data.rating=data.rating;
+				//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
+				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic128x128: my_data.pic128x128});	
 			}			
 			
 			//обновляем информацию так как считали рейтинг
