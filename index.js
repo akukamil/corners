@@ -1,7 +1,7 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}; 
 
-var my_name, my_uid;
+var my_name, my_uid, my_avatar_url;
 var valid_moves;
 var g_process=()=>{};
 
@@ -1197,6 +1197,26 @@ class game_class {
 		this.search_timeout_handler=setTimeout(this.search_and_send_request.bind(this), Math.floor(Math.random()*5000));
 	}
 	
+	read_opponent_data(opponent_id) {
+		
+		firebase.database().ref("players/"+this.opponent_name).once('value').then((snapshot) => {
+		  if (snapshot.val()===null) {
+			  alert("Не получилось загрузить данные о сопернике");
+		  }
+		  else {
+		
+			//загружаем аватар соперника
+			var loaderOptions = {loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE};
+			var player_data=snapshot.val();
+			var loader = new PIXI.Loader(); // PixiJS exposes a premade instance for you to use.
+			loader.add('opponent_avatar', player_data.pic_url,loaderOptions);
+			loader.load((loader, resources) => {objects.opponent_avatar.texture = resources.opponent_avatar.texture;});
+			
+		  }
+		});
+		
+	}
+	
 	start_game(opponent, checkers, who_next) {
 
 		this.opponent_name = opponent;			
@@ -1204,6 +1224,11 @@ class game_class {
 		this.who_play_next=who_next;
 		this.selected_checker=0;
 		console.log(who_next);
+		
+		//нужно загрузить данные о сопернике и его фото
+		this.read_opponent_data(this.opponent_name);
+
+		
 		
 		//сообщение о цвете шашек
 		var ch_col={1:"серые",2:"белые"};
@@ -1283,7 +1308,7 @@ class game_class {
 
 		for (var player in this.players_states) {
 
-			if (player!==my_uid && this.players_states[player]==="idle")	{			
+			if (player!=my_uid && this.players_states[player]==="idle")	{			
 				firebase.database().ref("inbox/"+player).set({sender:my_uid,message:"REQ",timestamp:Date.now(),data:"-"});	
 				this.pending_player=player;
 				this.state="wait";
@@ -1597,6 +1622,9 @@ var callback_users_getCurrentUser = function(method,result,data){
 		firebase.database().ref("players/"+[result.uid]).set({first_name:result.first_name,last_name:result.last_name,pic_url:result.pic128x128});
 		my_name=result.first_name;
 		my_uid=result.uid;
+		my_avatar_url=result.pic128x128;
+
+		
 		alert("добро пожаловать "+my_name);
 		load();
 			
@@ -1615,10 +1643,15 @@ function load_ok() {
 		},
 		
 		function(error) {
+			
 			my_uid = prompt('Введите ваш ID');
+			if (my_uid===null) my_uid=42656;
 			my_name="user"+my_uid;			
 			
-			firebase.database().ref("players/"+[my_uid]).set({first_name:my_name,last_name:"last_name",pic_url:"https://icdn.lenta.ru/images/2021/04/06/15/20210406154607646/pic_5c40f602f09dfd21c37e94d3257087a6.jpg"});
+
+			my_avatar_url="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
+						
+			firebase.database().ref("players/"+[my_uid]).set({first_name:my_name,last_name:"last_name",pic_url:my_avatar_url});
 
 			alert("добро пожаловать "+my_name);
 			load();
@@ -1734,9 +1767,6 @@ function load() {
 
 
 
-
-
-
 		//обновляем или записываем информацию о рейтинге
 		firebase.database().ref("rating/"+my_uid).once('value').then((snapshot) => {
 		  if (snapshot.val()===null) {
@@ -1752,6 +1782,14 @@ function load() {
 		//показыаем основное меню
 		game.show_main_menu();
 		
+		
+		//обновляем мой аватар
+		var loaderOptions = {loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE};
+		var loader2 = new PIXI.Loader(); // PixiJS exposes a premade instance for you to use.
+		loader2.add('my_avatar', my_avatar_url,loaderOptions);
+		loader2.load((loader, resources) => {
+			objects.my_avatar.texture = resources.my_avatar.texture;
+		});
 		
 		//objects.start_buttons_text1.tint=0xff0000;
 		
