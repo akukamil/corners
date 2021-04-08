@@ -1053,7 +1053,7 @@ class game_class {
 	process_new_message(msg) {	
 
 		//Получили запрос на новую игру
-		console.log("Сообщение: "+msg.message+ " Состояние: "+this.state);
+		console.log("Сообщение: "+msg.message+ " Состояние: "+this.state +" sender:"+msg.sender +" pending: "+this.pending_player);
 		if (msg.message==="REQ" && this.state==="idle")
 		{		
 			//отправляем сообщение о начале игры
