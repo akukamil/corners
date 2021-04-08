@@ -1642,15 +1642,31 @@ function load_ok() {
 	
 	
 	VK.init(function() {
-		 alert("ok");
+
 		 
-		VK.api("users.get", {access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_50'}, function (data) {
-		console.log(data);
+			VK.api("users.get", {access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'}, function (data) {
+			console.log(data);
+			
+			my_data.first_name=data.response[0].first_name;
+			my_data.last_name=data.response[0].last_name;
+			my_data.uid=data.response[0].id;
+			my_data.pic128x128=data.response[0].photo_100;
+			my_data.rating=0;
+			load();
+		
 		});
 				 
 		 
 	  }, function() {
-		 alert("error");
+			//вк не работают устанавливаем тестовый вариант
+			my_data.uid=prompt('Введите ID', 123);;
+			my_data.first_name="test";		
+			my_data.last_name="ok";	
+			my_data.rating=0;
+			my_data.pic128x128="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
+
+			//alert("добро пожаловать "+my_data.first_name);
+			load();
 	}, '5.130');
 	
 	/*
