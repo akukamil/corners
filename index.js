@@ -1643,6 +1643,12 @@ function load_ok() {
 	
 	VK.init(function() {
 		 alert("ok");
+		 
+		VK.api("users.get", {}, function (data) {
+		console.log(data);
+		});
+				 
+		 
 	  }, function() {
 		 alert("error");
 	}, '5.130');
