@@ -1639,6 +1639,15 @@ var callback_from_ok = function(method,result,data){
 
 function load_ok() {
 	
+	
+	
+	VK.init(function() {
+		 alert("ok");
+	  }, function() {
+		 alert("error");
+	}, '5.130');
+	
+	/*
 	var rParams = FAPI.Util.getRequestParameters();
 	FAPI.init(rParams["api_server"], rParams["apiconnection"],
 
@@ -1672,7 +1681,7 @@ function load_ok() {
 			load();
 		}
 	);
-	
+	*/
 }
 
 function load() {
