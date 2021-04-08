@@ -18,7 +18,7 @@ class list_item_class {
 	constructor (x,y,w,h) {
 									
 			
-		this.player_name_text=new PIXI.BitmapText('', {font: '25px Century Gothic'});
+		this.player_name_text=new PIXI.BitmapText('', {font: '28px Century Gothic'});
 		this.player_name_text.x=x+20;
 		this.player_name_text.y=y+20;
 		this.player_name_text.tint=0x333333;
@@ -1494,7 +1494,7 @@ class game_class {
 				let len=Math.min(5,players_array.length);
 				for (let i=0;i<len;i++) {
 					let player_name=players_array[i][0]+" "+players_array[i][1];					
-					player_name = player_name.length > 15 ?  player_name.substring(0, 12) + "..." : player_name;
+					player_name = player_name.length > 18 ?  player_name.substring(0, 15) + "..." : player_name;
 					
 					eval(`objects.list${i}.player_name_text`).text=player_name;
 					eval(`objects.list${i}.player_rating_text`).text=players_array[i][2];
@@ -1642,7 +1642,6 @@ function load_ok() {
 	
 	
 	VK.init(function() {
-
 		 
 			VK.api("users.get", {access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'}, function (data) {
 			console.log(data);
