@@ -1212,7 +1212,11 @@ class game_class {
 			loader.load((loader, resources) => {objects.opponent_avatar.texture = resources.opponent_avatar.texture;});
 			
 			//также отображаем имя
-			objects.opponent_name_text.text=opp_data.first_name+"\n"+opp_data.rating;
+			let trimmed_text=opp_data.first_name +" "+opp_data.last_name;
+			trimmed_text = trimmed_text.length > 15 ?  trimmed_text.substring(0, 12) + "..." : trimmed_text;
+			objects.opponent_name_text.text=trimmed_text;
+			objects.opponent_rating_text.text=opp_data.rating;
+			
 		  }
 		});
 		
@@ -1490,9 +1494,9 @@ class game_class {
 				let len=Math.min(5,players_array.length);
 				for (let i=0;i<len;i++) {
 					let player_name=players_array[i][0]+" "+players_array[i][1];					
-					let trimmedString = player_name.length > 15 ?  player_name.substring(0, 12) + "..." : player_name;
+					player_name = player_name.length > 15 ?  player_name.substring(0, 12) + "..." : player_name;
 					
-					eval(`objects.list${i}.player_name_text`).text=trimmedString;
+					eval(`objects.list${i}.player_name_text`).text=player_name;
 					eval(`objects.list${i}.player_rating_text`).text=players_array[i][2];
 				}
 			}
@@ -1787,8 +1791,11 @@ function load() {
 				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic128x128: my_data.pic128x128});	
 			}			
 			
-			//обновляем информацию так как считали рейтинг
-			objects.player_name_text.text=my_data.first_name+"\n"+my_data.rating;	
+			//и обновляем информацию так как считали рейтинг
+			let trimmed_text=my_data.first_name+" "+my_data.last_name;
+			trimmed_text = trimmed_text.length > 15 ?  trimmed_text.substring(0, 12) + "..." : trimmed_text;
+			objects.player_name_text.text=trimmed_text;	
+			objects.player_rating_text.text=my_data.rating;	
 		});
 
 		//показыаем основное меню
