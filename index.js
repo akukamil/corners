@@ -1208,7 +1208,7 @@ class game_class {
 			var loaderOptions = {loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE};
 			var player_data=snapshot.val();
 			var loader = new PIXI.Loader(); // PixiJS exposes a premade instance for you to use.
-			loader.add('opponent_avatar', opp_data.pic128x128,loaderOptions);
+			loader.add('opponent_avatar', opp_data.pic_url,loaderOptions);
 			loader.load((loader, resources) => {objects.opponent_avatar.texture = resources.opponent_avatar.texture;});
 			
 			//также отображаем имя
@@ -1624,13 +1624,13 @@ var callback_from_ok = function(method,result,data){
 	if (result) {
 			
 		//создаем данные об игроке
-		//firebase.database().ref("players/"+[result.uid]).set({first_name:result.first_name,last_name:result.last_name,pic_url:result.pic128x128});
+		//firebase.database().ref("players/"+[result.uid]).set({first_name:result.first_name,last_name:result.last_name,pic_url:result.pic_url});
 		
 		
 		//получаем информацию об игроке из одноклассников
 		my_uid=result.uid;		
 		my_first_name=result.first_name;
-		my_avatar_url=result.pic128x128;
+		my_avatar_url=result.pic_url;
 
 		//alert("добро пожаловать "+my_first_name);
 		load();
@@ -1648,8 +1648,8 @@ function load_ok() {
 			
 			my_data.first_name=data.response[0].first_name;
 			my_data.last_name=data.response[0].last_name;
-			my_data.uid=data.response[0].id;
-			my_data.pic128x128=data.response[0].photo_100;
+			my_data.uid="id"+data.response[0].id;
+			my_data.pic_url=data.response[0].photo_100;
 			my_data.rating=0;
 			load();
 		
@@ -1658,11 +1658,11 @@ function load_ok() {
 		 
 	  }, function() {
 			//вк не работают устанавливаем тестовый вариант
-			my_data.uid=prompt('Введите ID', 123);;
+			my_data.uid="id"+prompt('Введите ID', 123);;
 			my_data.first_name="test";		
 			my_data.last_name="ok";	
 			my_data.rating=0;
-			my_data.pic128x128="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
+			my_data.pic_url="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
 
 			//alert("добро пожаловать "+my_data.first_name);
 			load();
@@ -1674,7 +1674,7 @@ function load_ok() {
 
 		//успешная инициализация одноклассников
 		function() {			
-			FAPI.Client.call({"method":"users.getCurrentUser", "fields":"first_name,last_name,uid,pic128x128"}, 			
+			FAPI.Client.call({"method":"users.getCurrentUser", "fields":"first_name,last_name,uid,pic_url"}, 			
 			function(method,result,data){
 				if (result) {
 					//получаем информацию об игроке из одноклассников
@@ -1696,7 +1696,7 @@ function load_ok() {
 			my_data.first_name="test";		
 			my_data.last_name="ok";	
 			my_data.rating=0;
-			my_data.pic128x128="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
+			my_data.pic_url="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
 
 			//alert("добро пожаловать "+my_data.first_name);
 			load();
@@ -1820,12 +1820,12 @@ function load() {
 			var data=snapshot.val();
 			if (snapshot.val()===null) {
 				my_data.rating=1400;			  
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic128x128: my_data.pic128x128});	
+				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
 			}
 			else {
 				my_data.rating=data.rating;
 				//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic128x128: my_data.pic128x128});	
+				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
 			}			
 			
 			//и обновляем информацию так как считали рейтинг
@@ -1840,7 +1840,7 @@ function load() {
 				
 		//обновляем мой аватар и отображаем мою карточку
 		var loader2 = new PIXI.Loader();
-		loader2.add('my_avatar', my_data.pic128x128,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
+		loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 		loader2.load((loader, resources) => {
 			objects.my_avatar.texture = resources.my_avatar.texture;
 			
