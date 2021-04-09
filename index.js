@@ -700,6 +700,9 @@ class game_class {
 		this.who_play_next="---";
 		this.who_play_next_text="---";
 		
+		//указатель сделал ли игрок какое-либо движение шашкой
+		this.acted=false;
+		
 		//выбранная шашка
 		this.selected_checker=0;
 		
@@ -794,6 +797,17 @@ class game_class {
 			return Math.round(opp_data.rating + 16 * (0 - Ea));
 	}
 	
+	confirm_play (cp) {
+		
+		if (objects.confirm_cont.ready===false)
+			return;
+		
+		if (cp===false)		
+			this.finish_game(15);
+		
+		c.add_animation(objects.confirm_cont,'y',false,'easeInCubic', objects.confirm_cont.sy,-150,0.03);	
+	}  
+	
 	finish_game(state) {
 		
 		//отключаем подписку на обновление состояния оппонента
@@ -802,30 +816,27 @@ class game_class {
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
 		
-		//устанавливаем статус в базе данных
-		firebase.database().ref("states/"+my_data.uid).set("online");	
 	
 		objects.game_buttons_cont.visible=false;
 		
 		objects.cur_move_cont.visible=false;
 		objects.opponent_name_cont.visible=false;
 		objects.whose_move_cont.visible=false;
+		objects.confirm_cont.visible=false;		
 		
 		//показыаем главное меню
 		this.show_main_menu();
 				
 		//удаляем счетчик оставшегося на ход времени
 		clearTimeout(this.move_ticker);
-		
-		
-		
+			
 				
 		var game_result=0;
 		var game_result_text="";
 		
 		switch (state) {
 			
-			case 1:			
+			case 1: // шашки 1 завершили игру
 				if (this.my_checkers===1)	{
 					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
 					game_result=1;	
@@ -837,7 +848,7 @@ class game_class {
 				
 			break;
 			
-			case 2:	
+			case 2:	// шашки 2 завершили игру
 				if (this.my_checkers===2)	{
 					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
 					game_result=1;	
@@ -848,12 +859,12 @@ class game_class {
 				}
 			break;
 			
-			case 3:	
+			case 3:	// шашки 1 и 2 завершили игру
 				game_result_text="НИЧЬЯ!";
 				game_result=0;	
 			break;
 			
-			case 4:		
+			case 4: // шашки 2 не успели вывести из дома за 30 ходов
 				if (this.my_checkers===1)	{
 					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
 					game_result=1;	
@@ -864,7 +875,7 @@ class game_class {
 				}
 			break;
 			
-			case 5:		
+			case 5:	// шашки 1 не успели вывести из дома за 30 ходов
 				if (this.my_checkers===2)	{
 					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
 					game_result=1;	
@@ -875,7 +886,7 @@ class game_class {
 				}
 			break;
 			
-			case 9:	
+			case 9:	// шашки 1 и 2 не успели вывести из дома за 30 ходов
 				game_result_text="НИЧЬЯ!\nникто не успел вывести шашки из дома за 30 ходов";
 				game_result=0;	
 			break;
@@ -909,21 +920,36 @@ class game_class {
 				game_result=1;	
 			break;
 			
+			case 15:	//я отказываюсь от игры
+				game_result_text="Вы отказались от игры!"; 
+				firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"REFUSE"});
+				game_result=999;	
+			break;
 			
+			case 16:	//получение отказа от игры
+				game_result_text="Соперник отказался от игры!"; //возможно пропала связь
+				game_result=999;	
+			break;
 		}
 		
 		//обновляем мой рейтинг в базе и на экране
-		var old_rating=my_data.rating;
+		var old_rating=my_data.rating;		
 		
-		my_data.rating=this.calc_my_new_rating(game_result);
-		firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
-		objects.player_rating_text.text=my_data.rating;	
+		if (game_result!==999) {
+			my_data.rating=this.calc_my_new_rating(game_result);		
+			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
+			objects.player_rating_text.text=my_data.rating;		
+			game_result_text=game_result_text+"\nрейтинг: "+old_rating+" > "+my_data.rating			
+		}
+	
 
-		game_result_text=game_result_text+"\nрейтинг: "+old_rating+" > "+my_data.rating
 		this.add_big_message(game_result_text);
 		
 		opp_data.uid="";
 		this.state="online";
+		
+		//устанавливаем статус в базе данных
+		firebase.database().ref("states/"+my_data.uid).set("online");	
 		
 	}
 			
@@ -943,9 +969,9 @@ class game_class {
 		//убираем диалог
 		c.add_animation(objects.giveup_dialog,'y',false,'easeInCubic',objects.giveup_dialog.sy,M_HEIGHT,0.02);		
 		
+		//если нажали кнопку отмена то выходим и ничего не отравляем и не завершаем игру
 		if (i==false) return;
-		
-		
+				
 		//отправляем сообщени о сдаче и завершаем игру
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:10}});
 		this.finish_game(11);
@@ -1041,7 +1067,7 @@ class game_class {
 	}
 	
 	opponent_state_changed(s) {			
-		if (s==="offline")
+		if (s==="offline" || s==="online")
 			this.finish_game(12);
 	}
 		
@@ -1057,36 +1083,58 @@ class game_class {
 
 		//Получили запрос на новую игру
 		console.log("Сообщение: "+msg.message+ " Состояние: "+this.state +" sender:"+msg.sender +" pending: "+this.pending_player);
-		if (msg.message==="REQ" && this.state==="idle")
-		{		
-			//отправляем сообщение о начале игры
-			firebase.database().ref("inbox/"+msg.sender).set({sender:my_data.uid,message:"OK",timestamp:Date.now(),data:0});			
+		
+		if (this.state==="idle") {		
+		
+			//в данном состоянии принимаем только запросы о новой игре
+			if (msg.message==="REQ") {		
 			
-			this.start_game(msg.sender, 2, my_data.uid);
+				//отправляем сообщение о начале игры
+				firebase.database().ref("inbox/"+msg.sender).set({sender:my_data.uid,message:"OK",timestamp:Date.now(),data:0});			
+				this.start_game(msg.sender, 2, my_data.uid);				
+			}			
+		}
+				
+		//получение положительного ответа от игрока которому мы отправляли запрос который уже создал игру
+		if (this.state==="wait_response") {
+			
+			//принимаем только положительный ответ от соответствующего соперника и начинаем игру
+			if (msg.message==="OK"  && this.pending_player===msg.sender)			
+				this.start_game(msg.sender, 1, msg.sender);					
+
 		}
 		
-		//получение положительного ответа от игрока которому мы отправляли запрос который уже создал игру
-		if (msg.message==="OK"  && this.state==="wait" && this.pending_player===msg.sender)
-			this.start_game(msg.sender, 1, msg.sender);	
-		
-		//получение сообщение с ходом игорка
-		if (msg.message==="MOVE"  && this.state==="playing")
-			this.receive_move(msg.data);
+		//получение сообщение в состояни игры
+		if (this.state==="playing") {
+			
+			//учитываем только сообщения от соперника
+			if (msg.sender===opp_data.uid) {
+				
+				//получение сообщение с ходом игорка
+				if (msg.message==="MOVE")
+					this.receive_move(msg.data);
 
-		//получение сообщение с сдаче
-		if (msg.message==="END"  && this.state==="playing")
-			this.finish_game(msg.data.board_state);
+				//получение сообщение с сдаче
+				if (msg.message==="END" )
+					this.finish_game(msg.data.board_state);	
 
-		//получение текстового сообщения
-		if (msg.message==="MSG"  && this.state==="playing")
-			this.sticker_received(msg.data);
-		
+				//получение стикера
+				if (msg.message==="MSG")
+					this.sticker_received(msg.data);
+				
+				//получение отказа от игры
+				if (msg.message==="REFUSE")
+					this.finish_game(16);
+				
+			}
+		}
+	
 	}
 		
 	process() {
 		
 		//если долго ждем ответа, то перезапускаем поиск соперника
-		if (this.state==="wait")	{
+		if (this.state==="wait_response")	{
 			var wait_time=(Date.now()-this.wait_start)/1000;
 			if(wait_time>4)
 				this.start_idle_wait();
@@ -1227,7 +1275,8 @@ class game_class {
 	
 	start_game(opp_uid, checkers, who_next) {
 
-
+		this.state="playing";
+		
 		opp_data.uid=opp_uid;
 		
 		this.my_checkers = checkers;
@@ -1238,6 +1287,8 @@ class game_class {
 		//нужно загрузить данные о сопернике и его фото
 		this.read_opponent_data(opp_data.uid);
 		
+		//указатель сделал ли игрок какое-либо движение шашкой
+		this.acted=false;
 		
 		//сообщение о цвете шашек
 		var ch_col={1:"серые",2:"белые"};
@@ -1248,13 +1299,13 @@ class game_class {
 		clearTimeout(this.search_timeout_handler);
 		this.move_ticker=setTimeout(this.timer_tick.bind(this), 1000);
 
-		this.state="playing";
 		
-		
+		//добавляем окно подтверждения игры
+		c.add_animation(objects.confirm_cont,'y',true,'easeOutCubic', -150,objects.confirm_cont.sy,0.02);
+				
 		//убираем окно ожидания
 		c.add_animation(objects.search_opponent_window,'y',false,'easeInCubic', objects.search_opponent_window.sy,-390,0.02);
-				
-		
+						
 		//отключаем подписку на обновление пользователей
 		firebase.database().ref("states").off();
 		
@@ -1306,10 +1357,10 @@ class game_class {
 
 		for (var player_id in this.players_states) {
 
-			if (player_id!=my_data.uid && this.players_states[player_id]==="idle")	{			
+			if (player_id!==my_data.uid && this.players_states[player_id]==="idle")	{			
 				firebase.database().ref("inbox/"+player_id).set({sender:my_data.uid,message:"REQ",timestamp:Date.now(),data:"-"});	
 				this.pending_player=player_id;
-				this.state="wait";
+				this.state="wait_response";
 				this.wait_start=Date.now();
 				console.log("sent REQ to "+player_id);
 				return;
@@ -1389,20 +1440,27 @@ class game_class {
 			board_state=get_board_state(new_board, this.move);
 		
 		//уведомление что нужно вывести шашки из дома
-		if (this.move===25) {
+		if (this.move>24 && this.move<31 ) {
 			if (any_home(new_board,this.my_checkers))
-			this.add_message("Через 5 ходов не должно остаться шашек в доме");
+				this.add_message("После 30 ходов не должно остаться шашек в доме");
 		}
 		
-		
-		
-		
+			
 		//отправляем ход с состоянием оппоненту
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});
 
 		//проверяем не закончена ли игра
 		if (board_state!==0)
 			this.finish_game(board_state);		
+				
+		//проверяем первое действие после которого нельзя отказаться от игры
+		if (this.acted===false) {
+			this.acted=true;
+			if (objects.confirm_cont.ready===true && objects.confirm_cont.visible===true) {				
+				//убираем окно отказа
+				c.add_animation(objects.confirm_cont,'y',false,'easeInCubic', objects.confirm_cont.sy,-150,0.03);				
+			}			
+		}
 				
 		//обновляем текущий ход		
 		objects.cur_move_text.text="Сделано ходов: "+this.move;
@@ -1640,7 +1698,7 @@ var callback_from_ok = function(method,result,data){
 	}
 };
 
-function load_ok() {
+function load_vk() {
 	
 	
 	if(window.name==="") {
@@ -1652,62 +1710,32 @@ function load_ok() {
 		my_data.pic_url="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
 		load();
 	}
-	else
-	{
-		VK.init(function() {
-			 
-				VK.api("users.get", {access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'}, function (data) {
-				my_data.first_name=data.response[0].first_name;
-				my_data.last_name=data.response[0].last_name;
-				my_data.uid="id"+data.response[0].id;
-				my_data.pic_url=data.response[0].photo_100;
-				my_data.rating=0;
-				load();
-			
-			});
-					 
-			 
-		  }, function() {
-			alert("VK.init error")
-		}, '5.130');		
-	}
-
-	
-	/*
-	var rParams = FAPI.Util.getRequestParameters();
-	FAPI.init(rParams["api_server"], rParams["apiconnection"],
-
-		//успешная инициализация одноклассников
-		function() {			
-			FAPI.Client.call({"method":"users.getCurrentUser", "fields":"first_name,last_name,uid,pic_url"}, 			
-			function(method,result,data){
-				if (result) {
-					//получаем информацию об игроке из одноклассников
-					my_data=result;
-					my_data.rating=0;
-					//alert("добро пожаловать "+my_data.first_name);
-					load();
-				} else {
-					alert("Не получилось загрузить информацию из ОК, хотя инициализация прошла успешно.");
-				}
-			})
-		},
+	else {
+		VK.init(
 		
-		//неуспешная инициализация одноклассников
-		function(error){
+			//функция удачной инициализации вконтакте
+			function()
+			{
+				VK.api(
+					"users.get",
+					{access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'},
+					function (data) {
+						my_data.first_name=data.response[0].first_name;
+						my_data.last_name=data.response[0].last_name;
+						my_data.uid="id"+data.response[0].id;
+						my_data.pic_url=data.response[0].photo_100;
+						my_data.rating=0;
+						load();
+					}
+				)			
+			},	
 			
-			//одноклассники не работают устанавливаем тестовый вариант
-			my_data.uid=prompt('Введите ID', 123);;
-			my_data.first_name="test";		
-			my_data.last_name="ok";	
-			my_data.rating=0;
-			my_data.pic_url="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
+			//функция неудачной инициализации вконтакте
+			function() {alert("VK.init error")},
 
-			//alert("добро пожаловать "+my_data.first_name);
-			load();
-		}
-	);
-	*/
+			//версия апи
+			'5.130');		
+	}
 }
 
 function load() {
