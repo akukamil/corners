@@ -1063,7 +1063,7 @@ class game_class {
 		}
 		
 		//получение положительного ответа от игрока которому мы отправляли запрос который уже создал игру
-		if (msg.message==="OK"  && this.state==="wait" && this.pending_player==msg.sender)
+		if (msg.message==="OK"  && this.state==="wait" && this.pending_player===msg.sender)
 			this.start_game(msg.sender, 1, msg.sender);	
 		
 		//получение сообщение с ходом игорка
