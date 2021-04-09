@@ -804,13 +804,10 @@ class game_class {
 		
 		//устанавливаем статус в базе данных
 		firebase.database().ref("states/"+my_data.uid).set("online");	
-		
-
 	
 		objects.game_buttons_cont.visible=false;
 		
 		objects.cur_move_cont.visible=false;
-		//objects.player_name_cont.visible=false;
 		objects.opponent_name_cont.visible=false;
 		objects.whose_move_cont.visible=false;
 		
@@ -824,16 +821,17 @@ class game_class {
 		
 				
 		var game_result=0;
+		var game_result_text="";
 		
 		switch (state) {
 			
 			case 1:			
 				if (this.my_checkers===1)	{
-					this.add_big_message("Вы выиграли (быстрее оппонента перевели шашки в чужой дом)");	
+					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
 					game_result=1;	
 				}
 				else	{
-					this.add_big_message("Вы проиграли (оппонент быстрее Вас перевел шашки в чужой дом)");	
+					game_result_text="Вы проиграли\nоппонент быстрее Вас перевел шашки в новый дом";	
 					game_result=-1;	
 				}
 				
@@ -841,71 +839,71 @@ class game_class {
 			
 			case 2:	
 				if (this.my_checkers===2)	{
-					this.add_big_message("Вы выиграли (быстрее оппонента перевели шашки в чужой дом)");	
+					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
 					game_result=1;	
 				}
 				else	{
-					this.add_big_message("Вы проиграли (оппонент быстрее Вас перевел шашки в чужой дом)");	
+					game_result_text="Вы проиграли!\nоппонент быстрее Вас перевел шашки в новый дом";	
 					game_result=-1;	
 				}
 			break;
 			
 			case 3:	
-				this.add_big_message("НИЧЬЯ!");
+				game_result_text="НИЧЬЯ!";
 				game_result=0;	
 			break;
 			
 			case 4:		
 				if (this.my_checkers===1)	{
-					this.add_big_message("Вы выиграли (оппонент не успел вывести шашки из дома за 30 ходов)");	
+					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
 					game_result=1;	
 				}
 				else	{
-					this.add_big_message("Вы проиграли (не успели вывести шашки из дома за 30 ходов)");	
+					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";	
 					game_result=-1;	
 				}
 			break;
 			
 			case 5:		
 				if (this.my_checkers===2)	{
-					this.add_big_message("Вы выиграли (оппонент не успел вывести шашки из дома за 30 ходов)");	
+					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
 					game_result=1;	
 				}
 				else	{
-					this.add_big_message("Вы проиграли (не успели вывести шашки из дома за 30 ходов)");	
+					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";	
 					game_result=-1;	
 				}
 			break;
 			
 			case 9:	
-				this.add_big_message("НИЧЬЯ! (никто не успел вывести шашки из дома за 30 ходов)");
+				game_result_text="НИЧЬЯ!\nникто не успел вывести шашки из дома за 30 ходов";
 				game_result=0;	
 			break;
 			
 			case 10:	
-				this.add_big_message("Победа! Соперник сдался!");
+				game_result_text="Победа!\nСоперник сдался!";
 				game_result=1;	
 			break;
 			
 			case 11:	
-				this.add_big_message("Вы сдались!");
+				game_result_text="Вы сдались!";
 				game_result=-1;	
 			break;
 			
 			case 12:	
-				this.add_big_message("Победа! Соперник поникул игру!");
+				game_result_text="Победа!\nСоперник поникул игру!";
 				var new_opponent_rating=this.calc_oppnent_new_rating(-1);
 				firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 				game_result=1;	
 			break;
 			
 			case 13:	
-				this.add_big_message("Вы проиграли! закончилось время на ход!");
+				game_result_text="Вы проиграли!\nзакончилось время на ход!";
 				game_result=-1;	
 			break;
 			
 			case 14:	
-				this.add_big_message("Победа! соперник не сделал ход!"); //возможно пропала связь
+				game_result_text="Победа!\nсоперник не сделал ход!"; //возможно пропала связь
 				var new_opponent_rating=this.calc_oppnent_new_rating(-1);
 				firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 				game_result=1;	
@@ -914,10 +912,15 @@ class game_class {
 			
 		}
 		
-		//обновляем мой рейтинг
+		//обновляем мой рейтинг в базе и на экране
+		var old_rating=my_data.rating;
+		
 		my_data.rating=this.calc_my_new_rating(game_result);
 		firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
-		
+		objects.player_rating_text.text=my_data.rating;	
+
+		game_result_text=game_result_text+"\nрейтинг: "+old_rating+" > "+my_data.rating
+		this.add_big_message(game_result_text);
 		
 		opp_data.uid="";
 		this.state="online";
@@ -1269,7 +1272,7 @@ class game_class {
 		
 		
 		//отображаем информацию об игроках
-		objects.player_name_text.text=my_data.first_name+"\n"+my_data.rating;				
+		//objects.player_name_text.text=my_data.first_name+" "+my_data.last_name;				
 		c.add_animation(objects.player_name_cont,'x',true,'easeOutCubic',-190,objects.player_name_cont.sx,0.02);
 		c.add_animation(objects.opponent_name_cont,'x',true,'easeOutCubic',M_WIDTH,objects.opponent_name_cont.sx,0.02);
 
@@ -1640,33 +1643,35 @@ var callback_from_ok = function(method,result,data){
 function load_ok() {
 	
 	
-	
-	VK.init(function() {
-		 
-			VK.api("users.get", {access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'}, function (data) {
-			console.log(data);
+	if(window.name==="") {
+		//вк не работают устанавливаем тестовый вариант
+		my_data.uid="id"+prompt('Введите ID', 'id000001111');;
+		my_data.first_name="first_name";		
+		my_data.last_name="last_name";	
+		my_data.rating=0;
+		my_data.pic_url="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
+		load();
+	}
+	else
+	{
+		VK.init(function() {
+			 
+				VK.api("users.get", {access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'}, function (data) {
+				my_data.first_name=data.response[0].first_name;
+				my_data.last_name=data.response[0].last_name;
+				my_data.uid="id"+data.response[0].id;
+				my_data.pic_url=data.response[0].photo_100;
+				my_data.rating=0;
+				load();
 			
-			my_data.first_name=data.response[0].first_name;
-			my_data.last_name=data.response[0].last_name;
-			my_data.uid="id"+data.response[0].id;
-			my_data.pic_url=data.response[0].photo_100;
-			my_data.rating=0;
-			load();
-		
-		});
-				 
-		 
-	  }, function() {
-			//вк не работают устанавливаем тестовый вариант
-			my_data.uid="id"+prompt('Введите ID', 123);;
-			my_data.first_name="test";		
-			my_data.last_name="ok";	
-			my_data.rating=0;
-			my_data.pic_url="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
+			});
+					 
+			 
+		  }, function() {
+			alert("VK.init error")
+		}, '5.130');		
+	}
 
-			//alert("добро пожаловать "+my_data.first_name);
-			load();
-	}, '5.130');
 	
 	/*
 	var rParams = FAPI.Util.getRequestParameters();
