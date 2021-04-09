@@ -1718,14 +1718,21 @@ function load() {
 		if (load_list[i][0]=="sprite" || load_list[i][0]=="image") 
 			game_res.add(load_list[i][1], "res/"+load_list[i][1]+".png");
 	
-	
 	//добавляем текстуры стикеров
 	for (var i=0;i<16;i++) {
 		game_res.add("sticker_texture_"+i, "stickers/"+i+".png");
 	}
 	
 	
-	game_res.load(()=>{
+
+	game_res.load(load_complete);		
+	game_res.onProgress.add(progress);
+	
+	function load_complete() {
+		
+		
+		document.getElementById("m_bar").outerHTML = "";		
+		document.getElementById("m_progress").outerHTML = "";
 		
 		app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:true,backgroundColor : 0x000000});
 		document.body.appendChild(app.view);
@@ -1830,8 +1837,7 @@ function load() {
 
 		//показыаем основное меню
 		game.show_main_menu();
-		
-		
+				
 		//обновляем мой аватар и отображаем мою карточку
 		var loader2 = new PIXI.Loader();
 		loader2.add('my_avatar', my_data.pic128x128,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
@@ -1840,12 +1846,17 @@ function load() {
 			
 		});
 		
-
 		//запускаем главный цикл
 		main_loop(); 		
+	
+	}
+	
+	function progress(loader, resource) {
 		
-	});		
-
+		document.getElementById("m_bar").style.width =  Math.round(loader.progress)+"%";
+	}
+	
+	
 	
 }
 
