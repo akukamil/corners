@@ -824,6 +824,9 @@ class game_class {
 		objects.whose_move_cont.visible=false;
 		objects.confirm_cont.visible=false;		
 		
+		//показываем сколько игроков онлайн
+		objects.online_users_text.visible=true;
+		
 		//показыаем главное меню
 		this.show_main_menu();
 				
@@ -1074,9 +1077,12 @@ class game_class {
 	players_list_updated(players) {
 
 		this.players_states=players;
+		var cnt=0;
+		for (var player_id in this.players_states)
+			if (this.players_states[player_id]!=="offline")
+				cnt++;
 		
-		//если при поиске оппонента никого не нашли то заново начинаем поиск
-		if (this.state==="search") this.search_and_send_request();
+		objects.online_users_text.text="Игроков онлайн: "+cnt;
 	}
 		
 	process_new_message(msg) {	
@@ -1283,6 +1289,9 @@ class game_class {
 		this.who_play_next=who_next;
 		this.selected_checker=0;
 		console.log(who_next);
+		
+		//убираем информацию о том сколько игроков онлайн
+		objects.online_users_text.visible=false;
 		
 		//нужно загрузить данные о сопернике и его фото
 		this.read_opponent_data(opp_data.uid);
