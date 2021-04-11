@@ -617,6 +617,7 @@ function get_moves_path(move_data, board_data){
 }
 	
 	
+
 {//здесь функции для работы с состоянием доски
 	
 function finished1 (boardv) {
@@ -663,6 +664,8 @@ function any_home(boardv, checker) {
 	return 0;	
 }
 
+
+
 function get_board_state(board, cur_move) {	
 	
 	var w1=finished1(board);
@@ -698,8 +701,7 @@ class game_class {
 		this.who_play_next_text="---";
 		
 		//указатель сделал ли игрок какое-либо движение шашкой
-		this.opp_confirmed_game=false;
-		this.me_confirmed_game=false;
+		this.acted=false;
 		
 		//выбранная шашка
 		this.selected_checker=0;
@@ -795,18 +797,27 @@ class game_class {
 			return Math.round(opp_data.rating + 16 * (0 - Ea));
 	}
 	
+	close_search_window() {
+				
+		if (objects.search_opponent_window.ready===false)
+			return;
+		
+		this.state="online";		
+		
+		//показываем контейнер с кнопками
+		c.add_animation(objects.start_buttons_cont,'y',true,'easeOutCubic',-390, objects.start_buttons_cont.sy,0.02);
+		
+		//убираем контейнер с окном ожидания
+		c.add_animation(objects.search_opponent_window,'y',false,'easeInCubic',objects.search_opponent_window.sy,M_HEIGHT,0.04);
+	}
+	
 	confirm_play (cp) {
 		
 		if (objects.confirm_cont.ready===false)
 			return;
 		
-		if (cp===false) {
+		if (cp===false)		
 			this.finish_game(15);
-		}
-		else {
-			this.me_confirmed_game = true;
-			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"CONFIRM",timestamp:Date.now()});
-		}
 		
 		c.add_animation(objects.confirm_cont,'y',false,'easeInCubic', objects.confirm_cont.sy,-150,0.03);	
 	}  
@@ -915,29 +926,15 @@ class game_class {
 			break;
 			
 			case 13:	
-			
-				if (this.me_confirmed_game===true) {
-					game_result_text="Вы проиграли!\nзакончилось время на ход!";
-					game_result=-1;		
-				} else {
-					game_result_text="Закончилось время и вы не дали согласие на игру!";
-					game_result=999;		
-				}
-
+				game_result_text="Вы проиграли!\nзакончилось время на ход!";
+				game_result=-1;	
 			break;
 			
 			case 14:	
-				
-				if (this.opp_confirmed_game===true) {					
-					game_result_text="Победа!\nсоперник не сделал ход!"; //возможно пропала связь
-					var new_opponent_rating=this.calc_oppnent_new_rating(-1);
-					firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
-					game_result=1;		
-				} else {
-					game_result_text="Cоперник не подтвердил игру!"; //возможно пропала связь
-					game_result=999;		
-				}
-
+				game_result_text="Победа!\nсоперник не сделал ход!"; //возможно пропала связь
+				var new_opponent_rating=this.calc_oppnent_new_rating(-1);
+				firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
+				game_result=1;	
 			break;
 			
 			case 15:	//я отказываюсь от игры
@@ -947,14 +944,15 @@ class game_class {
 			break;
 			
 			case 16:	//получение отказа от игры
-				game_result_text="Соперник отказался от игры!";
+				game_result_text="Соперник отказался от игры!"; //возможно пропала связь
 				game_result=999;	
 			break;
 		}
 		
 		//обновляем мой рейтинг в базе и на экране
+		var old_rating=my_data.rating;		
+		
 		if (game_result!==999) {
-			var old_rating=my_data.rating;	
 			my_data.rating=this.calc_my_new_rating(game_result);		
 			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
 			objects.player_rating_text.text=my_data.rating;		
@@ -998,7 +996,9 @@ class game_class {
 	}
 
 	hide_leaderboard() {
+		
 		objects.leaderboard_cont.visible=false;
+		
 	}
 		
 	mouse_down_on_board() {		
@@ -1008,11 +1008,13 @@ class game_class {
 		if (this.target_point!==0)	return;
 		
 		if (this.state!=="playing") {
-			this.add_message("Игра не создана"); return;	
+			this.add_message("Игра не создана");
+			return;	
 		}	
 						
 		if (this.who_play_next!==my_data.uid)	{
-			this.add_message("Не твоя очередь"); return;		
+			this.add_message("Не твоя очередь");
+			return;		
 		}
 			
 		var mx = app.renderer.plugins.interaction.eventData.data.global.x/app.stage.scale.x;
@@ -1063,7 +1065,7 @@ class game_class {
 				let m_data={x1:this.selected_checker.ix,y1:this.selected_checker.iy,x2:new_x, y2:new_y};
 				
 				//начинаем процесс плавного перемещения шашки				
-				this.start_checker_motion(m_data);
+				this.start_gentle_move(m_data);
 				
 				//отправляем обновленное сосотяние доски оппоненту
 				this.send_move(m_data);		
@@ -1113,7 +1115,7 @@ class game_class {
 			}			
 		}
 				
-		//получение положительного ответа от игрока которому мы отправляли запрос который уже создал игру
+		//получение положительного ответа от игрока которому мы отправляли запрос и который уже создал игру
 		if (this.state==="wait_response") {
 			
 			//принимаем только положительный ответ от соответствующего соперника и начинаем игру
@@ -1144,10 +1146,6 @@ class game_class {
 				if (msg.message==="REFUSE")
 					this.finish_game(16);
 				
-				//получение отказа от игры
-				if (msg.message==="CONFIRM")
-					this.opp_confirmed_game=true;
-				
 			}
 		}
 	
@@ -1164,10 +1162,12 @@ class game_class {
 		
 		
 		//анимируем окно ожидания соперника
-		if (objects.search_opponent_window.visible===true)			
+		if (objects.search_opponent_window.visible===true) {
+			
 			objects.search_opponent_progress.rotation+=0.1;
+		}
 		
-		//двигаем шашку если нужно
+		//двигаем шашку 
 		if (this.target_point!==0) {
 			
 			this.checker_to_move.x+=this.checker_to_move.dx;
@@ -1180,21 +1180,17 @@ class game_class {
 			if (d<1) this.set_next_cell();
 		}
 		
-		//анимация всех объектов
+		//анимация
 		c.process();
 	}
 			
 	receive_move(move_data) {
 		
-		//раз сходил то значит согласился на игру
-		if (this.opp_confirmed_game===false)
-			this.opp_confirmed_game=true;
-				
 		//воспроизводим уведомление о том что соперник произвел ход
 		game_res.resources.move_snd.sound.play();
 		
 		//плавно перемещаем шашку
-		this.start_checker_motion(move_data);
+		this.start_gentle_move(move_data);
 		
 		//если игра заверщена то переходим
 		if (move_data.board_state!==0)	{
@@ -1208,6 +1204,9 @@ class game_class {
 		//обозначаем кто ходит
 		this.who_play_next=my_data.uid;		
 		this.who_play_next_text="Ваш ход";
+
+		
+
 	}
 	
 	redraw_board() {	
@@ -1243,9 +1242,12 @@ class game_class {
 			
 	start_idle_wait() {
 
-		if (this.state==="idle")
+
+
+
+		if (this.state==="idle" || objects.start_buttons_cont.ready===false)
 			return;
-		
+				
 		//показываем контейнер с ожиданием
 		if (objects.search_opponent_window.visible===false)
 			c.add_animation(objects.search_opponent_window,'y',true,'easeOutCubic',-390, objects.search_opponent_window.sy,0.02);
@@ -1295,13 +1297,13 @@ class game_class {
 	
 	start_game(opp_uid, checkers, who_next) {
 
-		this.state = "playing";
+		this.state="playing";
 		
-		opp_data.uid = opp_uid;
+		opp_data.uid=opp_uid;
 		
 		this.my_checkers = checkers;
-		this.who_play_next = who_next;
-		this.selected_checker = 0;
+		this.who_play_next=who_next;
+		this.selected_checker=0;
 		console.log(who_next);
 		
 		//убираем информацию о том сколько игроков онлайн
@@ -1311,8 +1313,7 @@ class game_class {
 		this.read_opponent_data(opp_data.uid);
 		
 		//указатель сделал ли игрок какое-либо движение шашкой
-		this.opp_confirmed_game = false;
-		this.me_confirmed_game = false;
+		this.acted=false;
 		
 		//сообщение о цвете шашек
 		var ch_col={1:"серые",2:"белые"};
@@ -1322,11 +1323,12 @@ class game_class {
 		this.move_start_time=Date.now()+30000;
 		clearTimeout(this.search_timeout_handler);
 		this.move_ticker=setTimeout(this.timer_tick.bind(this), 1000);
+
 		
 		//добавляем окно подтверждения игры
 		c.add_animation(objects.confirm_cont,'y',true,'easeOutCubic', -150,objects.confirm_cont.sy,0.02);
 				
-		//убираем окно поиска
+		//убираем окно ожидания
 		c.add_animation(objects.search_opponent_window,'y',false,'easeInCubic', objects.search_opponent_window.sy,-390,0.02);
 						
 		//отключаем подписку на обновление пользователей
@@ -1338,14 +1340,18 @@ class game_class {
 		//записываем что игрок перешел в сосотяние игры
 		firebase.database().ref("states/"+my_data.uid).set("playing");
 
+
 		//устанавливаем начальное расположение шашек на доске
 		this.board=[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 		this.redraw_board();	
 		
 		
+		
 		//отображаем информацию об игроках
+		//objects.player_name_text.text=my_data.first_name+" "+my_data.last_name;				
 		c.add_animation(objects.player_name_cont,'x',true,'easeOutCubic',-190,objects.player_name_cont.sx,0.02);
 		c.add_animation(objects.opponent_name_cont,'x',true,'easeOutCubic',M_WIDTH,objects.opponent_name_cont.sx,0.02);
+
 		
 		//включаем информацию о текущем ходе	
 		c.add_animation(objects.cur_move_cont,'x',true,'easeOutCubic',-190,objects.cur_move_cont.sx,0.02);
@@ -1401,7 +1407,7 @@ class game_class {
 		objects.sticker_area.timer_id=setTimeout(()=>{c.add_animation(objects.sticker_area,'x',false,'easeInCubic',objects.sticker_area.sx,M_WIDTH,0.02);}, 5000);
 	}
 		
-	start_checker_motion(move_data) {
+	start_gentle_move(move_data) {
 		
 		//подготавливаем данные для перестановки
 		this.checker_to_move=this.get_checker_by_pos(move_data.x1,move_data.y1);		
@@ -1473,12 +1479,12 @@ class game_class {
 			this.finish_game(board_state);		
 				
 		//проверяем первое действие после которого нельзя отказаться от игры
-		if (objects.confirm_cont.visible===true) {	
-			if (objects.confirm_cont.ready===true ) {				
+		if (this.acted===false) {
+			this.acted=true;
+			if (objects.confirm_cont.ready===true && objects.confirm_cont.visible===true) {				
 				//убираем окно отказа
-				c.add_animation(objects.confirm_cont,'y',false,'easeInCubic', objects.confirm_cont.sy,-150,0.03);	
-				this.me_confirmed_game=true;
-			}
+				c.add_animation(objects.confirm_cont,'y',false,'easeInCubic', objects.confirm_cont.sy,-150,0.03);				
+			}			
 		}
 				
 		//обновляем текущий ход		
@@ -1732,30 +1738,28 @@ function load_vk() {
 	else {
 		VK.init(
 		
-					//функция удачной инициализации вконтакте
-					function()
-					{
-						//запрашиваем информацию об игроке из вконтакте
-						VK.api(
-							"users.get",
-							{access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'},
-							function (data) {
-								my_data.first_name=data.response[0].first_name;
-								my_data.last_name=data.response[0].last_name;
-								my_data.uid="id"+data.response[0].id;
-								my_data.pic_url=data.response[0].photo_100;
-								my_data.rating=0;
-								load();
-							}
-						)			
-					},	
-					
-					//функция неудачной инициализации вконтакте
-					function() {alert("VK.init error")},
+			//функция удачной инициализации вконтакте
+			function()
+			{
+				VK.api(
+					"users.get",
+					{access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'},
+					function (data) {
+						my_data.first_name=data.response[0].first_name;
+						my_data.last_name=data.response[0].last_name;
+						my_data.uid="id"+data.response[0].id;
+						my_data.pic_url=data.response[0].photo_100;
+						my_data.rating=0;
+						load();
+					}
+				)			
+			},	
+			
+			//функция неудачной инициализации вконтакте
+			function() {alert("VK.init error")},
 
-					//версия апи
-					'5.130'
-				);		
+			//версия апи
+			'5.130');		
 	}
 }
 
@@ -1778,6 +1782,7 @@ function load() {
 	}
 	
 	
+
 	game_res.load(load_complete);		
 	game_res.onProgress.add(progress);
 	
@@ -1896,6 +1901,7 @@ function load() {
 		loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 		loader2.load((loader, resources) => {
 			objects.my_avatar.texture = resources.my_avatar.texture;
+			
 		});
 		
 		//запускаем главный цикл
