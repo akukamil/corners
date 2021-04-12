@@ -701,7 +701,8 @@ class game_class {
 		this.who_play_next_text="---";
 		
 		//указатель сделал ли игрок какое-либо движение шашкой
-		this.acted=false;
+		this.me_confirmed_play=false;
+		this.opp_confirmed_play=false;
 		
 		//выбранная шашка
 		this.selected_checker=0;
@@ -820,8 +821,12 @@ class game_class {
 		if (objects.confirm_cont.ready===false)
 			return;
 		
-		if (cp===false)		
-			this.finish_game(15);
+		if (cp===false) {
+			this.finish_game(15);			
+		} else {
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"CONF"});
+			this.me_confirmed_play=true;			
+		}
 		
 		c.add_animation(objects.confirm_cont,'y',false,'easeInCubic', objects.confirm_cont.sy,-150,0.03);	
 	}  
@@ -923,22 +928,37 @@ class game_class {
 			break;
 			
 			case 12:	
-				game_result_text="Победа!\nСоперник поникул игру!";
-				var new_opponent_rating=this.calc_oppnent_new_rating(-1);
-				firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
-				game_result=1;	
+				if (this.opp_confirmed_play===true) {
+					game_result_text="Победа!\nСоперник поникул игру!";
+					var new_opponent_rating=this.calc_oppnent_new_rating(-1);
+					firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
+					game_result=1;					
+				} else {
+					game_result_text="Соперник не дал согласия на игру!";
+					game_result=999;						
+				}			
 			break;
 			
 			case 13:	
-				game_result_text="Вы проиграли!\nзакончилось время на ход!";
-				game_result=-1;	
+				if (this.me_confirmed_play===true) {
+					game_result_text="Вы проиграли!\nзакончилось время на ход!";
+					game_result=-1;	
+				} else {
+					game_result_text="Вы не дали согласия на игру!";
+					game_result=999;		
+				}
 			break;
 			
 			case 14:	
-				game_result_text="Победа!\nсоперник не сделал ход!"; //возможно пропала связь
-				var new_opponent_rating=this.calc_oppnent_new_rating(-1);
-				firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
-				game_result=1;	
+				if (this.opp_confirmed_play===true) {
+					game_result_text="Победа!\nсоперник не сделал ход!"; //возможно пропала связь
+					var new_opponent_rating=this.calc_oppnent_new_rating(-1);
+					firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
+					game_result=1;	
+				} else {
+					game_result_text="Соперник не дал согласия на игру!";
+					game_result=999;						
+				}	
 			break;
 			
 			case 15:	//я отказываюсь от игры
@@ -948,7 +968,7 @@ class game_class {
 			break;
 			
 			case 16:	//получение отказа от игры
-				game_result_text="Соперник отказался от игры!"; //возможно пропала связь
+				game_result_text="Соперник отказался от игры!";
 				game_result=999;	
 			break;
 		}
@@ -1169,6 +1189,10 @@ class game_class {
 				if (msg.message==="REFUSE")
 					this.finish_game(16);
 				
+				//получение согласия на игру
+				if (msg.message==="CONF")
+					this.opp_confirmed_play=true;
+				
 			}
 		}
 	
@@ -1356,7 +1380,8 @@ class game_class {
 		this.read_opponent_data(opp_data.uid);
 		
 		//указатель сделал ли игрок какое-либо движение шашкой
-		this.acted=false;
+		this.me_confirmed_play=false;
+		this.opp_confirmed_play=false;
 		
 		//сообщение о цвете шашек
 		var ch_col={1:"красные",2:"белые"};
@@ -1388,14 +1413,11 @@ class game_class {
 		this.board=[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 		this.redraw_board();	
 		
-		
-		
 		//отображаем информацию об игроках
 		//objects.player_name_text.text=my_data.first_name+" "+my_data.last_name;				
 		c.add_animation(objects.player_name_cont,'x',true,'easeOutCubic',-190,objects.player_name_cont.sx,0.02);
 		c.add_animation(objects.opponent_name_cont,'x',true,'easeOutCubic',M_WIDTH,objects.opponent_name_cont.sx,0.02);
 
-		
 		//включаем информацию о текущем ходе	
 		c.add_animation(objects.cur_move_cont,'x',true,'easeOutCubic',-190,objects.cur_move_cont.sx,0.02);
 		objects.cur_move_text.text="Ход";
@@ -1508,14 +1530,14 @@ class game_class {
 			
 		//отправляем ход с состоянием оппоненту
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});
-
+		
 		//проверяем не закончена ли игра
 		if (board_state!==0)
 			this.finish_game(board_state);		
 				
 		//проверяем первое действие после которого нельзя отказаться от игры
-		if (this.acted===false) {
-			this.acted=true;
+		if (this.me_confirmed_play===false) {
+			this.me_confirmed_play=true;
 			if (objects.confirm_cont.ready===true && objects.confirm_cont.visible===true) {				
 				//убираем окно отказа
 				c.add_animation(objects.confirm_cont,'y',false,'easeInCubic', objects.confirm_cont.sy,-150,0.03);				
