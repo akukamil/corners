@@ -802,6 +802,16 @@ class game_class {
 			return Math.round(opp_data.rating + 16 * (0 - Ea));
 	}
 	
+	close_leaderboard() {
+		
+		if (objects.leaderboard_cont.ready===false)
+			return;
+		
+		//убираем лидербоард
+		c.add_animation(objects.leaderboard_cont,'y',false,'easeInCubic',objects.leaderboard_cont.sy,M_HEIGHT,0.04);
+		
+	}
+		
 	close_search_window() {
 				
 		if (objects.search_opponent_window.ready===false)
@@ -1027,12 +1037,7 @@ class game_class {
 		
 	}
 
-	hide_leaderboard() {
-		
-		objects.leaderboard_cont.visible=false;
-		
-	}
-		
+	
 	mouse_down_on_board() {		
 	
 	
