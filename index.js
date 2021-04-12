@@ -827,6 +827,16 @@ class game_class {
 		c.add_animation(objects.search_opponent_window,'y',false,'easeInCubic',objects.search_opponent_window.sy,M_HEIGHT,0.04);
 	}
 	
+	close_rules() {
+				
+		if (objects.rules_cont.ready===false)
+			return;
+		
+		
+		//убираем контейнер
+		c.add_animation(objects.rules_cont,'y',false,'easeInCubic',objects.rules_cont.sy,M_HEIGHT,0.04);
+	}
+	
 	confirm_play (cp) {
 		
 		if (objects.confirm_cont.ready===false)
@@ -1036,7 +1046,6 @@ class game_class {
 		this.finish_game(11);
 		
 	}
-
 	
 	mouse_down_on_board() {		
 	
@@ -1674,6 +1683,9 @@ class game_class {
 	}
 
 	show_rules() {
+		
+		//показываем
+		c.add_animation(objects.rules_cont,'y',true,'easeOutCubic',-390, objects.rules_cont.sy,0.04);
 		
 	}
 
