@@ -755,6 +755,10 @@ class game_class {
 	}	
 	
 	add_message(text) {		
+	
+		//воспроизводим звук
+		game_res.resources.message.sound.play();
+	
 		objects.message_text.text=text;
 		objects.message_cont.visible=true;		
 	
@@ -956,7 +960,14 @@ class game_class {
 			my_data.rating=this.calc_my_new_rating(game_result);		
 			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
 			objects.player_rating_text.text=my_data.rating;		
-			game_result_text=game_result_text+"\nрейтинг: "+old_rating+" > "+my_data.rating			
+			game_result_text=game_result_text+"\nрейтинг: "+old_rating+" > "+my_data.rating		
+
+			//воспроизводим звук
+			if (game_result===-1)
+				game_res.resources.lose.sound.play();
+			else
+				game_res.resources.win.sound.play();	
+			
 		}
 	
 
@@ -1187,7 +1198,7 @@ class game_class {
 	receive_move(move_data) {
 		
 		//воспроизводим уведомление о том что соперник произвел ход
-		game_res.resources.move_snd.sound.play();
+		game_res.resources.receive_move.sound.play();
 		
 		//плавно перемещаем шашку
 		this.start_gentle_move(move_data);
@@ -1209,6 +1220,20 @@ class game_class {
 
 	}
 	
+	receive_sticker(id) {
+
+		//воспроизводим уведомление о том что соперник произвел ход
+		game_res.resources.sticker_received.sound.play();
+
+		objects.sticker_area.texture=game_res.resources['sticker_texture_'+id].texture;
+		c.add_animation(objects.sticker_area,'x',true,'easeOutCubic',M_WIDTH,objects.sticker_area.sx,0.02);
+		
+		//убираем стикер через 5 секунд
+		if (objects.sticker_area.timer_id!==undefined)
+			clearTimeout(objects.sticker_area.timer_id);		
+		objects.sticker_area.timer_id=setTimeout(()=>{c.add_animation(objects.sticker_area,'x',false,'easeInCubic',objects.sticker_area.sx,M_WIDTH,0.02);}, 5000);
+	}
+			
 	redraw_board() {	
 
 		//сначала скрываем все шашки
@@ -1395,18 +1420,7 @@ class game_class {
 		//если пользователей не нашли то через некоторое время запускаем новый поиск
 		this.search_timeout_handler=setTimeout(this.search_and_send_request.bind(this), Math.floor(Math.random()*5000)+1000);
 	}	
-		
-	sticker_received(id) {
 
-		objects.sticker_area.texture=game_res.resources['sticker_texture_'+id].texture;
-		c.add_animation(objects.sticker_area,'x',true,'easeOutCubic',M_WIDTH,objects.sticker_area.sx,0.02);
-		
-		//убираем стикер через 5 секунд
-		if (objects.sticker_area.timer_id!==undefined)
-			clearTimeout(objects.sticker_area.timer_id);		
-		objects.sticker_area.timer_id=setTimeout(()=>{c.add_animation(objects.sticker_area,'x',false,'easeInCubic',objects.sticker_area.sx,M_WIDTH,0.02);}, 5000);
-	}
-		
 	start_gentle_move(move_data) {
 		
 		//подготавливаем данные для перестановки
@@ -1787,7 +1801,14 @@ function load() {
 	
 	game_res=new PIXI.Loader();	
 	game_res.add("m2_font", "m_font.fnt");
-	game_res.add('move_snd','sound.mp3');
+	
+	game_res.add('receive_move','receive_move.mp3');
+	game_res.add('load_complete','load_complete.mp3');
+	game_res.add('receive_sticker','receive_sticker.mp3');
+	game_res.add('message','message.mp3');
+	game_res.add('lose','lose.mp3');
+	game_res.add('win','win.mp3');
+
 
 	//добавляем из листа загрузки
 	for (var i=0;i<load_list.length;i++)
