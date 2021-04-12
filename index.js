@@ -810,6 +810,7 @@ class game_class {
 		this.state="online";		
 		
 		//показываем контейнер с кнопками
+		objects.start_buttons_cont.show();
 		c.add_animation(objects.start_buttons_cont,'y',true,'easeOutCubic',-390, objects.start_buttons_cont.sy,0.02);
 		
 		//убираем контейнер с окном ожидания
