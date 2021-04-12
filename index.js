@@ -1037,6 +1037,9 @@ class game_class {
 		//если выбрана новая шашка
 		if (this.selected_checker===0)
 		{		
+	
+
+	
 			//находим шашку по координатам
 			this.selected_checker=this.get_checker_by_pos(new_x,new_y);
 						
@@ -1045,6 +1048,11 @@ class game_class {
 				objects.selected_frame.x=this.selected_checker.x;
 				objects.selected_frame.y=this.selected_checker.y;
 				objects.selected_frame.visible=true;
+				
+				//воспроизводим соответствующий звук
+				game_res.resources.move.sound.play();
+				console.log("move_sound");
+				
 				return;
 			}	
 			else
@@ -1055,7 +1063,8 @@ class game_class {
 		}
 				
 		if (this.selected_checker!==0)
-		{
+		{			
+
 			
 			//если нажали на выделенную шашку то отменяем выделение
 			if (new_x===this.selected_checker.ix && new_y===this.selected_checker.iy)
@@ -1063,6 +1072,7 @@ class game_class {
 				this.redraw_board();
 				this.selected_checker=0;
 				objects.selected_frame.visible=false;
+				
 				return;
 			}
 			
@@ -1084,6 +1094,8 @@ class game_class {
 				this.selected_checker=0;
 				objects.selected_frame.visible=false;		
 				this.who_play_next=opp_data.uid;
+				
+				
 			}
 			else
 			{
@@ -1151,7 +1163,7 @@ class game_class {
 
 				//получение стикера
 				if (msg.message==="MSG")
-					this.sticker_received(msg.data);
+					this.receive_sticker(msg.data);
 				
 				//получение отказа от игры
 				if (msg.message==="REFUSE")
@@ -1188,7 +1200,13 @@ class game_class {
 			var dy=this.checker_to_move.y-this.checker_to_move.ty;	
 			
 			var d=Math.sqrt(dx*dx+dy*dy);			
-			if (d<1) this.set_next_cell();
+			if (d<1) {
+				
+				//воспроизводим соответствующий звук
+				game_res.resources.move.sound.play();
+
+				this.set_next_cell();
+			}
 		}
 		
 		//анимация
@@ -1222,8 +1240,8 @@ class game_class {
 	
 	receive_sticker(id) {
 
-		//воспроизводим уведомление о том что соперник произвел ход
-		game_res.resources.sticker_received.sound.play();
+		//воспроизводим соответствующий звук
+		game_res.resources.receive_sticker.sound.play();
 
 		objects.sticker_area.texture=game_res.resources['sticker_texture_'+id].texture;
 		c.add_animation(objects.sticker_area,'x',true,'easeOutCubic',M_WIDTH,objects.sticker_area.sx,0.02);
@@ -1426,7 +1444,7 @@ class game_class {
 		//подготавливаем данные для перестановки
 		this.checker_to_move=this.get_checker_by_pos(move_data.x1,move_data.y1);		
 		this.move_path=get_moves_path(move_data,this.board);
-		this.target_point=0;
+		this.target_point=1;
 		this.set_next_cell();
 		
 	}
@@ -1434,6 +1452,7 @@ class game_class {
 	set_next_cell() {
 		
 
+		
 		if (this.target_point===this.move_path.length) {
 			
 			this.target_point=0;
@@ -1448,6 +1467,8 @@ class game_class {
 			
 			return;			
 		}
+		
+
 		
 		var [next_ix,next_iy]=this.move_path[this.target_point];
 		
@@ -1808,7 +1829,9 @@ function load() {
 	game_res.add('message','message.mp3');
 	game_res.add('lose','lose.mp3');
 	game_res.add('win','win.mp3');
-
+	game_res.add('click','click.mp3');
+	game_res.add('close','close.mp3');
+	game_res.add('move','move.mp3');
 
 	//добавляем из листа загрузки
 	for (var i=0;i<load_list.length;i++)
@@ -1826,6 +1849,10 @@ function load() {
 	game_res.onProgress.add(progress);
 	
 	function load_complete() {
+		
+		
+		//воспроизводим соответствующий звук
+		//game_res.resources.load_complete.sound.play();
 		
 		
 		document.getElementById("m_bar").outerHTML = "";		
