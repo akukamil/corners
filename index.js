@@ -1316,7 +1316,7 @@ class game_class {
 		this.acted=false;
 		
 		//сообщение о цвете шашек
-		var ch_col={1:"серые",2:"белые"};
+		var ch_col={1:"красные",2:"белые"};
 		this.add_message("Цвет ваших шашек: "+ch_col[this.my_checkers]);
 
 		//очищаем таймаут
@@ -1557,6 +1557,8 @@ class game_class {
 		if (objects.start_buttons_cont.ready===false)
 			return;
 				
+		objects.leaderboard_cont.show();		
+				
 		c.add_animation(objects.leaderboard_cont,'y',true,'easeOutBack',M_HEIGHT,objects.leaderboard_cont.sy,0.02);
 		
 		//обновляем или записываем информацию о рейтинге
@@ -1566,28 +1568,44 @@ class game_class {
 			}
 			else {
 				
-				var players_data=snapshot.val();
-				
-				
+				var players_data=snapshot.val();				
 				var players_array = [];
-				for (var player in players_data) {
-					players_array.push([players_data[player].first_name, players_data[player].last_name, players_data[player].rating]);
-				}
+				for (var player in players_data)
+					players_array.push([players_data[player].first_name, players_data[player].last_name, players_data[player].rating, players_data[player].pic_url]);
 
 				players_array.sort(function(a, b) {	return b[2] - a[2];});
 				
 				
-				let len=Math.min(5,players_array.length);
+				//загружаем аватар соперника
+				var loaderOptions = {loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE};
+				var loader = new PIXI.Loader(); // PixiJS exposes a premade instance for you to use.
+				
+				
+				
+				
+				var len=Math.min(5,players_array.length);
 				for (let i=0;i<len;i++) {
 					let player_name=players_array[i][0]+" "+players_array[i][1];					
 					player_name = player_name.length > 18 ?  player_name.substring(0, 15) + "..." : player_name;
 					
-					eval(`objects.list${i}.player_name_text`).text=player_name;
-					eval(`objects.list${i}.player_rating_text`).text=players_array[i][2];
-				}
+					objects['leaders_name_text_'+i].text=player_name;
+					objects['leaders_rating_text_'+i].text=players_array[i][2];
+					
+					loader.add('leaders_avatar_'+i, players_array[i][3],loaderOptions);
+				};
+				
+				
+				loader.load((loader, resources) => {
+					for (let i=0;i<len;i++)						
+						objects['leaders_avatar_'+i].texture=resources['leaders_avatar_'+i].texture;
+				});
 			}
 
 		});
+		
+		
+		
+		
 		
 		
 	}
