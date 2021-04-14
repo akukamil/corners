@@ -2483,8 +2483,10 @@ function load_vk() {
 function load_yandex() {
 		
 		
-	YaGames.init().then(ysdk => {console.log("yandex") }).catch(err => {
-        console.log(err);
+	YaGames.init().then(ysdk => {
+		console.log("yandex",ysdk)
+		}).catch(err => {
+        console.log("error ",err);
     });
 }
 
