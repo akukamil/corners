@@ -2482,10 +2482,10 @@ function load_vk() {
 
 function load_yandex() {
 		
-		/*
+		
 	YaGames.init().then(ysdk => {console.log("yandex") }).catch(err => {
         console.log(err);
-    });;*/
+    });
 }
 
 
