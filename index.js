@@ -1,5 +1,5 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}; 
+var app, game_res, game, objects={}, minimax_solver; 
 
 var my_data={},opp_data={};
 var valid_moves;
@@ -11,6 +11,7 @@ const c2 = c1 * 1.525;
 const c3 = c1 + 1;
 const c4 = (2 * Math.PI) / 3;
 const c5 = (2 * Math.PI) / 4.5;
+
 
 
 class list_item_class {
@@ -341,13 +342,239 @@ function get_valid_moves(ix,iy,board_data){
 			left_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));			
 		}
 	}
-			
 		
 	valid_moves=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
+
 	left(ix,iy,JSON.parse(JSON.stringify(board_data)));
 	right(ix,iy,JSON.parse(JSON.stringify(board_data)));
 	up(ix,iy,JSON.parse(JSON.stringify(board_data)));
 	down(ix,iy,JSON.parse(JSON.stringify(board_data)));
+}
+
+function get_childs(board_data, checkers){
+			
+	function clone_board(board) {
+		
+		r_board=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
+		for (let y=0;y<8;y++)
+			for (let x=0;x<8;x++)
+				r_board[y][x]=board[y][x];
+		return r_board;
+	}
+	
+	function check_in_hist(x,y, hist) {		
+		for (let i=0;i<hist.length;i++)
+			if (x===hist[i][0] && y===hist[i][1])
+				return true;
+		return false;
+	}
+	
+	function left(ix,iy,cur_board,moves_hist,boards_array) {
+		
+		var new_x=ix-1;
+		var new_y=iy;
+		
+		if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;		
+		
+		if (cur_board[new_y][new_x]===0) {						
+			cur_board[iy][ix]=0;
+			cur_board[new_y][new_x]=checkers;						
+			boards_array.push([cur_board,ix,iy,new_x,new_y]);
+			return;
+		}
+		else {
+			left_combo(ix,iy,cur_board,moves_hist,boards_array);
+		}		
+	}
+	
+	function right(ix,iy,cur_board,moves_hist,boards_array) {
+		var new_x=ix+1;
+		var new_y=iy;
+		
+		if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;		
+		
+		if (cur_board[new_y][new_x]===0) {
+			cur_board[iy][ix]=0;
+			cur_board[new_y][new_x]=checkers;						
+			boards_array.push([cur_board,ix,iy,new_x,new_y]);
+			return			
+		} else {
+			right_combo(ix,iy,cur_board,moves_hist,boards_array);
+		}	
+	}
+	
+	function up(ix,iy,cur_board,moves_hist,boards_array){
+		var new_x=ix;
+		var new_y=iy-1;
+		
+		if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;		
+		
+		if (cur_board[new_y][new_x]===0) {
+			cur_board[iy][ix]=0;
+			cur_board[new_y][new_x]=checkers;						
+			boards_array.push([cur_board,ix,iy,new_x,new_y]);
+			return			
+		} else {
+			up_combo(ix,iy,cur_board,moves_hist,boards_array);
+		}		
+	}
+	
+	function down(ix,iy,cur_board,moves_hist,boards_array){
+		var new_x=ix;
+		var new_y=iy+1;
+		
+		if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;		
+		
+		if (cur_board[new_y][new_x]===0) {
+			cur_board[iy][ix]=0;
+			cur_board[new_y][new_x]=checkers;						
+			boards_array.push([cur_board,ix,iy,new_x,new_y]);
+			return			
+		} else {
+			down_combo(ix,iy,cur_board,moves_hist,boards_array);
+		}	
+	}
+	
+	function left_combo(ix,iy,cur_board,moves_hist,boards_array) {
+		
+		var new_x=ix-2;
+		var new_y=iy;
+		
+		if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;		
+		if (cur_board[iy][ix-1]===0) return;						
+				
+		if (cur_board[new_y][new_x]===0)
+		{
+			
+			if (check_in_hist(new_x,new_y,moves_hist)===true) return;
+			
+			moves_hist.push([ix,iy]);
+			cur_board[new_y][new_x]=cur_board[iy][ix];
+			cur_board[iy][ix]=0;
+				
+			let d_move=(new_x-moves_hist[0][0])+(new_y-moves_hist[0][1]);
+			if (cur_board[new_y][new_x]===1)
+				d_move=-d_move;
+			
+			if (d_move>-3)
+				boards_array.push([clone_board(cur_board),moves_hist[0][0],moves_hist[0][1],new_x,new_y]);
+			
+			//продолжаем попытки комбо
+			left_combo(new_x,new_y,cur_board,moves_hist,boards_array);
+			up_combo(new_x,new_y,cur_board,moves_hist,boards_array);
+			down_combo(new_x,new_y,cur_board,moves_hist,boards_array);
+		}
+	}
+	
+	function right_combo(ix,iy,cur_board,moves_hist,boards_array) {
+		
+		var new_x=ix+2;
+		var new_y=iy;
+		
+		if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;		
+		if (cur_board[iy][ix+1]===0) return;		
+				
+		if (cur_board[new_y][new_x]===0)
+		{
+			
+			if (check_in_hist(new_x,new_y,moves_hist)===true) return;
+			
+			moves_hist.push([ix,iy]);
+			cur_board[new_y][new_x]=cur_board[iy][ix];
+			cur_board[iy][ix]=0;
+			
+			let d_move=(new_x-moves_hist[0][0])+(new_y-moves_hist[0][1]);
+			if (cur_board[new_y][new_x]===1)
+				d_move=-d_move;
+			
+			if (d_move>-3)
+				boards_array.push([clone_board(cur_board),moves_hist[0][0],moves_hist[0][1],new_x,new_y]);
+			
+			//продолжаем попытки комбо
+			right_combo(new_x,new_y,cur_board,moves_hist,boards_array);
+			up_combo(new_x,new_y,cur_board,moves_hist,boards_array);
+			down_combo(new_x,new_y,cur_board,moves_hist,boards_array);			
+		}
+	}
+	
+	function up_combo(ix,iy,cur_board,moves_hist,boards_array) {
+		
+		var new_x=ix;
+		var new_y=iy-2;
+		
+		if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;		
+		if (cur_board[iy-1][ix]===0) return;		
+		
+		if (cur_board[new_y][new_x]===0)
+		{
+			
+			if (check_in_hist(new_x,new_y,moves_hist)===true) return;
+			
+			moves_hist.push([ix,iy]);
+			cur_board[new_y][new_x]=cur_board[iy][ix];
+			cur_board[iy][ix]=0;
+			
+			let d_move=(new_x-moves_hist[0][0])+(new_y-moves_hist[0][1]);
+			if (cur_board[new_y][new_x]===1)
+				d_move=-d_move;
+			
+			if (d_move>-3)
+				boards_array.push([clone_board(cur_board),moves_hist[0][0],moves_hist[0][1],new_x,new_y]);
+			
+			//продолжаем попытки комбо
+			right_combo(new_x,new_y,cur_board,moves_hist,boards_array);
+			up_combo(new_x,new_y,cur_board,moves_hist,boards_array);
+			left_combo(new_x,new_y,cur_board,moves_hist,boards_array);			
+		}
+	}
+	
+	function down_combo(ix,iy,cur_board,moves_hist,boards_array) {
+		
+		var new_x=ix;
+		var new_y=iy+2;
+		
+		if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;		
+		if (cur_board[iy+1][ix]===0) return;		
+		
+		if (cur_board[new_y][new_x]===0)
+		{
+			if (check_in_hist(new_x,new_y,moves_hist)===true) return;
+			
+			moves_hist.push([ix,iy]);
+			cur_board[new_y][new_x]=cur_board[iy][ix];
+			cur_board[iy][ix]=0;
+			
+			let d_move=(new_x-moves_hist[0][0])+(new_y-moves_hist[0][1]);
+			if (cur_board[new_y][new_x]===1)
+				d_move=-d_move;
+			
+			if (d_move>-3)
+				boards_array.push([clone_board(cur_board),moves_hist[0][0],moves_hist[0][1],new_x,new_y]);
+			
+			//продолжаем попытки комбо
+			right_combo(new_x,new_y,cur_board,moves_hist,boards_array);
+			down_combo(new_x,new_y,cur_board,moves_hist,boards_array);
+			left_combo(new_x,new_y,cur_board,moves_hist,boards_array);			
+		}
+	}
+	
+	var boards_array=[];
+	
+	for (let y=0;y<8;y++) {
+		for (let x=0;x<8;x++) {			
+			if (board_data[y][x]===checkers) {
+				var moves_hist=[[x,y]];
+				left	(		x,y,	clone_board(board_data),	moves_hist, boards_array);
+				right	(		x,y,	clone_board(board_data),	moves_hist, boards_array);
+				up		(		x,y,	clone_board(board_data),	moves_hist, boards_array);
+				down	(		x,y,	clone_board(board_data),	moves_hist, boards_array);					
+			}
+		}
+	}
+	
+	
+	return boards_array;
+
 }
 
 function get_moves_path(move_data, board_data){
@@ -616,6 +843,206 @@ function get_moves_path(move_data, board_data){
 	return g_archive;
 }
 	
+class minimax_solver_class {
+	
+	constructor() {
+		
+		this.bad_2=[[19.119,17.822,16.664,15.678,14.896,14.351,14.071,14.071],[17.705,16.295,15.021,13.919,13.033,12.408,12.083,12.083],[16.412,14.881,13.474,12.234,11.216,10.484,10.099,10.099],[15.273,13.614,12.06,10.657,9.472,8.595,8.123,8.123],[14.324,12.539,10.831,9.243,7.849,6.768,6.162,6.162],[13.605,11.71,9.857,8.078,5.434,4.064,3.236,3.236],[13.154,11.182,9.222,7.285,4.398,2.65,1.414,1.414],[13,11,9,7,4,2,0,0]];
+		this.bad_1=[[0,0,2,4,7,9,11,13],[1.414,1.414,2.65,4.398,7.285,9.222,11.182,13.154],[3.236,3.236,4.064,5.434,8.078,9.857,11.71,13.605],[6.162,6.162,6.768,7.849,9.243,10.831,12.539,14.324],[8.123,8.123,8.595,9.472,10.657,12.06,13.614,15.273],[10.099,10.099,10.484,11.216,12.234,13.474,14.881,16.412],[12.083,12.083,12.408,13.033,13.919,15.021,16.295,17.705],[14.071,14.071,14.351,14.896,15.678,16.664,17.822,19.119]];
+		this.bad_2_=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
+		this.bad_1_=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
+	}
+	
+	update_weights_board() {
+		
+		for (let y=0;y<8;y++) {
+			for (let x=0;x<8;x++) {
+				this.bad_2_[y][x]=Math.pow(this.bad_2[y][x],1+game.move/30);				
+				this.bad_1_[y][x]=Math.pow(this.bad_1[y][x],1+game.move/100);	
+				
+			}
+		}
+
+		
+	}
+	
+	how_bad_board_2(board, move) {
+
+		var bad_val_2=0;
+		var bad_val_1=0;
+						
+		for (let y=0;y<8;y++) {
+			for (let x=0;x<8;x++) {			
+			
+				if (board[y][x]===2)
+					bad_val_2+=this.bad_2_[y][x];	
+				
+				if (board[y][x]===1)
+					bad_val_1+=this.bad_1[y][x];	
+			}
+		}				
+				
+		return bad_val_2;
+	}
+		
+	minimax_3(board,move) {
+				
+				
+		this.update_weights_board();
+		var m_data={};
+		
+		var min_bad_0=9999999;	
+		var childs0=get_childs(board,2);		
+		for (let c0=0;c0<childs0.length;c0++) {
+
+				
+			var max_bad_1=-9999999;
+			var childs1=get_childs(childs0[c0][0],1);
+			for (let c1=0;c1<childs1.length;c1++) {
+
+				
+				var min_bad_2=9999999;
+				var childs2=get_childs(childs1[c1][0],2);
+				for (let c2=0;c2<childs2.length;c2++) {
+					
+					var cur_val=this.how_bad_board_2(childs2[c2][0],move+2);
+					
+				min_bad_2=Math.min(cur_val,min_bad_2);
+				if (min_bad_2<max_bad_1)
+					break;
+				}
+				
+			max_bad_1=Math.max(max_bad_1,min_bad_2);
+			if (max_bad_1>min_bad_0)
+				break;
+			}
+			
+
+		if (min_bad_0>max_bad_1) {
+			min_bad_0=max_bad_1;
+			m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
+		}		
+		}
+		
+
+		return m_data;
+
+	}
+	
+	minimax_4(board) {
+				
+				
+		this.update_weights_board();
+		var m_data={};
+		
+		var min_bad_0=99999;	
+		var childs0=get_childs(board,2);		
+		for (let c0=0;c0<childs0.length;c0++) {
+
+				
+			var max_bad_1=-99999;
+			var childs1=get_childs(childs0[c0][0],1);
+			for (let c1=0;c1<childs1.length;c1++) {
+
+				
+				var min_bad_2=99999;
+				var childs2=get_childs(childs1[c1][0],2);
+				for (let c2=0;c2<childs2.length;c2++) {
+					
+					
+					var max_bad_3=-99999;
+					var childs3=get_childs(childs2[c2][0],1);
+					for (let c3=0;c3<childs3.length;c3++) {
+						
+						var cur_val=this.how_bad_board_2(childs3[c3][0]);
+								
+						
+					max_bad_3=Math.max(cur_val,max_bad_3);
+					if (max_bad_3>min_bad_2)
+						break;
+					}
+
+					
+				min_bad_2=Math.min(cur_val,min_bad_2);
+				if (min_bad_2<max_bad_1)
+					break;
+				}
+				
+			max_bad_1=Math.max(max_bad_1,min_bad_2);
+			if (max_bad_1>min_bad_0)
+				break;
+			}
+			
+
+		if (min_bad_0>max_bad_1) {
+			min_bad_0=max_bad_1;
+			m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
+		}		
+		}
+		
+
+		return m_data;
+
+	}
+	
+	minimax_4_single(board) {
+				
+				
+		this.update_weights_board();
+		var m_data={};
+		var min_bad=99999;
+		var min_depth=999;
+		
+		var childs0=get_childs(board,2);		
+		for (let c0=0;c0<childs0.length;c0++) {
+			let val=this.how_bad_board_2(childs0[c0][0]);
+			if (val===min_bad && min_depth>1) {
+				min_depth=1;
+				m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
+			}		
+			if (val<min_bad) {
+				min_bad=val;
+				m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
+			}
+
+			
+
+			var childs1=get_childs(childs0[c0][0],2);
+			for (let c1=0;c1<childs1.length;c1++) {
+				let val=this.how_bad_board_2(childs1[c1][0]);				
+				if (val===min_bad && min_depth>2) {
+					min_depth=2;
+					m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
+				}				
+				if (val<min_bad) {
+					min_bad=val;
+					m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
+				}
+
+				
+				var childs2=get_childs(childs1[c1][0],2);
+				for (let c2=0;c2<childs2.length;c2++) {
+					let val=this.how_bad_board_2(childs2[c2][0]);
+					if (val<min_bad) {
+						min_bad=val;
+						min_depth=3;
+						m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
+					}
+
+				}
+
+			}
+
+		}
+		
+
+		return m_data;
+
+	}
+	
+	
+	
+}
 	
 
 {//здесь функции для работы с состоянием доски
@@ -664,8 +1091,6 @@ function any_home(boardv, checker) {
 	return 0;	
 }
 
-
-
 function get_board_state(board, cur_move) {	
 	
 	var w1=finished1(board);
@@ -683,6 +1108,10 @@ function get_board_state(board, cur_move) {
 class game_class {	
 	
 	constructor() {		
+		
+		//тип игры
+		this.bot_play=false;
+		
 		
 		//имя оппонента
 		opp_data.uid="";
@@ -1018,8 +1447,106 @@ class game_class {
 		this.state="online";
 		
 		//устанавливаем статус в базе данных
-		firebase.database().ref("states/"+my_data.uid).set("online");	
+		firebase.database().ref("states/"+my_data.uid).set("online");		
+	}
 		
+	finish_game_bot(state) {
+		
+		
+		objects.game_buttons_cont.visible=false;
+		
+		objects.cur_move_cont.visible=false;
+		objects.opponent_name_cont.visible=false;
+		objects.whose_move_cont.visible=false;
+		objects.confirm_cont.visible=false;		
+		
+		//показываем сколько игроков онлайн
+		objects.online_users_text.visible=true;
+		
+		//показыаем главное меню
+		objects.start_buttons_cont.show();
+
+		c.add_animation(objects.start_buttons_cont,'y',true,'easeOutBack',M_HEIGHT,objects.start_buttons_cont.sy,0.02);
+		objects.start_buttons_cont.alpha=0.7;
+				
+		var game_result=0;
+		var game_result_text="";
+		
+		switch (state) {
+			
+			case 1: // шашки 1 завершили игру
+				if (this.my_checkers===1)	{
+					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
+					game_result=1;	
+				}
+				else	{
+					game_result_text="Вы проиграли\nоппонент быстрее Вас перевел шашки в новый дом";	
+					game_result=-1;	
+				}
+				
+			break;
+			
+			case 2:	// шашки 2 завершили игру
+				if (this.my_checkers===2)	{
+					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
+					game_result=1;	
+				}
+				else	{
+					game_result_text="Вы проиграли!\nоппонент быстрее Вас перевел шашки в новый дом";	
+					game_result=-1;	
+				}
+			break;
+			
+			case 3:	// шашки 1 и 2 завершили игру
+				game_result_text="НИЧЬЯ!";
+				game_result=0;	
+			break;
+			
+			case 4: // шашки 2 не успели вывести из дома за 30 ходов
+				if (this.my_checkers===1)	{
+					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
+					game_result=1;	
+				}
+				else	{
+					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";	
+					game_result=-1;	
+				}
+			break;
+			
+			case 5:	// шашки 1 не успели вывести из дома за 30 ходов
+				if (this.my_checkers===2)	{
+					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
+					game_result=1;	
+				}
+				else	{
+					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";	
+					game_result=-1;	
+				}
+			break;
+			
+			case 9:	// шашки 1 и 2 не успели вывести из дома за 30 ходов
+				game_result_text="НИЧЬЯ!\nникто не успел вывести шашки из дома за 30 ходов";
+				game_result=0;	
+			break;
+			
+			case 10:	
+				game_result_text="Победа!\nСоперник сдался!";
+				game_result=1;	
+			break;
+		}
+		
+	
+
+		//воспроизводим звук
+		if (game_result===-1)
+			game_res.resources.lose.sound.play();
+		else
+			game_res.resources.win.sound.play();	
+
+		this.add_big_message(game_result_text);
+		
+		opp_data.uid="";
+	
 	}
 			
 	get_checker_by_pos(x,y) {		
@@ -1045,6 +1572,38 @@ class game_class {
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:10}});
 		this.finish_game(11);
 		
+	}
+	
+	make_bot_move() {
+				
+		//обновляем текущий ход		
+		this.move++;
+		objects.cur_move_text.text="Сделано ходов: "+this.move;
+		
+		if (game.move>30)
+			var move_data=minimax_solver.minimax_4_single(this.board,2);
+		else
+			var move_data=minimax_solver.minimax_3(this.board,this.move);
+		
+		//предварительно создаем доску для проверки завершения
+		let new_board = JSON.parse(JSON.stringify(this.board));
+		let {x1,y1,x2,y2}=move_data;
+		[new_board[y1][x1],new_board[y2][x2]]=[new_board[y2][x2],new_board[y1][x1]];
+		var board_state=get_board_state(new_board, this.move);
+				
+		//проверяем не закончена ли игра
+		if (board_state!==0)
+			this.finish_game_bot(board_state);	
+		
+		//воспроизводим уведомление о том что соперник произвел ход
+		game_res.resources.receive_move.sound.play();
+		
+		//плавно перемещаем шашку
+		this.start_gentle_move(move_data);
+						
+		//обозначаем кто ходит
+		this.who_play_next=my_data.uid;		
+		this.who_play_next_text="Ваш ход";
 	}
 	
 	mouse_down_on_board() {		
@@ -1111,7 +1670,7 @@ class game_class {
 				return;
 			}
 			
-			//получаем перечень досупных ходов для проверки
+			//получаем перечень доступных ходов для проверки
 			get_valid_moves(this.selected_checker.ix,this.selected_checker.iy,this.board);
 			
 			if (valid_moves[new_y][new_x]===1)
@@ -1124,12 +1683,12 @@ class game_class {
 				this.start_gentle_move(m_data);
 				
 				//отправляем обновленное сосотяние доски оппоненту
-				this.send_move(m_data);		
+				if (this.bot_play===false)
+					this.send_move(m_data);		
 				
 				this.selected_checker=0;
 				objects.selected_frame.visible=false;		
-				this.who_play_next=opp_data.uid;
-				
+				this.who_play_next=opp_data.uid;				
 				
 			}
 			else
@@ -1224,10 +1783,8 @@ class game_class {
 		
 		
 		//анимируем окно ожидания соперника
-		if (objects.search_opponent_window.visible===true) {
-			
+		if (objects.search_opponent_window.visible===true)
 			objects.search_opponent_progress.rotation+=0.1;
-		}
 		
 		//двигаем шашку 
 		if (this.target_point!==0) {
@@ -1377,8 +1934,40 @@ class game_class {
 		
 	}
 	
+	search_and_send_request() {
+			
+		if (this.state!=="idle") return;
+			
+
+		for (var player_id in this.players_states) {
+
+			if (player_id!==my_data.uid && this.players_states[player_id]==="idle")	{			
+				firebase.database().ref("inbox/"+player_id).set({sender:my_data.uid,message:"REQ",timestamp:Date.now(),data:"-"});	
+				this.pending_player=player_id;
+				this.state="wait_response";
+				this.wait_start=Date.now();
+				console.log("sent REQ to "+player_id);
+				return;
+			}
+		}
+		
+		//если пользователей не нашли то через некоторое время запускаем новый поиск
+		this.search_timeout_handler=setTimeout(this.search_and_send_request.bind(this), Math.floor(Math.random()*5000)+1000);
+	}	
+
+	start_gentle_move(move_data) {
+		
+		//подготавливаем данные для перестановки
+		this.checker_to_move=this.get_checker_by_pos(move_data.x1,move_data.y1);		
+		this.move_path=get_moves_path(move_data,this.board);
+		this.target_point=1;
+		this.set_next_cell();
+		
+	}
+	
 	start_game(opp_uid, checkers, who_next) {
 
+		this.bot_play=false;
 		this.state="playing";
 		
 		opp_data.uid=opp_uid;
@@ -1406,7 +1995,6 @@ class game_class {
 		this.move_start_time=Date.now()+30000;
 		clearTimeout(this.search_timeout_handler);
 		this.move_ticker=setTimeout(this.timer_tick.bind(this), 1000);
-
 		
 		//добавляем окно подтверждения игры
 		c.add_animation(objects.confirm_cont,'y',true,'easeOutCubic', -150,objects.confirm_cont.sy,0.02);
@@ -1454,38 +2042,69 @@ class game_class {
 		//тикер хода
 		this.move=0;
 	}
-		
-	search_and_send_request() {
 			
-		if (this.state!=="idle") return;
+	start_bot_play() {
+		
+		
+		this.bot_play=true;
+		
+		this.state="playing";
+				
+		this.my_checkers = 1;
+		this.who_play_next=my_data.uid;
+		this.selected_checker=0;
+		
+		
+		//убираем информацию о том сколько игроков онлайн
+		objects.online_users_text.visible=false;
+		
+		//нужно загрузить данные о сопернике и его фото
+		objects.opponent_name_text.text="БОТ";
+		objects.opponent_rating_text.text="рейтинг";
+		
+		
+		//сообщение о цвете шашек
+		var ch_col={1:"красные",2:"белые"};
+		this.add_message("Цвет ваших шашек: "+ch_col[this.my_checkers]);
+
+		//очищаем таймаут
+		//this.move_start_time=Date.now()+30000;
+		//clearTimeout(this.search_timeout_handler);
+		//this.move_ticker=setTimeout(this.timer_tick.bind(this), 1000);
+						
+		//убираем контейнер с кнопками
+		if (objects.start_buttons_cont.visible===true)
+			c.add_animation(objects.start_buttons_cont,'y',false,'easeInCubic',objects.start_buttons_cont.sy,M_HEIGHT,0.02);
+					
+
+		//устанавливаем начальное расположение шашек на доске
+		this.board=[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+		this.redraw_board();	
+		
+		//отображаем информацию об игроках
+		c.add_animation(objects.player_name_cont,'x',true,'easeOutCubic',-190,objects.player_name_cont.sx,0.02);
+		c.add_animation(objects.opponent_name_cont,'x',true,'easeOutCubic',M_WIDTH,objects.opponent_name_cont.sx,0.02);
+
+		//включаем информацию о текущем ходе	
+		c.add_animation(objects.cur_move_cont,'x',true,'easeOutCubic',-190,objects.cur_move_cont.sx,0.02);
+		objects.cur_move_text.text="Ход";
+		
+		
+		//обозначаем кто ходит
+		c.add_animation(objects.whose_move_cont,'y',true,'easeOutCubic',-200,objects.whose_move_cont.sy,0.02);
+				
+		if (this.who_play_next===my_data.uid)
+			this.who_play_next_text="Ваш ход";
+		else
+			this.who_play_next_text="Ход соперника";
+		
+		objects.text_4.text=this.who_play_next_text+" (30)";
+		
+		
+		//тикер хода
+		this.move=0;
+	}		
 			
-
-		for (var player_id in this.players_states) {
-
-			if (player_id!==my_data.uid && this.players_states[player_id]==="idle")	{			
-				firebase.database().ref("inbox/"+player_id).set({sender:my_data.uid,message:"REQ",timestamp:Date.now(),data:"-"});	
-				this.pending_player=player_id;
-				this.state="wait_response";
-				this.wait_start=Date.now();
-				console.log("sent REQ to "+player_id);
-				return;
-			}
-		}
-		
-		//если пользователей не нашли то через некоторое время запускаем новый поиск
-		this.search_timeout_handler=setTimeout(this.search_and_send_request.bind(this), Math.floor(Math.random()*5000)+1000);
-	}	
-
-	start_gentle_move(move_data) {
-		
-		//подготавливаем данные для перестановки
-		this.checker_to_move=this.get_checker_by_pos(move_data.x1,move_data.y1);		
-		this.move_path=get_moves_path(move_data,this.board);
-		this.target_point=1;
-		this.set_next_cell();
-		
-	}
-	
 	set_next_cell() {
 		
 
@@ -1501,6 +2120,10 @@ class game_class {
 			[this.board[ty][tx],this.board[sy][sx]]=[this.board[sy][sx],this.board[ty][tx]];
 			
 			this.redraw_board();
+			
+			//если в режиме бота то делаем ход ботом
+			if(this.bot_play===true && this.who_play_next===opp_data.uid)
+				this.make_bot_move();
 			
 			return;			
 		}
@@ -1620,7 +2243,9 @@ class game_class {
 	show_main_menu() {
 				
 		objects.start_buttons_cont.show();
+		
 		c.add_animation(objects.start_buttons_cont,'y',true,'easeOutBack',M_HEIGHT,objects.start_buttons_cont.sy,0.02);
+		
 	}
 
 	show_leaderboard() {
@@ -1817,8 +2442,7 @@ var callback_from_ok = function(method,result,data){
 };
 
 function load_vk() {
-	
-	
+		
 	if(window.name==="") {
 		//вк не работают устанавливаем тестовый вариант
 		my_data.uid="id"+prompt('Введите ID', 'id000001111');;
@@ -1856,8 +2480,21 @@ function load_vk() {
 	}
 }
 
+function load_yandex() {
+		
+		/*
+	YaGames.init().then(ysdk => {console.log("yandex") }).catch(err => {
+        console.log(err);
+    });;*/
+}
+
+
+
 function load() {
 	
+	
+	var t_board=[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+	var res=get_childs(t_board,1);
 	
 	
 	game_res=new PIXI.Loader();	
@@ -1890,6 +2527,8 @@ function load() {
 	
 	function load_complete() {
 		
+		
+		minimax_solver=new minimax_solver_class();
 		
 		//воспроизводим соответствующий звук
 		//game_res.resources.load_complete.sound.play();
