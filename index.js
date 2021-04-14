@@ -2484,7 +2484,7 @@ function load_yandex() {
 		
 		
 YaGames
-    .init(options)
+    .init()
     .then(ysdk => {
         alert("sdgfsdg");
     });
