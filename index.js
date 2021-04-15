@@ -2483,11 +2483,14 @@ function load_vk() {
 function load_yandex() {
 		
 	YaGames.init({}).then(ysdk => {
+		alert("инит яндекса завершен");
 		console.log("инит яндекса завершен");   
 
 		ysdk.getPlayer().then(_player => {
+			alert("ok player");
 			console.log(_player);       
 		    }).catch(err => {
+			alert("ошибка игрока");
 			console.log("ошибка игрока");   
 		    });
 
