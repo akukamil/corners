@@ -2482,12 +2482,16 @@ function load_vk() {
 
 function load_yandex() {
 		
-		
-        YaGames.init({
-         })
-        .then(ysdk => {
-		alert("ok");
-        });
+	YaGames.init({}).then(ysdk => {
+		console.log("инит яндекса завершен");   
+
+		ysdk.getPlayer().then(_player => {
+			console.log(_player);       
+		    }).catch(err => {
+			console.log("ошибка игрока");   
+		    });
+
+	});
 }
 
 
