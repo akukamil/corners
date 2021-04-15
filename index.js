@@ -2483,11 +2483,11 @@ function load_vk() {
 function load_yandex() {
 		
 		
-YaGames
-    .init()
-    .then(ysdk => {
-        alert("sdgfsdg");
-    });
+        YaGames.init({
+         })
+        .then(ysdk => {
+		alert("ok");
+        });
 }
 
 
