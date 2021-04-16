@@ -4,6 +4,7 @@ var app, game_res, game, objects={}, minimax_solver;
 var my_data={},opp_data={};
 var valid_moves;
 var g_process=()=>{};
+var is_multiplayer=true;;
 
 //анимации
 const c1 = 1.70158;
@@ -1459,6 +1460,7 @@ class game_class {
 		objects.opponent_name_cont.visible=false;
 		objects.whose_move_cont.visible=false;
 		objects.confirm_cont.visible=false;		
+		objects.finish_game_button_cont.visible=false;		
 		
 		//показываем сколько игроков онлайн
 		objects.online_users_text.visible=true;
@@ -1467,7 +1469,7 @@ class game_class {
 		objects.start_buttons_cont.show();
 
 		c.add_animation(objects.start_buttons_cont,'y',true,'easeOutBack',M_HEIGHT,objects.start_buttons_cont.sy,0.02);
-		objects.start_buttons_cont.alpha=0.7;
+		objects.start_buttons_cont.alpha=0.8;
 				
 		var game_result=0;
 		var game_result_text="";
@@ -1532,6 +1534,11 @@ class game_class {
 			case 10:	
 				game_result_text="Победа!\nСоперник сдался!";
 				game_result=1;	
+			break;
+			
+			case 11:	
+				game_result_text="Игра закончена!";
+				game_result=-1;	
 			break;
 		}
 		
@@ -2060,7 +2067,8 @@ class game_class {
 		
 		//нужно загрузить данные о сопернике и его фото
 		objects.opponent_name_text.text="БОТ";
-		objects.opponent_rating_text.text="рейтинг";
+		objects.opponent_rating_text.visible=false;
+		objects.finish_game_button_cont.visible=true;	
 		
 		
 		//сообщение о цвете шашек
@@ -2423,33 +2431,12 @@ function change_theme() {
 }
 
 
-var callback_from_ok = function(method,result,data){
-	
-	if (result) {
-			
-		//создаем данные об игроке
-		//firebase.database().ref("players/"+[result.uid]).set({first_name:result.first_name,last_name:result.last_name,pic_url:result.pic_url});
-		
-		
-		//получаем информацию об игроке из одноклассников
-		my_uid=result.uid;		
-		my_first_name=result.first_name;
-		my_avatar_url=result.pic_url;
-
-		//alert("добро пожаловать "+my_first_name);
-		load();
-	}
-};
-
 function load_vk() {
 		
 	if(window.name==="") {
 		//вк не работают устанавливаем тестовый вариант
-		my_data.uid="id"+prompt('Введите ID', 'id000001111');;
-		my_data.first_name="first_name";		
-		my_data.last_name="last_name";	
-		my_data.rating=0;
-		my_data.pic_url="https://i.mycdn.me/i?r=AzEPZsRbOZEKgBhR0XGMT1RkIpjnEpcRUsgZX-7yaqP7KqaKTM5SRkZCeTgDn6uOyic";
+		my_data.first_name='Я';
+		is_multiplayer=false;
 		load();
 	}
 	else {
@@ -2464,7 +2451,7 @@ function load_vk() {
 					function (data) {
 						my_data.first_name=data.response[0].first_name;
 						my_data.last_name=data.response[0].last_name;
-						my_data.uid="id"+data.response[0].id;
+						my_data.uid="vk"+data.response[0].id;
 						my_data.pic_url=data.response[0].photo_100;
 						my_data.rating=0;
 						load();
@@ -2483,11 +2470,28 @@ function load_vk() {
 function load_yandex() {
 		
 		
-YaGames
-    .init()
-    .then(ysdk => {
-        alert("sdgfsdg");
-    });
+	YaGames.init({}).then(ysdk => {
+
+		ysdk.getPlayer().then(_player => {			
+			
+			player = _player;   
+			
+			my_data.first_name=player.getName();
+			my_data.last_name='';
+			my_data.uid=player.getUniqueID();
+			my_data.pic_url=player.getPhoto('medium');
+			my_data.rating=0;
+			load();
+			
+		}).catch(err => {
+			my_data.first_name='Я';
+			is_multiplayer=false;
+			load();
+		});
+
+	});
+		
+	
 }
 
 
@@ -2650,6 +2654,14 @@ function load() {
 			objects.my_avatar.texture = resources.my_avatar.texture;
 			
 		});
+		
+		
+		//отключаем кнопку мультиплеера
+		if (is_multiplayer===false) {			
+			objects.start_game_button.pointerdown=function(){game.add_message("Это только для авторизованых пользователей")};			
+			objects.player_name_text.text='Я';
+		}
+
 		
 		//запускаем главный цикл
 		main_loop(); 		
