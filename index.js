@@ -2027,6 +2027,7 @@ class game_class {
 		//objects.player_name_text.text=my_data.first_name+" "+my_data.last_name;				
 		c.add_animation(objects.player_name_cont,'x',true,'easeOutCubic',-190,objects.player_name_cont.sx,0.02);
 		c.add_animation(objects.opponent_name_cont,'x',true,'easeOutCubic',M_WIDTH,objects.opponent_name_cont.sx,0.02);
+		objects.opponent_name_cont.show();
 
 		//включаем информацию о текущем ходе	
 		c.add_animation(objects.cur_move_cont,'x',true,'easeOutCubic',-190,objects.cur_move_cont.sx,0.02);
@@ -2068,6 +2069,7 @@ class game_class {
 		//нужно загрузить данные о сопернике и его фото
 		objects.opponent_name_text.text="БОТ";
 		objects.opponent_rating_text.visible=false;
+		objects.opponent_avatar.visible=false;
 		objects.finish_game_button_cont.visible=true;	
 		
 		
