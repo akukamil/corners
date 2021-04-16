@@ -2437,7 +2437,7 @@ function load_vk() {
 		//вк не работают устанавливаем тестовый вариант
 		my_data.first_name='Я';
 		is_multiplayer=false;
-		load();
+		load(); 
 	}
 	else {
 		VK.init(
