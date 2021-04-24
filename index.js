@@ -1693,22 +1693,7 @@ class game_class {
 			
 		//убираем контейнер
 		c.add_animation(objects.big_message_cont,'y',false,'easeInCubic',objects.big_message_cont.sy,-180,0.02);	
-			
-			
-		//показываем рекламу
-		window.ysdk.adv.showFullscreenAdv({
-		  callbacks: {
-		onClose: function(wasShown) {
-		 // some action after close
-		},
-		  onError: function(error) {
-		 // some action on error
-		}
-		}
-		})
-			
-			
-			
+		
 		//показыаем главное меню
 		this.show_main_menu();
 
