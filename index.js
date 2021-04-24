@@ -1694,6 +1694,21 @@ class game_class {
 		//убираем контейнер
 		c.add_animation(objects.big_message_cont,'y',false,'easeInCubic',objects.big_message_cont.sy,-180,0.02);	
 			
+			
+		//показываем рекламу
+		window.ysdk.adv.showFullscreenAdv({
+		  callbacks: {
+		onClose: function(wasShown) {
+		 // some action after close
+		},
+		  onError: function(error) {
+		 // some action on error
+		}
+		}
+		})
+			
+			
+			
 		//показыаем главное меню
 		this.show_main_menu();
 
@@ -2265,12 +2280,14 @@ class game_class {
 			}
 			else {
 				
-				var players_data=snapshot.val();				
+				
 				var players_array = [];
-				for (var player in players_data)
-					players_array.push([players_data[player].first_name, players_data[player].last_name, players_data[player].rating, players_data[player].pic_url]);
+				snapshot.forEach(players_data=> {					
+				players_array.push([players_data.val().first_name, players_data.val().last_name, players_data.val().rating, players_data.val().pic_url]);	
+				});
+				
 
-				//players_array.sort(function(a, b) {	return b[2] - a[2];});
+				players_array.sort(function(a, b) {	return b[2] - a[2];});
 				
 				
 				//загружаем аватар соперника
@@ -2460,6 +2477,7 @@ function load_yandex() {
 				
 	YaGames.init({}).then(ysdk => {
 
+		window.ysdk=ysdk;
 		ysdk.getPlayer().then(_player => {			
 			
 			player = _player;   
