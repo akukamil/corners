@@ -1044,7 +1044,6 @@ class minimax_solver_class {
 	
 	
 }
-	
 
 {//здесь функции для работы с состоянием доски
 	
@@ -1179,8 +1178,9 @@ class game_class {
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
 				
-		//отключение от игры
-		firebase.database().ref("states/"+my_data.uid).onDisconnect().set("offline");
+		//отключение от игры и удаление не нужного
+		firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
+		firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();
 		
 		
 	}	
@@ -1204,10 +1204,6 @@ class game_class {
 		objects.big_message_text.text=text;
 		objects.big_message_cont.visible=true;		
 		c.add_animation(objects.big_message_cont,'y',true,'easeOutCubic',-180,objects.big_message_cont.sy,0.02);
-		
-		if (objects.big_message_cont.timer_id!==undefined)
-			clearTimeout(objects.big_message_cont.timer_id);
-		objects.big_message_cont.timer_id=setTimeout(()=>{c.add_animation(objects.big_message_cont,'y',false,'easeInCubic',objects.big_message_cont.sy,-180,0.02);}, 6000);		
 	}
 	
 	calc_my_new_rating(res)	{
@@ -1290,24 +1286,9 @@ class game_class {
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
 		
-	
-		objects.game_buttons_cont.visible=false;
-		
-		objects.cur_move_cont.visible=false;
-		objects.opponent_name_cont.visible=false;
-		objects.whose_move_cont.visible=false;
-		objects.confirm_cont.visible=false;		
-		
-		//показываем сколько игроков онлайн
-		objects.online_users_text.visible=true;
-		
-		//показыаем главное меню
-		this.show_main_menu();
-				
 		//удаляем счетчик оставшегося на ход времени
 		clearTimeout(this.move_ticker);
-			
-				
+		
 		var game_result=0;
 		var game_result_text="";
 		
@@ -1454,22 +1435,9 @@ class game_class {
 	finish_game_bot(state) {
 		
 		
-		objects.game_buttons_cont.visible=false;
+		//убираем кнопку завершить
+		objects.finish_game_button_cont.visible=false;	
 		
-		objects.cur_move_cont.visible=false;
-		objects.opponent_name_cont.visible=false;
-		objects.whose_move_cont.visible=false;
-		objects.confirm_cont.visible=false;		
-		objects.finish_game_button_cont.visible=false;		
-		
-		//показываем сколько игроков онлайн
-		objects.online_users_text.visible=true;
-		
-		//показыаем главное меню
-		objects.start_buttons_cont.show();
-
-		c.add_animation(objects.start_buttons_cont,'y',true,'easeOutBack',M_HEIGHT,objects.start_buttons_cont.sy,0.02);
-		objects.start_buttons_cont.alpha=0.8;
 				
 		var game_result=0;
 		var game_result_text="";
@@ -1541,8 +1509,7 @@ class game_class {
 				game_result=-1;	
 			break;
 		}
-		
-	
+			
 
 		//воспроизводим звук
 		if (game_result===-1)
@@ -1553,6 +1520,7 @@ class game_class {
 		this.add_big_message(game_result_text);
 		
 		opp_data.uid="";
+		this.state="online";
 	
 	}
 			
@@ -1704,6 +1672,28 @@ class game_class {
 			}
 			
 		}
+		
+	}
+	
+	ok() {
+		
+		
+		objects.game_buttons_cont.visible=false;
+		
+		objects.cur_move_cont.visible=false;
+		objects.opponent_name_cont.visible=false;
+		objects.whose_move_cont.visible=false;
+		objects.confirm_cont.visible=false;		
+		
+		//показываем сколько игроков онлайн
+		objects.online_users_text.visible=true;
+			
+		//убираем контейнер
+		c.add_animation(objects.big_message_cont,'y',false,'easeInCubic',objects.big_message_cont.sy,-180,0.02);	
+			
+		//показыаем главное меню
+		this.show_main_menu();
+
 		
 	}
 	
@@ -1887,8 +1877,6 @@ class game_class {
 	}
 			
 	start_idle_wait() {
-
-
 
 
 		if (this.state==="idle" || objects.start_buttons_cont.ready===false)
@@ -2252,8 +2240,7 @@ class game_class {
 			
 	show_main_menu() {
 				
-		objects.start_buttons_cont.show();
-		
+		objects.start_buttons_cont.show();		
 		c.add_animation(objects.start_buttons_cont,'y',true,'easeOutBack',M_HEIGHT,objects.start_buttons_cont.sy,0.02);
 		
 	}
@@ -2269,7 +2256,7 @@ class game_class {
 		c.add_animation(objects.leaderboard_cont,'y',true,'easeOutBack',M_HEIGHT,objects.leaderboard_cont.sy,0.02);
 		
 		//обновляем или записываем информацию о рейтинге
-		firebase.database().ref("players").once('value').then((snapshot) => {
+		firebase.database().ref("players").orderByChild('rating').limitToLast(5).once('value').then((snapshot) => {
 			if (snapshot.val()===null) {
 			  alert("Что-то не получилось получить данные о рейтингах");
 			}
@@ -2280,14 +2267,12 @@ class game_class {
 				for (var player in players_data)
 					players_array.push([players_data[player].first_name, players_data[player].last_name, players_data[player].rating, players_data[player].pic_url]);
 
-				players_array.sort(function(a, b) {	return b[2] - a[2];});
+				//players_array.sort(function(a, b) {	return b[2] - a[2];});
 				
 				
 				//загружаем аватар соперника
 				var loaderOptions = {loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE};
 				var loader = new PIXI.Loader(); // PixiJS exposes a premade instance for you to use.
-				
-				
 				
 				
 				var len=Math.min(5,players_array.length);
@@ -2432,7 +2417,6 @@ function change_theme() {
 	
 }
 
-
 function load_vk() {
 		
 	if(window.name==="") {
@@ -2470,8 +2454,7 @@ function load_vk() {
 }
 
 function load_yandex() {
-		
-		
+				
 	YaGames.init({}).then(ysdk => {
 
 		ysdk.getPlayer().then(_player => {			
@@ -2483,10 +2466,15 @@ function load_yandex() {
 			my_data.uid=player.getUniqueID();
 			my_data.pic_url=player.getPhoto('medium');
 			my_data.rating=0;
+			
 			load();
 			
 		}).catch(err => {
-			my_data.first_name='Я';
+			my_data.first_name='no user';
+			my_data.last_name='-';
+			my_data.pic_url='-';
+			my_data.rating=0;
+			my_data.uid='nouser666';
 			is_multiplayer=false;
 			load();
 		});
@@ -2496,14 +2484,12 @@ function load_yandex() {
 	
 }
 
-
-
 function load() {
-	
 	
 	var t_board=[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 	var res=get_childs(t_board,1);
 	
+
 	
 	game_res=new PIXI.Loader();	
 	game_res.add("m2_font", "m_font.fnt");
