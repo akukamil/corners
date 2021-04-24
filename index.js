@@ -1289,6 +1289,9 @@ class game_class {
 		//удаляем счетчик оставшегося на ход времени
 		clearTimeout(this.move_ticker);
 		
+		//убираем контейнер с подтверждением чтобы случайно не нажать
+		objects.confirm_cont.visible=false;
+		
 		var game_result=0;
 		var game_result_text="";
 		
