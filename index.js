@@ -1243,7 +1243,11 @@ class game_class {
 		if (objects.search_opponent_window.ready===false)
 			return;
 		
-		this.state="online";		
+		//устанавливаем локальный статус
+		this.state="online";	
+		
+		//устанавливаем статус в базе данных
+		firebase.database().ref("states/"+my_data.uid).set("online");	
 		
 		//показываем контейнер с кнопками
 		objects.start_buttons_cont.show();
@@ -1251,6 +1255,10 @@ class game_class {
 		
 		//убираем контейнер с окном ожидания
 		c.add_animation(objects.search_opponent_window,'y',false,'easeInCubic',objects.search_opponent_window.sy,M_HEIGHT,0.04);
+		
+
+	
+
 	}
 	
 	close_rules() {
@@ -1693,7 +1701,22 @@ class game_class {
 			
 		//убираем контейнер
 		c.add_animation(objects.big_message_cont,'y',false,'easeInCubic',objects.big_message_cont.sy,-180,0.02);	
-		
+			
+			
+		//показываем рекламу
+		window.ysdk.adv.showFullscreenAdv({
+		  callbacks: {
+		onClose: function(wasShown) {
+		 // some action after close
+		},
+		  onError: function(error) {
+		 // some action on error
+		}
+		}
+		})
+			
+			
+			
 		//показыаем главное меню
 		this.show_main_menu();
 
@@ -1879,30 +1902,6 @@ class game_class {
 		}	
 	}
 			
-	start_idle_wait() {
-
-
-		if (this.state==="idle" || objects.start_buttons_cont.ready===false)
-			return;
-				
-		//показываем контейнер с ожиданием
-		if (objects.search_opponent_window.visible===false)
-			c.add_animation(objects.search_opponent_window,'y',true,'easeOutCubic',-390, objects.search_opponent_window.sy,0.02);
-		
-		//убираем контейнер с кнопками
-		if (objects.start_buttons_cont.visible===true)
-			c.add_animation(objects.start_buttons_cont,'y',false,'easeInCubic',objects.start_buttons_cont.sy,M_HEIGHT,0.02);
-
-		//устанавливаем локальный статус
-		this.state="idle";
-	
-		//устанавливаем статус в базе данных
-		firebase.database().ref("states/"+my_data.uid).set("idle");
-
-		//запускаем поиск через определенное время
-		this.search_timeout_handler=setTimeout(this.search_and_send_request.bind(this), Math.floor(Math.random()*5000));
-	}
-	
 	read_opponent_data(opp_uid) {
 		
 		firebase.database().ref("players/"+opp_uid).once('value').then((snapshot) => {
@@ -1952,7 +1951,31 @@ class game_class {
 		//если пользователей не нашли то через некоторое время запускаем новый поиск
 		this.search_timeout_handler=setTimeout(this.search_and_send_request.bind(this), Math.floor(Math.random()*5000)+1000);
 	}	
+	
+	start_idle_wait() {
 
+
+		if (this.state==="idle" || objects.start_buttons_cont.ready===false)
+			return;
+				
+		//показываем контейнер с ожиданием
+		if (objects.search_opponent_window.visible===false)
+			c.add_animation(objects.search_opponent_window,'y',true,'easeOutCubic',-390, objects.search_opponent_window.sy,0.02);
+		
+		//убираем контейнер с кнопками
+		if (objects.start_buttons_cont.visible===true)
+			c.add_animation(objects.start_buttons_cont,'y',false,'easeInCubic',objects.start_buttons_cont.sy,M_HEIGHT,0.02);
+
+		//устанавливаем локальный статус
+		this.state="idle";
+	
+		//устанавливаем статус в базе данных
+		firebase.database().ref("states/"+my_data.uid).set("idle");
+
+		//запускаем поиск через определенное время
+		this.search_timeout_handler=setTimeout(this.search_and_send_request.bind(this), Math.floor(Math.random()*5000));
+	}
+	
 	start_gentle_move(move_data) {
 		
 		//подготавливаем данные для перестановки
