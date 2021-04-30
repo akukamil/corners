@@ -2493,9 +2493,12 @@ function load_yandex() {
 				my_data.first_name = player.getName();
 				
 				my_data.uid = player.getUniqueID();
+
+				my_data.uid = my_data.uid.replace("/", "Z");	
+				
 				console.log(my_data.uid);
 				console.log(my_data.first_name);
-				my_data.uid = my_data.uid.replace("/", "Z");				
+				
 				my_data.pic_url=player.getPhoto('medium');				
 				read_my_data_from_firebase();
 				console.log("данные об игроке получены");
