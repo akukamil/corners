@@ -2429,7 +2429,7 @@ function read_my_data_from_firebase() {
 		var data=snapshot.val();
 		if (data===null) {
 			//если пользователя нет в базе то записываем его
-			console.log(my_data.uid);
+			console.log(my_data);
 			my_data.rating=1400;			  
 			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
 		}
