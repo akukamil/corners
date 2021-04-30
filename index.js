@@ -2468,7 +2468,7 @@ function read_my_data_from_firebase() {
 	firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { this.process_new_message(snapshot.val());});
 			
 	//подписываемся на изменения состояний пользователей
-	firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
+	//firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
 			
 	//отключение от игры и удаление не нужного
 	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
