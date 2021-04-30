@@ -4,7 +4,7 @@ var app, game_res, game, objects={}, minimax_solver;
 var my_data={},opp_data={};
 var valid_moves;
 var g_process=()=>{};
-var is_multiplayer=true;;
+var net_state='offline';
 
 //анимации
 const c1 = 1.70158;
@@ -1165,23 +1165,7 @@ class game_class {
 		//это доска накоторой играют в шашки		
 		this.board=[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 
-		
-		//************сетевые манипуляции********************//
-		
-		//записываем что мы в онлайне и простаиваем
-		firebase.database().ref("states/"+my_data.uid).set("online");
-		
-		//обновляем почтовый ящик и подписываемся на новые сообщения
-		firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",timestamp:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
-		firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { this.process_new_message(snapshot.val());});
-				
-		//подписываемся на изменения состояний пользователей
-		firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
-				
-		//отключение от игры и удаление не нужного
-		firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
-		firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();
-		
+
 		
 	}	
 	
@@ -1731,7 +1715,7 @@ class game_class {
 	players_list_updated(players) {
 
 		this.players_states=players;
-		var cnt=0;
+		var cnt=10;
 		for (var player_id in this.players_states)
 			if (this.players_states[player_id]!=="offline")
 				cnt++;
@@ -1954,6 +1938,10 @@ class game_class {
 	
 	start_idle_wait() {
 
+		if (net_state==='offline') {			
+			this.add_message("Только для авторизованных игроков");
+			return;
+		}
 
 		if (this.state==="idle" || objects.start_buttons_cont.ready===false)
 			return;
@@ -2266,6 +2254,10 @@ class game_class {
 			
 	show_main_menu() {
 				
+				
+		//сначала скрываем все шашки
+		objects.checkers.forEach((c)=>{	c.visible=false});
+		
 		objects.start_buttons_cont.show();		
 		c.add_animation(objects.start_buttons_cont,'y',true,'easeOutBack',M_HEIGHT,objects.start_buttons_cont.sy,0.02);
 		
@@ -2277,6 +2269,7 @@ class game_class {
 		if (objects.start_buttons_cont.ready===false)
 			return;
 				
+				
 		objects.leaderboard_cont.show();		
 				
 		c.add_animation(objects.leaderboard_cont,'y',true,'easeOutBack',M_HEIGHT,objects.leaderboard_cont.sy,0.02);
@@ -2284,10 +2277,9 @@ class game_class {
 		//обновляем или записываем информацию о рейтинге
 		firebase.database().ref("players").orderByChild('rating').limitToLast(5).once('value').then((snapshot) => {
 			if (snapshot.val()===null) {
-			  alert("Что-то не получилось получить данные о рейтингах");
+			  console.log("Что-то не получилось получить данные о рейтингах");
 			}
-			else {
-				
+			else {				
 				
 				var players_array = [];
 				snapshot.forEach(players_data=> {					
@@ -2322,11 +2314,6 @@ class game_class {
 			}
 
 		});
-		
-		
-		
-		
-		
 		
 	}
 
@@ -2378,73 +2365,6 @@ function resize() {
     app.stage.scale.set(nvw / M_WIDTH, nvh / M_HEIGHT);
 }
 
-function change_theme() {
-	
-	
-	function componentToHex(c) {
-	  var hex = c.toString(16);
-	  return hex.length == 1 ? "0" + hex : hex;
-	}
-
-	function rgbToHex(r, g, b) {
-	  return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-	}
-
-	
-	var base_r,base_g,base_b,tbase_r,tbase_g,tbase_b;
-
-	base_r=Math.floor(Math.random() * 225);
-	base_g=Math.floor(Math.random() * 225);
-	base_b=Math.floor(Math.random() * 225);
-
-	if (base_r+base_g+base_b>382) {
-		tbase_r=Math.floor(Math.random() * 50);
-		tbase_g=Math.floor(Math.random() * 50);
-		tbase_b=Math.floor(Math.random() * 50);
-	} else {
-		tbase_r=200+Math.floor(Math.random() * 50);
-		tbase_g=200+Math.floor(Math.random() * 50);
-		tbase_b=200+Math.floor(Math.random() * 50);
-	}
-	
-	function process_obj(obj) {		
-		
-		if (obj instanceof PIXI.Container) {			
-			for (var i = 0;i< obj.children.length; i++)
-				process_obj(obj.children[i]);
-		}
-		
-		if (obj instanceof PIXI.Sprite  ) {
-			
-			var shift_r=Math.floor(Math.random() * 30);
-			var shift_g=Math.floor(Math.random() * 30);
-			var shift_b=Math.floor(Math.random() * 30);	
-			
-			var hex_color=rgbToHex(base_r+shift_r, base_g+shift_g, base_b+shift_b);
-			obj.base_tint=obj.tint;
-		}
-		
-		
-		if (obj instanceof PIXI.BitmapText ) {			
-					
-			var shift_r=Math.floor(Math.random() * 30);
-			var shift_g=Math.floor(Math.random() * 30);
-			var shift_b=Math.floor(Math.random() * 30);	
-			
-			var hex_color=rgbToHex(tbase_r+shift_r, tbase_g+shift_g, tbase_b+shift_b);
-			obj.base_tint=obj.tint;
-		}
-	
-	}
-	
-	
-	
-	process_obj(app.stage);
-	
-
-	
-}
-
 function load_vk() {
 		
 	if(window.name==="") {
@@ -2481,44 +2401,117 @@ function load_vk() {
 	}
 }
 
-function load_yandex() {
-				
-	YaGames.init({}).then(ysdk => {
-
-		window.ysdk=ysdk;
-		ysdk.getPlayer().then(_player => {			
-			
-			player = _player;   
-			
-			my_data.first_name=player.getName();
-			my_data.last_name='';
-			my_data.uid=player.getUniqueID();
-			my_data.pic_url=player.getPhoto('medium');
-			my_data.rating=0;
-			
-			load();
-			
-		}).catch(err => {
-			my_data.first_name='no user';
-			my_data.last_name='-';
-			my_data.pic_url='-';
-			my_data.rating=0;
-			my_data.uid='nouser666';
-			is_multiplayer=false;
-			load();
-		});
-
-	});
+function read_my_data_from_firebase() {
+	
+	//случай когда не удалось получить данные о пользователе из яндекса
+	if (my_data.uid==='') {		
+		console.log("не удалось получить данные о пользователе из яндекса");
+		my_data.first_name = "OFFLINE";
+		objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		
+		//обновляем информацию на табло
+		objects.player_name_text.text="OFFLINE";
+		net_state='offline';
+		return;
+	}
+	
+	//устанавливаем что мы в онлайне
+	net_state='online';
+		
+	//если нет личных данных пользователя
+	if (my_data.first_name===''){
+		console.log("не удалось получить личную информацию");
+		my_data.first_name = "YANDEX";
+	}
+		
+	//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
+	firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
+		var data=snapshot.val();
+		if (data===null) {
+			//если пользователя нет в базе то записываем его
+			my_data.rating=1400;			  
+			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
+		}
+		else {
+			my_data.rating=data.rating;
+			
+			//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
+			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
+		}			
+		
+		//и обновляем информацию на табло так как считали рейтинг
+		let trimmed_text=my_data.first_name+" "+my_data.last_name;
+		trimmed_text = trimmed_text.length > 15 ?  trimmed_text.substring(0, 12) + "..." : trimmed_text;
+		objects.player_name_text.text=trimmed_text;	
+		objects.player_rating_text.text=my_data.rating;	
+	}).catch((error) => {		
+		console.error(error);
+		net_state='offline';
+		return;
+	});
+			
+	//обновляем мой аватар и отображаем мою карточку
+	var loader2 = new PIXI.Loader();
+	loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
+	loader2.load((loader, resources) => {
+		objects.my_avatar.texture = resources.my_avatar.texture;
+	});		
+	
+	
+	//************************сетевые манипуляции*************************************//	
+	
+	//записываем что мы в онлайне и простаиваем
+	firebase.database().ref("states/"+my_data.uid).set("online");
+	
+	//обновляем почтовый ящик и подписываемся на новые сообщения
+	firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",timestamp:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
+	firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { this.process_new_message(snapshot.val());});
+			
+	//подписываемся на изменения состояний пользователей
+	firebase.database().ref("states").on('value', (snapshot) => { this.players_list_updated(snapshot.val());});
+			
+	//отключение от игры и удаление не нужного
+	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
+	firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();
 	
 }
 
-function load() {
+function load_yandex() {
 	
-	var t_board=[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
-	var res=get_childs(t_board,1);
-	
+	if(typeof(YaGames)!=='undefined')
+	{		
+		YaGames.init({}).then(ysdk => {
+			
+			window.ysdk=ysdk;
+			console.log("яндекс запущен");
+			
+			ysdk.getPlayer().then(_player => {
+				player = _player;  
+								
+				my_data.first_name = player.getName();
+				my_data.uid = player.getUniqueID();
+				my_data.uid = my_data.uid.replace("/", "$");				
+				my_data.pic_url=player.getPhoto('medium');				
+				read_my_data_from_firebase();
+				console.log("данные об игроке получены");
+				console.log(my_data.uid);
+				
+			}).catch(err => {
+				console.log("ошибка при получении данных игрока");
+				my_data.uid='';
+				read_my_data_from_firebase();
+			});
+		});		
+	}
+	else
+	{	
+		my_data.uid='';
+		read_my_data_from_firebase();
+	}	
 
+}
+
+function load_resources() {
 	
 	game_res=new PIXI.Loader();	
 	game_res.add("m2_font", "m_font.fnt");
@@ -2539,26 +2532,21 @@ function load() {
 			game_res.add(load_list[i][1], "res/"+load_list[i][1]+".png");
 	
 	//добавляем текстуры стикеров
-	for (var i=0;i<16;i++) {
+	for (var i=0;i<16;i++)
 		game_res.add("sticker_texture_"+i, "stickers/"+i+".png");
-	}
-	
-	
+		
 
 	game_res.load(load_complete);		
 	game_res.onProgress.add(progress);
 	
 	function load_complete() {
 		
+		document.getElementById("m_bar").outerHTML = "";		
+		document.getElementById("top_w").outerHTML = "";
+		document.getElementById("m_progress").outerHTML = "";
+		document.getElementById("m_button_win").outerHTML = "";
 		
 		minimax_solver=new minimax_solver_class();
-		
-		//воспроизводим соответствующий звук
-		//game_res.resources.load_complete.sound.play();
-		
-		
-		document.getElementById("m_bar").outerHTML = "";		
-		document.getElementById("m_progress").outerHTML = "";
 		
 		app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:true,backgroundColor : 0x000000});
 		document.body.appendChild(app.view);
@@ -2567,23 +2555,7 @@ function load() {
 		window.addEventListener("resize", resize);	
 
 		//игра
-		game=new game_class();	
-		
-		window.onkeydown = function (e)
-		{		
-            if ((e.keyCode > 47 	&& e.keyCode < 58) || 
-				(e.keyCode > 64 	&& e.keyCode < 91) || 
-				(e.keyCode > 185 	&& e.keyCode < 193) || 
-				(e.keyCode > 218 	&& e.keyCode < 223) ||
-				 e.keyCode===32)
-				game.send_key(e.key);
-			
-			if (e.keyCode === 8)
-				game.remove_last_key();				
-			
-			//if (e.keyCode ===13)
-			//	game.send_message(-1);
-		}		
+		game=new game_class();
 		
 		//создаем спрайты и массивы спрайтов и запускаем первую часть кода
 		for (var i=0;i<load_list.length;i++) {			
@@ -2641,47 +2613,15 @@ function load() {
 			}
 		}
 
-		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
-		firebase.database().ref("players/"+my_data.uid).once('value').then((snapshot) => {			
-			var data=snapshot.val();
-			if (snapshot.val()===null) {
-				my_data.rating=1400;			  
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
-			}
-			else {
-				my_data.rating=data.rating;
-				//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
-			}			
-			
-			//и обновляем информацию так как считали рейтинг
-			let trimmed_text=my_data.first_name+" "+my_data.last_name;
-			trimmed_text = trimmed_text.length > 15 ?  trimmed_text.substring(0, 12) + "..." : trimmed_text;
-			objects.player_name_text.text=trimmed_text;	
-			objects.player_rating_text.text=my_data.rating;	
-		});
 
+		//загружаем данные игрока из яндекса
+		load_yandex();
+		
 		//показыаем основное меню
-		game.show_main_menu();
-				
-		//обновляем мой аватар и отображаем мою карточку
-		var loader2 = new PIXI.Loader();
-		loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
-		loader2.load((loader, resources) => {
-			objects.my_avatar.texture = resources.my_avatar.texture;
-			
-		});
-		
-		
-		//отключаем кнопку мультиплеера
-		if (is_multiplayer===false) {			
-			objects.start_game_button.pointerdown=function(){game.add_message("Это только для авторизованых пользователей")};			
-			objects.player_name_text.text='Я';
-		}
+		game.show_main_menu();	
 
-		
 		//запускаем главный цикл
-		main_loop(); 		
+		main_loop(); 
 	
 	}
 	
@@ -2689,8 +2629,6 @@ function load() {
 		
 		document.getElementById("m_bar").style.width =  Math.round(loader.progress)+"%";
 	}
-	
-	
 	
 }
 
