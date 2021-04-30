@@ -2497,6 +2497,7 @@ function load_yandex() {
 				console.log(my_data.uid);
 				
 			}).catch(err => {
+				console.log(err);
 				console.log("ошибка при получении данных игрока");
 				my_data.uid='';
 				read_my_data_from_firebase();
