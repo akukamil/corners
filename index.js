@@ -2478,6 +2478,8 @@ function read_my_data_from_firebase() {
 
 function load_yandex() {
 	
+	console.log("привет");
+	
 	if(typeof(YaGames)!=='undefined')
 	{		
 		YaGames.init({}).then(ysdk => {
