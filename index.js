@@ -5,6 +5,7 @@ var my_data={},opp_data={};
 var valid_moves;
 var g_process=()=>{};
 var net_state=0;
+var social_network='';
 
 //анимации
 const c1 = 1.70158;
@@ -1662,23 +1663,12 @@ class game_class {
 		//убираем контейнер
 		c.add_animation(objects.big_message_cont,'y',false,'easeInCubic',objects.big_message_cont.sy,-180,0.02);	
 			
-			/*
-		//показываем рекламу
-		window.ysdk.adv.showFullscreenAdv({
-		  callbacks: {
-		onClose: function(wasShown) {
-		 // some action after close
-		},
-		  onError: function(error) {
-		 // some action on error
-		}
-		}
-		})
-			*/
-			
-			
 		//показыаем главное меню
-		this.show_main_menu();
+		this.show_main_menu();			
+			
+		//показываем рекламу	
+		if (social_network==='yandex')
+			window.ysdk.adv.showFullscreenAdv({  callbacks: 	{onClose: function(wasShown) {},onError: function(error) {}}});
 		
 	}
 	
@@ -1701,7 +1691,7 @@ class game_class {
 	process_new_message(msg) {	
 
 		//Получили запрос на новую игру
-		console.log("Сообщение: "+msg.message+ " Состояние: "+this.state +" sender:"+msg.sender +" pending: "+this.pending_player);
+		//console.log("Сообщение: "+msg.message+ " Состояние: "+this.state +" sender:"+msg.sender +" pending: "+this.pending_player);
 		
 		if (this.state==="idle") {		
 		
@@ -2684,11 +2674,17 @@ function load_resources() {
 
 		//загружаем данные игрока из яндекса или вконтакте
 		 let env=window.location.href;
-		 if (env.includes('vk.com'))
-			load_vk();	 
+		 if (env.includes('vk.com')) {
+			social_network='vk';
+			load_vk();				 
+		 }
+ 
 		 
-		 if (env.includes('yandex'))
-			load_yandex();	 
+		 if (env.includes('yandex')) {
+			social_network='yandex';
+			load_yandex();	 			 
+		 }
+
 
 		
 		//показыаем основное меню
