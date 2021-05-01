@@ -1220,9 +1220,6 @@ class game_class {
 		
 		//убираем контейнер с окном ожидания
 		c.add_animation(objects.search_opponent_window,'y',false,'easeInCubic',objects.search_opponent_window.sy,M_HEIGHT,0.04);
-		
-
-	
 
 	}
 	
@@ -1398,7 +1395,6 @@ class game_class {
 			
 		}
 	
-
 		this.add_big_message(game_result_text);
 		
 		opp_data.uid="";
@@ -2391,6 +2387,7 @@ function init_firebase() {
 	//подписываемся на изменения состояний пользователей
 	firebase.database().ref("states").on('value', (snapshot) => { game.players_list_updated(snapshot.val());});
 			
+	//устанавливаем мой статус в онлайн
 	firebase.database().ref("states/"+my_data.uid).set("online");	
 			
 	//отключение от игры и удаление не нужного
@@ -2431,6 +2428,8 @@ function update_my_rating() {
 }
 
 function load_yandex() {
+	
+	console.log(window.name);
 	
 	var ysdk_res='';
 	if(typeof(YaGames)==='undefined')
