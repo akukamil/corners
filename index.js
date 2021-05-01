@@ -2434,6 +2434,7 @@ function load_yandex() {
 	if(typeof(YaGames)==='undefined')
 	{		
 		ysdk_res='no_sdk';
+		process_results();	
 	}
 	else
 	{
@@ -2460,13 +2461,13 @@ function load_yandex() {
 			}).catch(err => {
 				ysdk_res='get_player_error'
 			}).finally(()=>{				
-				this.process_results();				
+				process_results();				
 			})
 			
 		}).catch(err => {			
 			ysdk_res='init_error'			
 		}).finally(()=>{			
-			this.process_results();			
+			process_results();			
 		})		
 		
 	}	
