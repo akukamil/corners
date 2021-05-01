@@ -1919,7 +1919,7 @@ class game_class {
 	
 	start_idle_wait() {
 
-		if (net_state==='offline') {			
+		if (net_state===0) {			
 			this.add_message("Только для авторизованных игроков");
 			return;
 		}
