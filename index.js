@@ -2391,6 +2391,8 @@ function init_firebase() {
 	//подписываемся на изменения состояний пользователей
 	firebase.database().ref("states").on('value', (snapshot) => { game.players_list_updated(snapshot.val());});
 			
+	firebase.database().ref("states/"+my_data.uid).set("online");	
+			
 	//отключение от игры и удаление не нужного
 	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
 	firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();
