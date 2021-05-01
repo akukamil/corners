@@ -2440,7 +2440,7 @@ function load_yandex() {
 	{
 		//если sdk яндекса найден
 		YaGames.init({}).then(ysdk => {
-			
+			throw "Error2";
 			//фиксируем SDK в глобальной переменной
 			window.ysdk=ysdk;
 			
