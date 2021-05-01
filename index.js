@@ -2440,13 +2440,13 @@ function load_yandex() {
 	{
 		//если sdk яндекса найден
 		YaGames.init({}).then(ysdk => {
-			throw "Error2";
+			
 			//фиксируем SDK в глобальной переменной
 			window.ysdk=ysdk;
 			
 			//получаем данные игрока
 			ysdk.getPlayer().then(_player => {
-								
+				throw "Error2";		
 				my_data.first_name 	=	_player.getName();
 				my_data.last_name	=	"";
 				my_data.uid			=	_player.getUniqueID().replace("/", "Z");	
