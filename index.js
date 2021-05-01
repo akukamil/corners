@@ -2429,7 +2429,7 @@ function update_my_rating() {
 
 function load_yandex() {
 	
-	console.log(window.name);
+	console.log(window.location.href);
 	
 	var ysdk_res='';
 	if(typeof(YaGames)==='undefined')
