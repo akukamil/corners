@@ -2344,13 +2344,14 @@ function resize() {
 
 function load_vk() {
 		
-	if(window.name==="") {
-		//вк не работают устанавливаем тестовый вариант
-		my_data.first_name='Я';
-		is_multiplayer=false;
-		load(); 
+	if(typeof(VK)==='undefined')
+	{		
+		sdk_res='no_sdk';
+		process_results();	
 	}
-	else {
+	else
+	{
+		
 		VK.init(
 		
 			//функция удачной инициализации вконтакте
@@ -2364,18 +2365,61 @@ function load_vk() {
 						my_data.last_name=data.response[0].last_name;
 						my_data.uid="vk"+data.response[0].id;
 						my_data.pic_url=data.response[0].photo_100;
-						my_data.rating=0;
-						load();
+						sdk_res="ok";	
 					}
 				)			
 			},	
 			
 			//функция неудачной инициализации вконтакте
-			function() {alert("VK.init error")},
+			function()
+			{
+				sdk_res="init_error";				
+			},
 
 			//версия апи
 			'5.130');		
+		
 	}
+	
+	
+	function process_results()
+	{		
+		console.log(sdk_res);
+	
+		//обрабатываем результаты подключения яндекса
+		if (sdk_res==='ok') {	
+			
+			net_state=1;
+			init_firebase();
+			
+			//обновляем мое имя на табло
+			let t=my_data.first_name+" "+my_data.last_name;
+			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
+		
+			//загружаем мою аватарку на табло
+			let loader2 = new PIXI.Loader();
+			loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
+			loader2.load((loader, resources) => {objects.my_avatar.texture = resources.my_avatar.texture;});	
+
+			//загружаем мой рейтинг
+			update_my_rating();		
+		}
+
+
+		
+		if (sdk_res==='no_sdk') {	
+			my_data.first_name='Я';
+			objects.my_avatar.texture=PIXI.Texture.WHITE;	
+		}
+		
+		if (sdk_res==='init_error') {	
+			my_data.first_name='Я';
+			objects.my_avatar.texture=PIXI.Texture.WHITE;	
+		}		
+
+	}
+		
+
 }
 
 function init_firebase() {
@@ -2429,12 +2473,12 @@ function update_my_rating() {
 
 function load_yandex() {
 	
-	 alert(window.location.href);
 	
-	var ysdk_res='';
+	
+	var sdk_res='';
 	if(typeof(YaGames)==='undefined')
 	{		
-		ysdk_res='no_sdk';
+		sdk_res='no_sdk';
 		process_results();	
 	}
 	else
@@ -2454,19 +2498,19 @@ function load_yandex() {
 				my_data.pic_url		=	_player.getPhoto('medium');		
 				
 				if (my_data.first_name==='')
-					ysdk_res='no_personal_data'
+					sdk_res='no_personal_data'
 				else
-					ysdk_res='ok'
+					sdk_res='ok'
 				
 				
 			}).catch(err => {
-				ysdk_res='get_player_error'
+				sdk_res='get_player_error'
 			}).finally(()=>{				
 				process_results();				
 			})
 			
 		}).catch(err => {			
-			ysdk_res='init_error'			
+			sdk_res='init_error'			
 		}).finally(()=>{			
 			process_results();			
 		})		
@@ -2475,10 +2519,10 @@ function load_yandex() {
 		
 	function process_results()
 	{		
-		console.log(ysdk_res);
+		console.log(sdk_res);
 	
 		//обрабатываем результаты подключения яндекса
-		if (ysdk_res==='ok') {	
+		if (sdk_res==='ok') {	
 			
 			net_state=1;
 			init_firebase();
@@ -2496,7 +2540,7 @@ function load_yandex() {
 			update_my_rating();		
 		}
 
-		if (ysdk_res==='no_personal_data') {
+		if (sdk_res==='no_personal_data') {
 			
 			net_state=1;
 			init_firebase();
@@ -2508,17 +2552,17 @@ function load_yandex() {
 			update_my_rating();		
 		}
 		
-		if (ysdk_res==='no_sdk') {	
+		if (sdk_res==='no_sdk') {	
 			my_data.first_name='Я';
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		}
 		
-		if (ysdk_res==='get_player_error') {	
+		if (sdk_res==='get_player_error') {	
 			my_data.first_name='Я';
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		}		
 		
-		if (ysdk_res==='init_error') {	
+		if (sdk_res==='init_error') {	
 			my_data.first_name='Я';
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		}		
@@ -2630,8 +2674,14 @@ function load_resources() {
 		}
 
 
-		//загружаем данные игрока из яндекса
-		load_yandex();
+		//загружаем данные игрока из яндекса или вконтакте
+		 let env=window.location.href;
+		 if (env.includes('vk.com'))
+			load_vk();	 
+		 
+		 if (env.includes('yandex'))
+			load_yandex();	 
+
 		
 		//показыаем основное меню
 		game.show_main_menu();	
