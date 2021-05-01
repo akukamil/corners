@@ -2479,7 +2479,7 @@ function load_yandex() {
 			init_firebase();
 			
 			//обновляем мое имя на табло
-			let t=my_data.first_name+" "+my_data.last_name;
+			let t=my_data.first_name;
 			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
 		
 			//загружаем мою аватарку на табло
@@ -2497,10 +2497,8 @@ function load_yandex() {
 			init_firebase();
 			
 			my_data.first_name='ЯНДЕКС';
-			let t=my_data.first_name+" "+my_data.last_name;
+			let t=my_data.first_name;
 			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
-			
-			
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 			
 			//загружаем мой рейтинг
@@ -2509,21 +2507,21 @@ function load_yandex() {
 		
 		if (sdk_res==='no_sdk') {	
 			my_data.first_name='Я';
-			let t=my_data.first_name+" "+my_data.last_name;
+			let t=my_data.first_name;
 			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;				
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		}
 		
 		if (sdk_res==='get_player_error') {	
 			my_data.first_name='Я';
-			let t=my_data.first_name+" "+my_data.last_name;
+			let t=my_data.first_name;
 			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;				
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		}		
 		
 		if (sdk_res==='init_error') {	
 			my_data.first_name='Я';
-			let t=my_data.first_name+" "+my_data.last_name;
+			let t=my_data.first_name;
 			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		}		
