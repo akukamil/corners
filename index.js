@@ -4,7 +4,7 @@ var app, game_res, game, objects={}, minimax_solver;
 var my_data={},opp_data={};
 var valid_moves;
 var g_process=()=>{};
-var net_state='offline';
+var net_state=0;
 
 //анимации
 const c1 = 1.70158;
@@ -14,25 +14,6 @@ const c4 = (2 * Math.PI) / 3;
 const c5 = (2 * Math.PI) / 4.5;
 
 
-
-class list_item_class {
-	
-	constructor (x,y,w,h) {
-									
-			
-		this.player_name_text=new PIXI.BitmapText('', {font: '28px Century Gothic'});
-		this.player_name_text.x=x+20;
-		this.player_name_text.y=y+20;
-		this.player_name_text.tint=0x333333;
-		
-		this.player_rating_text=new PIXI.BitmapText('', {font: '25px Century Gothic'});
-		this.player_rating_text.anchor.set(1,0);
-		this.player_rating_text.x=x+w-20;
-		this.player_rating_text.y=y+20;
-		this.player_rating_text.tint=0xff00ff;
-	}
-
-}
 
 class anim_class {
 	constructor()	{		
@@ -2401,68 +2382,7 @@ function load_vk() {
 	}
 }
 
-function read_my_data_from_firebase() {
-	
-	//случай когда не удалось получить данные о пользователе из яндекса
-	if (my_data.uid==='') {		
-		console.log("не удалось получить данные о пользователе из яндекса");
-		my_data.first_name = "OFFLINE";
-		objects.my_avatar.texture=PIXI.Texture.WHITE;	
-		
-		//обновляем информацию на табло
-		objects.player_name_text.text="OFFLINE";
-		net_state='offline';
-		return;
-	}
-	
-	//устанавливаем что мы в онлайне
-	net_state='online';
-		
-	//если нет личных данных пользователя
-	if (my_data.first_name===''){
-		console.log("не удалось получить личную информацию");
-		my_data.first_name = "YANDEX";
-	}
-		
-	//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
-	firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
-		var data=snapshot.val();
-		if (data===null) {
-			//если пользователя нет в базе то записываем его
-			console.log(my_data);
-			my_data.rating=1400;			  
-			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
-		}
-		else {
-			my_data.rating=data.rating;
-			
-			//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
-			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
-		}			
-		
-		//и обновляем информацию на табло так как считали рейтинг
-		let trimmed_text=my_data.first_name+" "+my_data.last_name;
-		trimmed_text = trimmed_text.length > 15 ?  trimmed_text.substring(0, 12) + "..." : trimmed_text;
-		objects.player_name_text.text=trimmed_text;	
-		objects.player_rating_text.text=my_data.rating;	
-	}).catch((error) => {		
-		console.error(error);
-		net_state='offline';
-		return;
-	});
-			
-	//обновляем мой аватар и отображаем мою карточку
-	var loader2 = new PIXI.Loader();
-	loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
-	loader2.load((loader, resources) => {
-		objects.my_avatar.texture = resources.my_avatar.texture;
-	});		
-	
-	
-	//************************сетевые манипуляции*************************************//	
-	
-	//записываем что мы в онлайне и простаиваем
-	firebase.database().ref("states/"+my_data.uid).set("online");
+function init_firebase() {
 	
 	//обновляем почтовый ящик и подписываемся на новые сообщения
 	firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",timestamp:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
@@ -2477,48 +2397,132 @@ function read_my_data_from_firebase() {
 	
 }
 
+function update_my_rating() {
+	
+	//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
+	firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
+		var data=snapshot.val();
+		if (data===null)
+		{
+			//если я первый раз в игре
+			my_data.rating=1400;			  
+			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
+		}
+		else
+		{
+			//если я уже есть в базе то считыавем мой рейтинг
+			my_data.rating=data.rating;	
+			
+			//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
+			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
+		}			
+		
+		//и обновляем информацию на табло так как считали рейтинг
+		objects.player_rating_text.text=my_data.rating;	
+		
+	}).catch((error) => {		
+		console.error(error);
+		net_state='offline';
+		return;
+	});
+	
+}
+
 function load_yandex() {
 	
-	console.log("привет");
-	
-	if(typeof(YaGames)!=='undefined')
+	var ysdk_res='';
+	if(typeof(YaGames)==='undefined')
 	{		
-		YaGames.init({}).then(ysdk => {
-			
-			window.ysdk=ysdk;
-			console.log("яндекс запущен");
-			
-			ysdk.getPlayer().then(_player => {
-				player = _player;  
-								
-				my_data.first_name = player.getName();
-				my_data.last_name="";
-				my_data.uid = player.getUniqueID();
-
-				my_data.uid = my_data.uid.replace("/", "Z");	
-				
-				console.log(my_data.uid);
-				console.log(my_data.first_name);
-				
-				my_data.pic_url=player.getPhoto('medium');				
-				read_my_data_from_firebase();
-				console.log("данные об игроке получены");
-				console.log(my_data.uid);
-				
-			}).catch(err => {
-				console.log(err);
-				console.log("ошибка при получении данных игрока");
-				my_data.uid='';
-				read_my_data_from_firebase();
-			});
-		});		
+		ysdk_res='no_sdk';
 	}
 	else
-	{	
-		my_data.uid='';
-		read_my_data_from_firebase();
+	{
+		//если sdk яндекса найден
+		YaGames.init({}).then(ysdk => {
+			
+			//фиксируем SDK в глобальной переменной
+			window.ysdk=ysdk;
+			
+			//получаем данные игрока
+			ysdk.getPlayer().then(_player => {
+								
+				my_data.first_name 	=	_player.getName();
+				my_data.last_name	=	"";
+				my_data.uid			=	_player.getUniqueID().replace("/", "Z");	
+				my_data.pic_url		=	_player.getPhoto('medium');		
+				
+				if (my_data.first_name==='')
+					ysdk_res='no_personal_data'
+				else
+					ysdk_res='ok'
+				
+				
+			}).catch(err => {
+				ysdk_res='get_player_error'
+			}).finally(()=>{				
+				this.process_results();				
+			})
+			
+		}).catch(err => {			
+			ysdk_res='init_error'			
+		}).finally(()=>{			
+			this.process_results();			
+		})		
+		
 	}	
+		
+	function process_results()
+	{		
+		console.log(ysdk_res);
+	
+		//обрабатываем результаты подключения яндекса
+		if (ysdk_res==='ok') {	
+			
+			net_state=1;
+			init_firebase();
+			
+			//обновляем мое имя на табло
+			let t=my_data.first_name+" "+my_data.last_name;
+			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
+		
+			//загружаем мою аватарку на табло
+			let loader2 = new PIXI.Loader();
+			loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
+			loader2.load((loader, resources) => {objects.my_avatar.texture = resources.my_avatar.texture;});	
 
+			//загружаем мой рейтинг
+			update_my_rating();		
+		}
+
+		if (ysdk_res==='no_personal_data') {
+			
+			net_state=1;
+			init_firebase();
+			
+			my_data.first_name='ЯНДЕКС';
+			objects.my_avatar.texture=PIXI.Texture.WHITE;	
+			
+			//загружаем мой рейтинг
+			update_my_rating();		
+		}
+		
+		if (ysdk_res==='no_sdk') {	
+			my_data.first_name='Я';
+			objects.my_avatar.texture=PIXI.Texture.WHITE;	
+		}
+		
+		if (ysdk_res==='get_player_error') {	
+			my_data.first_name='Я';
+			objects.my_avatar.texture=PIXI.Texture.WHITE;	
+		}		
+		
+		if (ysdk_res==='init_error') {	
+			my_data.first_name='Я';
+			objects.my_avatar.texture=PIXI.Texture.WHITE;	
+		}		
+
+	}
+	
 }
 
 function load_resources() {
