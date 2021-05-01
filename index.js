@@ -2366,6 +2366,7 @@ function load_vk() {
 						my_data.uid="vk"+data.response[0].id;
 						my_data.pic_url=data.response[0].photo_100;
 						sdk_res="ok";	
+						process_results();
 					}
 				)			
 			},	
@@ -2373,7 +2374,8 @@ function load_vk() {
 			//функция неудачной инициализации вконтакте
 			function()
 			{
-				sdk_res="init_error";				
+				sdk_res="init_error";	
+				process_results();				
 			},
 
 			//версия апи
