@@ -2446,7 +2446,7 @@ function load_yandex() {
 			
 			//получаем данные игрока
 			ysdk.getPlayer().then(_player => {
-				throw "Error2";		
+	
 				my_data.first_name 	=	_player.getName();
 				my_data.last_name	=	"";
 				my_data.uid			=	_player.getUniqueID().replace("/", "Z");	
