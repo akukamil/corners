@@ -1647,8 +1647,7 @@ class game_class {
 		
 	}
 	
-	ok() {
-		
+	ok() {		
 		
 		objects.game_buttons_cont.visible=false;
 		
@@ -1680,7 +1679,6 @@ class game_class {
 			
 		//показыаем главное меню
 		this.show_main_menu();
-
 		
 	}
 	
@@ -2424,55 +2422,6 @@ function load_vk() {
 
 }
 
-function init_firebase() {
-	
-	//обновляем почтовый ящик и подписываемся на новые сообщения
-	firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",timestamp:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
-	firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { game.process_new_message(snapshot.val());});
-			
-	//подписываемся на изменения состояний пользователей
-	firebase.database().ref("states").on('value', (snapshot) => { game.players_list_updated(snapshot.val());});
-			
-	//устанавливаем мой статус в онлайн
-	firebase.database().ref("states/"+my_data.uid).set("online");	
-			
-	//отключение от игры и удаление не нужного
-	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
-	firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();
-	
-}
-
-function update_my_rating() {
-	
-	//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
-	firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
-		var data=snapshot.val();
-		if (data===null)
-		{
-			//если я первый раз в игре
-			my_data.rating=1400;			  
-			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
-		}
-		else
-		{
-			//если я уже есть в базе то считыавем мой рейтинг
-			my_data.rating=data.rating;	
-			
-			//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
-			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
-		}			
-		
-		//и обновляем информацию на табло так как считали рейтинг
-		objects.player_rating_text.text=my_data.rating;	
-		
-	}).catch((error) => {		
-		console.error(error);
-		net_state='offline';
-		return;
-	});
-	
-}
-
 function load_yandex() {
 	
 	
@@ -2548,6 +2497,10 @@ function load_yandex() {
 			init_firebase();
 			
 			my_data.first_name='ЯНДЕКС';
+			let t=my_data.first_name+" "+my_data.last_name;
+			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
+			
+			
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 			
 			//загружаем мой рейтинг
@@ -2556,20 +2509,75 @@ function load_yandex() {
 		
 		if (sdk_res==='no_sdk') {	
 			my_data.first_name='Я';
+			let t=my_data.first_name+" "+my_data.last_name;
+			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;				
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		}
 		
 		if (sdk_res==='get_player_error') {	
 			my_data.first_name='Я';
+			let t=my_data.first_name+" "+my_data.last_name;
+			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;				
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		}		
 		
 		if (sdk_res==='init_error') {	
 			my_data.first_name='Я';
+			let t=my_data.first_name+" "+my_data.last_name;
+			objects.player_name_text.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
 			objects.my_avatar.texture=PIXI.Texture.WHITE;	
 		}		
 
 	}
+	
+}
+
+function init_firebase() {
+	
+	//обновляем почтовый ящик и подписываемся на новые сообщения
+	firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",timestamp:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
+	firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { game.process_new_message(snapshot.val());});
+			
+	//подписываемся на изменения состояний пользователей
+	firebase.database().ref("states").on('value', (snapshot) => { game.players_list_updated(snapshot.val());});
+			
+	//устанавливаем мой статус в онлайн
+	firebase.database().ref("states/"+my_data.uid).set("online");	
+			
+	//отключение от игры и удаление не нужного
+	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
+	firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();
+	
+}
+
+function update_my_rating() {
+	
+	//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
+	firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
+		var data=snapshot.val();
+		if (data===null)
+		{
+			//если я первый раз в игре
+			my_data.rating=1400;			  
+			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
+		}
+		else
+		{
+			//если я уже есть в базе то считыавем мой рейтинг
+			my_data.rating=data.rating;	
+			
+			//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
+			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url});	
+		}			
+		
+		//и обновляем информацию на табло так как считали рейтинг
+		objects.player_rating_text.text=my_data.rating;	
+		
+	}).catch((error) => {		
+		console.error(error);
+		net_state='offline';
+		return;
+	});
 	
 }
 
