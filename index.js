@@ -1563,12 +1563,14 @@ var load_user_data={
 						{access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'},
 						function (data) {
 							if (data.error===undefined) {
+								
 								my_data.first_name=data.response[0].first_name;
 								my_data.last_name=data.response[0].last_name;
 								my_data.uid="vk"+data.response[0].id;
 								my_data.pic_url=data.response[0].photo_100;
 								load_user_data.req_result="ok";	
-								load_user_data.process_results();								
+								load_user_data.process_results();	
+								
 							}	
 							else
 							{
