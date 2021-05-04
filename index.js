@@ -1622,7 +1622,7 @@ var load_user_data={
 					my_data.uid			=	_player.getUniqueID().replace("/", "Z");	
 					my_data.pic_url		=	_player.getPhoto('medium');		
 					
-					console.log(my_data.first_name);
+					console.log(my_data.uid);
 					this.req_result='ok';
 					
 					/*
