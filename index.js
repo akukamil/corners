@@ -1567,8 +1567,8 @@ var load_user_data={
 							my_data.last_name=data.response[0].last_name;
 							my_data.uid="vk"+data.response[0].id;
 							my_data.pic_url=data.response[0].photo_100;
-							this.req_result="vk_ok";	
-							this.process_results();
+							load_user_data.req_result="vk_ok";	
+							load_user_data.process_results();
 
 						}
 					)
@@ -1578,8 +1578,8 @@ var load_user_data={
 				//функция неудачной инициализации вконтакте
 				function()
 				{
-					this.req_result='vk_init_error';
-					this.process_results();				
+					load_user_data.req_result='vk_init_error';
+					load_user_data.process_results();				
 				},
 
 				//версия апи
