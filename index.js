@@ -1557,18 +1557,26 @@ var load_user_data={
 				//функция удачной инициализации вконтакте
 				function()
 				{
-					VK.api(
-						"users.get",
-						{access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'},
-						function (data) {
-							my_data.first_name=data.response[0].first_name;
-							my_data.last_name=data.response[0].last_name;
-							my_data.uid="vk"+data.response[0].id;
-							my_data.pic_url=data.response[0].photo_100;
-							this.req_result="vk_ok";	
-							this.process_results();
-						}
-					)			
+					try() {
+						VK.api(
+							"users.get",
+							{access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'},
+							function (data) {
+								my_data.first_name=data.response[0].first_name;
+								my_data.last_name=data.response[0].last_name;
+								my_data.uid="vk"+data.response[0].id;
+								my_data.pic_url=data.response[0].photo_100;
+								this.req_result="vk_ok";	
+								this.process_results();
+							}
+						)
+					}
+					catch(err){
+						
+						console.log(err);
+					}
+
+					
 				},	
 				
 				//функция неудачной инициализации вконтакте
