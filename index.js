@@ -1541,13 +1541,14 @@ var load_user_data={
 	// эта функция вызывается один раз в начале игры
 	
 	req_result: "",
+	yndx_no_personal_data:0,
 			
 	vk: function() {
 		
 		if(typeof(VK)==='undefined')
 		{		
-			this.req_result='vk_sdk_error';
-			this.process_results();	
+			load_user_data.req_result='vk_sdk_error';
+			load_user_data.process_results();	
 		}
 		else
 		{
@@ -1568,14 +1569,14 @@ var load_user_data={
 								my_data.last_name=data.response[0].last_name;
 								my_data.uid="vk"+data.response[0].id;
 								my_data.pic_url=data.response[0].photo_100;
-								this.req_result="ok";	
-								this.process_results();	
+								load_user_data.req_result="ok";	
+								load_user_data.process_results();	
 								
 							}	
 							else
 							{
-								this.req_result="vk_error";	
-								this.process_results();	
+								load_user_data.req_result="vk_error";	
+								load_user_data.process_results();	
 							}
 
 						}
@@ -1586,8 +1587,8 @@ var load_user_data={
 				//функция неудачной инициализации вконтакте
 				function()
 				{
-					this.req_result='vk_init_error';
-					this.process_results();				
+					load_user_data.req_result='vk_init_error';
+					load_user_data.process_results();				
 				},
 
 				//версия апи
@@ -1623,12 +1624,9 @@ var load_user_data={
 				
 				console.log(my_data.uid);
 				this.req_result='ok';
-				
-				/*
-				if (my_data.first_name==='')
-					sdk_res='no_personal_data'
-				else
-					sdk_res='ok'*/
+								
+				if (my_data.first_name=="" || my_data.first_name=='')
+					this.yndx_no_personal_data=1
 				
 			}).catch(err => {		
 				console.log(err);
@@ -1671,10 +1669,15 @@ var load_user_data={
 			my_data.uid			=	"";	
 			my_data.pic_url		=	undefined;	
 			state="offline";			
+			big_message.show("Вы не авторизованы в социальной сети. Доступна только оффлайн игра.")
 		}		
 		
 		//считываем рейтинг и обновляем данные об имени, фамилии и фото
 		if (this.req_result==="ok")	 {
+			
+			if (this.yndx_no_personal_data===1)
+				big_message.show("Не удалось получить Ваши имя и аватар.")
+			
 			net_play=1;
 			this.init_firebase();	
 		}	
