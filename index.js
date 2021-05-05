@@ -1546,8 +1546,8 @@ var load_user_data={
 		
 		if(typeof(VK)==='undefined')
 		{		
-			load_user_data.req_result='vk_sdk_error';
-			process_results();	
+			this.req_result='vk_sdk_error';
+			this.process_results();	
 		}
 		else
 		{
@@ -1568,14 +1568,14 @@ var load_user_data={
 								my_data.last_name=data.response[0].last_name;
 								my_data.uid="vk"+data.response[0].id;
 								my_data.pic_url=data.response[0].photo_100;
-								load_user_data.req_result="ok";	
-								load_user_data.process_results();	
+								this.req_result="ok";	
+								this.process_results();	
 								
 							}	
 							else
 							{
-								load_user_data.req_result="vk_error";	
-								load_user_data.process_results();	
+								this.req_result="vk_error";	
+								this.process_results();	
 							}
 
 						}
@@ -1586,8 +1586,8 @@ var load_user_data={
 				//функция неудачной инициализации вконтакте
 				function()
 				{
-					load_user_data.req_result='vk_init_error';
-					load_user_data.process_results();				
+					this.req_result='vk_init_error';
+					this.process_results();				
 				},
 
 				//версия апи
@@ -1600,7 +1600,6 @@ var load_user_data={
 	yandex: function() {
 	
 		
-		var sdk_res='';
 		if(typeof(YaGames)==='undefined')
 		{		
 			this.req_result='yndx_sdk_error';
