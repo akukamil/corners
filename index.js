@@ -2645,7 +2645,7 @@ function init_game_env() {
 
 	//загружаем данные игрока из яндекса или вконтакте
 	
-
+	
 	let env=window.location.href;
 	if (env.includes('vk.com')) {
 		social_network='vk';
@@ -2657,6 +2657,10 @@ function init_game_env() {
 		load_user_data.yandex();	 			 
 	}
 	 	 
+		 
+		 
+
+		 
 	
 	//показыаем основное меню
 	//load_user_data.local();
