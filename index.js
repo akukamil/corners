@@ -1411,8 +1411,8 @@ var finish_game = {
 			//показываем рекламу
 			window.ysdk.adv.showFullscreenAdv({
 			  callbacks: {
-				onClose: (function() {}, 
-				onError: (function() {}
+				onClose: function() {}, 
+				onError: function() {}
 						}
 			})
 		}
