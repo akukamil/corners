@@ -198,8 +198,11 @@ function add_message(text) {
 
 var big_message={
 	
-	show: function(text) {
+	show: function(text,callback) {
 		
+		if (callback===undefined) {
+			callback=()=>{};
+		}
 		dialog_active=1;
 		objects.big_message_text.text=text;
 		anim.add_pos({obj:objects.big_message_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-180, 	'sy'],	speed:0.02});
@@ -208,6 +211,9 @@ var big_message={
 	
 	close : function() {
 		
+		//вызываем коллбэк
+		
+		callback();
 		game_res.resources.close.sound.play();
 		
 		if (objects.big_message_cont.ready===false)
@@ -1280,7 +1286,7 @@ var finish_game = {
 
 
 		//показыаем сообщение с результатом игры
-		big_message.show(game_result_text);
+		big_message.show(game_result_text, function(){finish_game.show_ad()});
 		
 		//если диалоги еще открыты
 		objects.stickers_cont.visible=false;
@@ -1378,7 +1384,7 @@ var finish_game = {
 			game_res.resources.lose.sound.play();	
 		
 		//показыаем сообщение с результатом игры
-		big_message.show(game_result_text);
+		big_message.show(game_result_text, function(){finish_game.show_ad()});
 		
 		
 		//если диалоги еще открыты
@@ -1394,6 +1400,23 @@ var finish_game = {
 		
 		//показыаем основное меню
 		show_main_menu();	
+		
+	},
+	
+	show_ad: function() {
+		
+		
+		if (window.ysdk!==undefined)
+		{			
+			//показываем рекламу
+			window.ysdk.adv.showFullscreenAdv({
+			  callbacks: {
+				onClose: (function() {}, 
+				onError: (function() {}
+						}
+			})
+		}
+		
 		
 	}
 
