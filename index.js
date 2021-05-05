@@ -198,11 +198,15 @@ function add_message(text) {
 
 var big_message={
 	
+	callback_func: function(){},
+	
 	show: function(text,callback) {
 		
-		if (callback===undefined) {
-			callback=()=>{};
-		}
+		if (callback===undefined)
+			this.callback_func=()=>{};
+		else
+			this.callback_func=callback;
+		
 		dialog_active=1;
 		objects.big_message_text.text=text;
 		anim.add_pos({obj:objects.big_message_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-180, 	'sy'],	speed:0.02});
@@ -213,7 +217,7 @@ var big_message={
 		
 		//вызываем коллбэк
 		
-		callback();
+		this.callback_func();
 		game_res.resources.close.sound.play();
 		
 		if (objects.big_message_cont.ready===false)
@@ -1144,6 +1148,8 @@ var confirm_dialog= {
 }
 
 var finish_game = {
+	
+	
 	
 	online: function(res) {
 	
