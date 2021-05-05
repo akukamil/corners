@@ -1614,31 +1614,25 @@ var load_user_data={
 				//фиксируем SDK в глобальной переменной
 				window.ysdk=ysdk;
 				
-				//получаем данные игрока
-				ysdk.getPlayer().then(_player => {
-		
-					my_data.first_name 	=	_player.getName();
-					my_data.last_name	=	"";
-					my_data.uid			=	_player.getUniqueID().replace("/", "Z");	
-					my_data.pic_url		=	_player.getPhoto('medium');		
-					
-					console.log(my_data.uid);
-					this.req_result='ok';
-					
-					/*
-					if (my_data.first_name==='')
-						sdk_res='no_personal_data'
-					else
-						sdk_res='ok'*/
-					
-					
-				}).catch(err => {
-					this.req_result='yndx_get_play_error';
-				}).finally(()=>{				
-					this.process_results();				
-				})
+				return ysdk.getPlayer();
+			}.then((_player)=>{
 				
-			}).catch(err => {			
+				my_data.first_name 	=	_player.getName();
+				my_data.last_name	=	"";
+				my_data.uid			=	_player.getUniqueID().replace("/", "Z");	
+				my_data.pic_url		=	_player.getPhoto('medium');		
+				
+				console.log(my_data.uid);
+				this.req_result='ok';
+				
+				/*
+				if (my_data.first_name==='')
+					sdk_res='no_personal_data'
+				else
+					sdk_res='ok'*/
+				
+			}).catch(err => {		
+				console.log(err);
 				this.req_result='yndx_init_error';			
 			}).finally(()=>{			
 				this.process_results();			
