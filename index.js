@@ -1615,7 +1615,7 @@ var load_user_data={
 				window.ysdk=ysdk;
 				
 				return ysdk.getPlayer();
-			}.then((_player)=>{
+			}).then((_player)=>{
 				
 				my_data.first_name 	=	_player.getName();
 				my_data.last_name	=	"";
@@ -2643,6 +2643,7 @@ function init_game_env() {
 
 	//загружаем данные игрока из яндекса или вконтакте
 	
+
 	let env=window.location.href;
 	if (env.includes('vk.com')) {
 		social_network='vk';
@@ -2653,8 +2654,7 @@ function init_game_env() {
 		social_network='yandex';
 		load_user_data.yandex();	 			 
 	}
-	 
-	 
+	 	 
 	
 	//показыаем основное меню
 	//load_user_data.local();
