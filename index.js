@@ -2701,12 +2701,10 @@ function init_game_env() {
 	
 	let env=window.location.href;
 	if (env.includes('vk.com')) {
-		social_network='vk';
 		load_user_data.vk();				 
 	}
 
 	if (env.includes('yandex')) {
-		social_network='yandex';
 		load_user_data.yandex();	 			 
 	}
 	 	 
