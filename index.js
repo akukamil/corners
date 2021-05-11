@@ -1421,14 +1421,11 @@ var finish_game = {
 		
 		if (sn==="vk") {
 			
-					
-			var user_id = null;   // user's id
-			var app_id = 7817643;  // your app's id
 		 
 			admanInit(
 			
 				{
-				  user_id: opp_data.uid.substring(2);
+				  user_id: opp_data.uid.substring(2),
 				  app_id: 7817643,
 				  type: 'preloader'         // 'preloader' or 'rewarded' (default - 'preloader')
 				},
