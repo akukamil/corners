@@ -1,5 +1,5 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}, state="", game_tick=0, who_play_next=0, my_checkers=0, selected_checker=0, move=0,me_conf_play=0; 
+var app, game_res, game, objects={}, state="", game_tick=0, who_play_next=0, my_checkers=0, selected_checker=0, move=0,me_conf_play=0, sn=""; 
 var move_start_time=0, who_play_next_text="", move_time_left=0, move_timer=0,opponent_conf_play=0, dialog_active=0, bot_play=0, net_play=0;
 g_board=[];
 var players="", pending_player="",tm={};
@@ -899,9 +899,6 @@ var bot_game={
 		
 
 		
-		
-		
-		
 		bot_play=1;
 		
 		//++++++++++++++++++++
@@ -955,6 +952,9 @@ var bot_game={
 		finish_game.bot(10);
 		
 		
+		
+		
+		
 	},
 	
 	make_move: function() {
@@ -975,10 +975,6 @@ var bot_game={
 		});	
 		
 	}
-
-	
-	
-	
 
 	
 }
@@ -1423,6 +1419,35 @@ var finish_game = {
 			})
 		}
 		
+		if (sn==="vk") {
+			
+					
+			var user_id = null;   // user's id
+			var app_id = 7817643;  // your app's id
+		 
+			admanInit(
+			
+				{
+				  user_id: opp_data.uid.substring(2);
+				  app_id: 7817643,
+				  type: 'preloader'         // 'preloader' or 'rewarded' (default - 'preloader')
+				},
+			
+			
+				function onAdsReady(adman) {
+				  adman.onStarted(function () {});
+				  adman.onCompleted(function() {});          
+				  adman.onSkipped(function() {});          
+				  adman.onClicked(function() {});
+				  adman.start('preroll');
+				},							
+				
+				function onNoAds() {}
+			);
+		 
+			
+			
+		}
 		
 	}
 
@@ -1594,6 +1619,7 @@ var load_user_data={
 						function (data) {
 							if (data.error===undefined) {
 								
+								sn="vk";
 								my_data.first_name=data.response[0].first_name;
 								my_data.last_name=data.response[0].last_name;
 								my_data.uid="vk"+data.response[0].id;
@@ -1642,6 +1668,7 @@ var load_user_data={
 				
 				//фиксируем SDK в глобальной переменной
 				window.ysdk=ysdk;
+				sn="yandex";
 				
 				return ysdk.getPlayer();
 			}).then((_player)=>{
