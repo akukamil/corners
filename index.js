@@ -1432,14 +1432,14 @@ var finish_game = {
 			
 			
 				function onAdsReady(adman) {
-				  adman.onStarted(function () {console.log("ad started")});
-				  adman.onCompleted(function() {console.log("ad completed")});          
-				  adman.onSkipped(function() {console.log("ad skipped")});          
-				  adman.onClicked(function() {console.log("ad clicked")});
+				  adman.onStarted(function () {});
+				  adman.onCompleted(function() {});          
+				  adman.onSkipped(function() {});          
+				  adman.onClicked(function() {});
 				  adman.start('preroll');
 				},							
 				
-				function onNoAds() {console.log("no ad")}
+				function onNoAds() {}
 			);
 		 
 			
