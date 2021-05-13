@@ -2304,8 +2304,20 @@ var process_my_move=function (move_data) {
 	let {x1,y1,x2,y2}=move_data;
 	[new_board[y1][x1],new_board[y2][x2]]=[new_board[y2][x2],new_board[y1][x1]];
 	var board_state=0;
-	if (my_checkers===2) // если я супервайзер (шашки №2)
+	if (my_checkers===2) // если я мастер (шашки №2)
 		board_state=board_func.get_board_state(new_board, move);
+	
+
+		
+	//начинаем процесс плавного перемещения шашки		
+	if (bot_play===0)
+		board_func.start_gentle_move(move_data,function(){});	
+	else
+		board_func.start_gentle_move(move_data,function(){bot_game.make_move()});	
+	
+	//отправляем ход с состоянием оппоненту
+	if (bot_play===0)
+		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});
 	
 	//проверяем не закончена ли игра
 	if (board_state!==0) 
@@ -2317,17 +2329,7 @@ var process_my_move=function (move_data) {
 		if (board_func.any_home(new_board,my_checkers))
 			add_message("После 30 ходов не должно остаться шашек в доме");
 	}
-	
 		
-	//начинаем процесс плавного перемещения шашки		
-	if (bot_play===0)
-		board_func.start_gentle_move(move_data,function(){});	
-	else
-		board_func.start_gentle_move(move_data,function(){bot_game.make_move()});	
-	
-	//отправляем ход с состоянием оппоненту
-	if (bot_play===0)
-		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});
 	
 
 	//перезапускаем таймер хода и кто ходит
