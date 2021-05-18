@@ -1029,6 +1029,7 @@ var confirm_dialog= {
 		objects.cur_move_text.text="Сделано ходов: 0";
 		
 		//строка кто ходит
+		objects.text_4.tint=0xffffff;	
 		objects.whose_move_cont.visible=true;		
 		who_play_next_text=(who_play_next===my_checkers ? "Ваш ход" : "Ход соперника");		
 			
@@ -1274,6 +1275,7 @@ var finish_game = {
 		var old_rating=my_data.rating;		
 		
 		if (game_result!==999) {
+			
 			my_data.rating=calc_my_new_rating(game_result);		
 			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
 			objects.player_rating_text.text=my_data.rating;		
@@ -1543,7 +1545,7 @@ var leaderboard={
 	
 	update: function () {
 		
-		firebase.database().ref("players").orderByChild('rating').limitToLast(5).once('value').then((snapshot) => {
+		firebase.database().ref("players").orderByChild('rating').limitToLast(25).once('value').then((snapshot) => {
 			
 			if (snapshot.val()===null) {
 			  console.log("Что-то не получилось получить данные о рейтингах");
@@ -1551,8 +1553,9 @@ var leaderboard={
 			else {				
 				
 				var players_array = [];
-				snapshot.forEach(players_data=> {					
-				players_array.push([players_data.val().first_name, players_data.val().last_name, players_data.val().rating, players_data.val().pic_url]);	
+				snapshot.forEach(players_data=> {			
+					if (players_data.val().first_name!=="" && players_data.val().first_name!=='')
+						players_array.push([players_data.val().first_name, players_data.val().last_name, players_data.val().rating, players_data.val().pic_url]);	
 				});
 				
 
@@ -1665,7 +1668,7 @@ var load_user_data={
 				
 				//фиксируем SDK в глобальной переменной
 				window.ysdk=ysdk;
-				sn="yandex";
+				
 				
 				return ysdk.getPlayer();
 			}).then((_player)=>{
@@ -1677,6 +1680,7 @@ var load_user_data={
 				
 				console.log(my_data.uid);
 				this.req_result='ok';
+				sn="yandex";
 								
 				if (my_data.first_name=="" || my_data.first_name=='')
 					this.yndx_no_personal_data=1
@@ -1729,7 +1733,7 @@ var load_user_data={
 		if (this.req_result==="ok")	 {
 			
 			if (this.yndx_no_personal_data===1)
-				big_message.show("Не удалось получить Ваши имя и аватар.")
+				big_message.show("Не удалось получить Ваши имя и аватар. Ваши данные не будут отображаться в лидерборде.")
 			
 			net_play=1;
 			this.init_firebase();	
@@ -1749,18 +1753,16 @@ var load_user_data={
 			if (data===null)
 			{
 				//если я первый раз в игре
-				let today = new Date().toLocaleString();			
 				my_data.rating=1400;			  
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:today});	
+				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
 			}
 			else
 			{
 				//если я уже есть в базе то считыавем мой рейтинг
-				let today = new Date().toLocaleString();	
 				my_data.rating=data.rating;	
 				
 				//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:today});	
+				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
 			}			
 			
 			//и обновляем информацию на табло так как считали рейтинг
@@ -2238,6 +2240,7 @@ var opponent_state_changed= function(s) {
 }
 
 var players_list_updated=function(_players) {	
+
 	players=_players;
 	objects.online_users_text.text="Игроков онлайн: "+(Object.keys(_players).length+10);
 }
@@ -2331,7 +2334,6 @@ var process_my_move=function (move_data) {
 	}
 		
 	
-
 	//перезапускаем таймер хода и кто ходит
 	move_time_left=30;
 	who_play_next=3-who_play_next;				
@@ -2597,13 +2599,15 @@ var timer_tick = function() {
 	
 	if (move_time_left<-5) {
 		if (who_play_next===(3-my_checkers))	{			
-		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
-		finish_game.online(14);
-		return;
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",timestamp:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
+			finish_game.online(14);
+			return;
 		}
 	}
 	
-	
+	//подсвечиваем красным если осталость мало времени
+	if (move_time_left===5)
+		objects.text_4.tint=0xff0000;		
 	
 	objects.text_4.text=who_play_next_text+" ("+move_time_left+")";
 	move_timer=setTimeout(timer_tick.bind(this), 1000);	
@@ -2701,20 +2705,13 @@ function init_game_env() {
 
 
 	//загружаем данные игрока из яндекса или вконтакте
-	
-	
 	let env=window.location.href;
-	if (env.includes('vk.com')) {
+	
+	if (env.includes('vk.com'))
 		load_user_data.vk();				 
-	}
 
-	if (env.includes('yandex')) {
+	if (env.includes('yandex'))
 		load_user_data.yandex();	 			 
-	}
-	 	 
-		 
-		 
-
 		 
 	
 	//показыаем основное меню
