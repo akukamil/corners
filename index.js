@@ -1785,7 +1785,12 @@ var load_user_data={
 		//подписываемся на новые сообщения
 		firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
 			
+		//keep-alive сервис
+		firebase.database().ref("keepalive/"+my_data.uid).set("alive");		
+		setInterval(() =>firebase.database().ref("keepalive/"+my_data.uid).set("alive"), 30000);
+			
 		//отключение от игры и удаление не нужного
+		firebase.database().ref("keepalive/"+my_data.uid).onDisconnect().remove();
 		firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
 		firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();		
 		
@@ -2706,16 +2711,16 @@ function init_game_env() {
 
 	//загружаем данные игрока из яндекса или вконтакте
 	let env=window.location.href;
-	
+	/*
 	if (env.includes('vk.com'))
 		load_user_data.vk();				 
 
 	if (env.includes('yandex'))
 		load_user_data.yandex();	 			 
-		 
+		 */
 	
 	//показыаем основное меню
-	//load_user_data.local();
+	load_user_data.local();
 	show_main_menu();
 
 	//запускаем главный цикл
