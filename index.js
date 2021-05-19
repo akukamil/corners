@@ -1786,8 +1786,8 @@ var load_user_data={
 		firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
 			
 		//keep-alive сервис
-		firebase.database().ref("keepalive/"+my_data.uid).set("alive");		
-		setInterval(() =>firebase.database().ref("keepalive/"+my_data.uid).set("alive"), 30000);
+		firebase.database().ref("keepalive/"+my_data.uid).set(firebase.database.ServerValue.TIMESTAMP);		
+		setInterval(function()	{firebase.database().ref("keepalive/"+my_data.uid).set(firebase.database.ServerValue.TIMESTAMP);}, 45000);
 			
 		//отключение от игры и удаление не нужного
 		firebase.database().ref("keepalive/"+my_data.uid).onDisconnect().remove();
