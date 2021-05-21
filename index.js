@@ -1,5 +1,5 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}, state="", game_tick=0, who_play_next=0, my_checkers=0, selected_checker=0, move=0,me_conf_play=0, sn=""; 
+var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0,me_conf_play=0, sn=""; 
 var move_start_time=0, who_play_next_text="", move_time_left=0, move_timer=0,opponent_conf_play=0, dialog_active=0, bot_play=0, net_play=0;
 g_board=[];
 var players="", pending_player="",tm={};
@@ -877,9 +877,7 @@ var board_func={
 
 		//кодируем сосотяние игры в одно значение
 		return w1*1+w2*2+w1_at_home*4+w2_at_home*5;
-
 	}
-
 }
 
 var bot_game={
@@ -917,7 +915,6 @@ var bot_game={
 		
 		//очереди
 		who_play_next=1;
-		my_checkers=1;
 		
 		//строка кто ходит
 		objects.whose_move_cont.visible=true;
@@ -1004,15 +1001,16 @@ var calc_oppnent_new_rating=function(res)	{
 var confirm_dialog= {
 	
 	init: function(opp_id, chk) {
-		
-		
+				
 		game_res.resources.note.sound.play();
 		
 		dialog_active=1;		
 		
+		//какая у нас роль
+		console.log(my_role);
+		
 		//очереди
-		who_play_next=1;
-		my_checkers=chk;		
+		who_play_next=chk;
 		
 		//устанавливаем состояния
 		state="playing";
@@ -1085,6 +1083,10 @@ var confirm_dialog= {
 		if (objects.confirm_cont.ready===false)
 			return;
 		
+		//добавляем сообщение о цвете шашек
+		add_message("Цвет ваших щашек - красные");	
+		
+		//проигрываем звук
 		game_res.resources.click.sound.play();
 		
 		dialog_active=0;
@@ -1093,7 +1095,7 @@ var confirm_dialog= {
 		anim.add_pos({obj:objects.confirm_cont,param:'y',vis_on_end:false,func:'easeOutBack',val:['sy', 	-150],	speed:0.02});
 		
 		//сначала скрываем все шашки
-		g_board = [[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+		g_board =[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 		board_func.update_board();
 
 		//отправляем сообщение о согласии на игру
@@ -1161,57 +1163,55 @@ var finish_game = {
 		
 		switch (res) {
 			
-			case 1: // шашки 1 завершили игру
-				if (my_checkers===1)	{
+			case 1: // шашки 1 завршили игру
+				if (my_role==="master") {
 					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
-					game_result=1;	
-				}
-				else	{
-					game_result_text="Вы проиграли\nоппонент быстрее Вас перевел шашки в новый дом";	
-					game_result=-1;	
-				}
-				
-			break;
-			
-			case 2:	// шашки 2 завершили игру
-				if (my_checkers===2)	{
-					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
-					game_result=1;	
-				}
-				else	{
-					game_result_text="Вы проиграли!\nоппонент быстрее Вас перевел шашки в новый дом";	
-					game_result=-1;	
+					game_result=1;					
+				} else {
+					game_result_text="Вы проиграли\nсоперник перевел шашки в новый дом";	
+					game_result=-1;		
 				}
 			break;
 			
-			case 3:	// шашки 1 и 2 завершили игру
+			case 2:	// шашки 2 завршили игру
+					
+				if (my_role==="master") {
+					game_result_text="Вы проиграли\nсоперник перевел шашки в новый дом";	
+					game_result=-1;					
+				} else {
+					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
+					game_result=1;		
+				}					
+			break;
+			
+			case 3:	// оба завершили игру
 				game_result_text="НИЧЬЯ!";
 				game_result=0;	
 			break;
 			
 			case 4: // шашки 2 не успели вывести из дома за 30 ходов
-				if (my_checkers===1)	{
+
+				if (my_role==="master") {
 					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
-					game_result=1;	
-				}
-				else	{
+					game_result=1;					
+				} else {
 					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";	
-					game_result=-1;	
-				}
+					game_result=-1;		
+				}		
 			break;
 			
 			case 5:	// шашки 1 не успели вывести из дома за 30 ходов
-				if (my_checkers===2)	{
+				
+				if (my_role==="master") {					
+					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";	
+					game_result=-1;							
+				} else {
 					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
 					game_result=1;	
-				}
-				else	{
-					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";	
-					game_result=-1;	
-				}
+				}				
 			break;
 			
-			case 9:	// шашки 1 и 2 не успели вывести из дома за 30 ходов
+			case 9:	// оба не успели вывести из дома за 30 ходов
 				game_result_text="НИЧЬЯ!\nникто не успел вывести шашки из дома за 30 ходов";
 				game_result=0;	
 			break;
@@ -1323,24 +1323,12 @@ var finish_game = {
 		switch (res) {
 			
 			case 1: // шашки 1 завершили игру
-				if (my_checkers===1)	{
-					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
-				}
-				else	{
-					game_result_text="Вы проиграли\nоппонент быстрее Вас перевел шашки в новый дом";
-					game_result=0;
-				}
-				
+				game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
 			break;
 			
 			case 2:	// шашки 2 завершили игру
-				if (my_checkers===2)	{
-					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";	
-				}
-				else	{
-					game_result_text="Вы проиграли!\nоппонент быстрее Вас перевел шашки в новый дом";	
-					game_result=0;
-				}
+				game_result_text="Вы проиграли!\nоппонент быстрее Вас перевел шашки в новый дом";	
+				game_result=0;
 			break;
 			
 			case 3:	// шашки 1 и 2 завершили игру
@@ -1349,23 +1337,12 @@ var finish_game = {
 			break;
 			
 			case 4: // шашки 2 не успели вывести из дома за 30 ходов
-				if (my_checkers===1)	{
-					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
-				}
-				else	{
-					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";
-					game_result=0;					
-				}
+				game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
 			break;
 			
 			case 5:	// шашки 1 не успели вывести из дома за 30 ходов
-				if (my_checkers===2)	{
-					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";	
-				}
-				else	{
-					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";	
-					game_result=0;
-				}
+				game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";	
+				game_result=0;
 			break;
 			
 			case 9:	// шашки 1 и 2 не успели вывести из дома за 30 ходов
@@ -2190,12 +2167,12 @@ var mouse_down_on_board=function(e) {
 			
 			//воспроизводим соответствующий звук
 			game_res.resources.move.sound.play();
-			console.log("move_sound");
 			
 			return;
 		}	
 		else
 		{
+			add_message("Это не ваши шашки");	
 			selected_checker=0;
 			return;
 		}
@@ -2256,7 +2233,9 @@ var process_new_message=function(msg) {
 		if (msg.message==="REQ") {	
 		
 			//отправляем сообщение о начале игры
+			//в данном случае я слейв и хожу первым
 			firebase.database().ref("inbox/"+msg.sender).set({sender:my_data.uid,message:"OK",timestamp:Date.now(),data:0});	
+			my_role="slave";			
 			confirm_dialog.init(msg.sender,1);
 		}			
 	}
@@ -2265,9 +2244,12 @@ var process_new_message=function(msg) {
 	if (state==="wait_response") {
 		
 		//принимаем только положительный ответ от соответствующего соперника и начинаем игру
-		if (msg.message==="OK"  && this.pending_player===msg.sender)
-			confirm_dialog.init(msg.sender,2);
-				
+		if (msg.message==="OK"  && this.pending_player===msg.sender) {
+			//в данном случае я мастер и хожу вторым
+			my_role="master";				
+			confirm_dialog.init(msg.sender,2);			
+		}
+			
 	}		
 	
 	//получение сообщение в состояни игры
@@ -2303,18 +2285,15 @@ var process_new_message=function(msg) {
 var process_my_move=function (move_data) {
 			
 	move++;
-	
-	
+		
 	//предварительно создаем доску для проверки завершения
 	let new_board = JSON.parse(JSON.stringify(g_board));
 	let {x1,y1,x2,y2}=move_data;
 	[new_board[y1][x1],new_board[y2][x2]]=[new_board[y2][x2],new_board[y1][x1]];
 	var board_state=0;
-	if (my_checkers===2) // если я мастер (шашки №2)
+	if (my_role==="master") // если я мастер 
 		board_state=board_func.get_board_state(new_board, move);
-	
-
-		
+			
 	//начинаем процесс плавного перемещения шашки		
 	if (bot_play===0)
 		board_func.start_gentle_move(move_data,function(){});	
@@ -2322,8 +2301,17 @@ var process_my_move=function (move_data) {
 		board_func.start_gentle_move(move_data,function(){bot_game.make_move()});	
 	
 	//отправляем ход с состоянием оппоненту
-	if (bot_play===0)
-		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});
+	if (bot_play===0) {
+		
+		//переворачиваем данные о ходе так как оппоненту они должны попасть как ход шашками №2
+		move_data.x1=7-move_data.x1;
+		move_data.y1=7-move_data.y1;
+		move_data.x2=7-move_data.x2;
+		move_data.y2=7-move_data.y2;	
+		
+		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});		
+	}
+
 	
 	//проверяем не закончена ли игра
 	if (board_state!==0) 
@@ -2357,7 +2345,7 @@ var receive_move = function(move_data) {
 	//плавно перемещаем шашку
 	board_func.start_gentle_move(move_data,function(){});
 	
-	//если игра заверщена то переходим
+	//если игра завершена то переходим
 	if (move_data.board_state!==0)	{
 		finish_game.online(move_data.board_state);			
 		return;			
@@ -2711,16 +2699,16 @@ function init_game_env() {
 
 	//загружаем данные игрока из яндекса или вконтакте
 	let env=window.location.href;
-	
+	/*
 	if (env.includes('vk.com'))
 		load_user_data.vk();				 
 
 	if (env.includes('yandex'))
 		load_user_data.yandex();	 			 
-		 
+		 */
 	
 	//показыаем основное меню
-	//load_user_data.local();
+	load_user_data.local();
 	show_main_menu();
 
 	//запускаем главный цикл
