@@ -967,7 +967,7 @@ var bot_game={
 			who_play_next=1;
 			let board_state=board_func.get_board_state(g_board, move);
 			//проверяем не закончена ли игра
-			if (board_state!==0) 
+			if (board_state===1 || board_state===2 || board_state===3) 
 				finish_game.bot(board_state);	
 		});	
 		
