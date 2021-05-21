@@ -2699,16 +2699,16 @@ function init_game_env() {
 
 	//загружаем данные игрока из яндекса или вконтакте
 	let env=window.location.href;
-	/*
+	
 	if (env.includes('vk.com'))
 		load_user_data.vk();				 
 
 	if (env.includes('yandex'))
 		load_user_data.yandex();	 			 
-		 */
+		 
 	
 	//показыаем основное меню
-	load_user_data.local();
+	//load_user_data.local();
 	show_main_menu();
 
 	//запускаем главный цикл
