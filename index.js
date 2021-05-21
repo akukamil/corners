@@ -1786,11 +1786,9 @@ var load_user_data={
 		firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
 			
 		//keep-alive сервис
-		firebase.database().ref("keepalive/"+my_data.uid).set(firebase.database.ServerValue.TIMESTAMP);		
-		setInterval(function()	{firebase.database().ref("keepalive/"+my_data.uid).set(firebase.database.ServerValue.TIMESTAMP);}, 45000);
+		setInterval(function()	{firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);}, 40000);
 			
 		//отключение от игры и удаление не нужного
-		firebase.database().ref("keepalive/"+my_data.uid).onDisconnect().remove();
 		firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
 		firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();		
 		
@@ -2341,6 +2339,7 @@ var process_my_move=function (move_data) {
 	
 	//перезапускаем таймер хода и кто ходит
 	move_time_left=30;
+	objects.text_4.tint=0xffffff;	
 	who_play_next=3-who_play_next;				
 	who_play_next_text="Ход соперника";	
 		
@@ -2366,6 +2365,7 @@ var receive_move = function(move_data) {
 	
 	//перезапускаем таймер хода
 	move_time_left=30;
+	objects.text_4.tint=0xffffff;		
 	
 	//обозначаем кто ходит
 	who_play_next=3-who_play_next;		
