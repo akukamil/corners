@@ -1659,8 +1659,11 @@ var load_user_data={
 				this.req_result='ok';
 				sn="yandex";
 								
-				if (my_data.first_name=="" || my_data.first_name=='')
-					this.yndx_no_personal_data=1
+				if (my_data.first_name=="" || my_data.first_name=='') {
+					my_data.first_name=my_data.uid.substring(0,5);
+					this.yndx_no_personal_data=1					
+				}
+
 				
 			}).catch(err => {		
 				console.log(err);
@@ -2631,7 +2634,7 @@ function init_game_env() {
 	document.getElementById("m_progress").outerHTML = "";
 	document.getElementById("m_button_win").outerHTML = "";
 	
-	//minimax_solver=new minimax_solver_class();
+
 	
 	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:true,backgroundColor : 0x000000});
 	document.body.appendChild(app.view);
@@ -2731,6 +2734,8 @@ function load_resources() {
 	game_res.add('close','close.mp3');
 	game_res.add('move','move.mp3');
 	game_res.add('locked','locked.mp3');
+
+
 
 	//добавляем из листа загрузки
 	for (var i=0;i<load_list.length;i++)
