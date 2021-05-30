@@ -233,7 +233,7 @@ var board_func={
 	
 	checker_to_move: "",
 	target_point: 0,
-	move_path: [],
+	moves: [],
 	move_end_callback: function(){},
 	
 	update_board: function() {
@@ -259,6 +259,14 @@ var board_func={
 					objects.checkers[ind].ix=x;
 					objects.checkers[ind].iy=y;
 					objects.checkers[ind].m_id=g_board[y][x];
+					objects.checkers[ind].alpha=1;
+					
+					//проверка что шашка под угрозой					
+					if (x>3 && x<8 && y>4 && y<8 && move>24 && move<31 && objects.checkers[ind].m_id===1)
+						objects.checkers[ind].danger=1;
+					else
+						objects.checkers[ind].danger=0;
+					
 					
 					objects.checkers[ind].visible=true;
 					ind++;	
@@ -276,231 +284,18 @@ var board_func={
 		return 0;
 	},
 	
-	get_valid_moves: function(ix,iy){
-		
-		var move_archive=[[ix,iy]];
-		var valid_moves=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
-				
-		function left(ix,iy,cur_board) {
-			
-			var new_x=ix-1;
-			var new_y=iy;
-			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
-			
-			if (valid_moves[new_y][new_x]===1)
-				return;
-			
-			if (cur_board[new_y][new_x]===0)
-			{
-				valid_moves[new_y][new_x]=1;
-				return			
-			}
-			else
-			{
-				left_combo(ix,iy,JSON.parse(JSON.stringify(cur_board)));
-			}		
-		}
-		
-		function right(ix,iy,cur_board) {
-			var new_x=ix+1;
-			var new_y=iy;
-			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
-			
-			if (valid_moves[new_y][new_x]===1)
-				return;
-			
-			if (cur_board[new_y][new_x]===0)
-			{
-				valid_moves[new_y][new_x]=1;
-				return			
-			}
-			else
-			{
-				right_combo(ix,iy,JSON.parse(JSON.stringify(cur_board)));
-			}	
-		}
-		
-		function up(ix,iy,cur_board){
-			var new_x=ix;
-			var new_y=iy-1;
-			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
-			
-			if (valid_moves[new_y][new_x]===1)
-				return;
-			
-			if (cur_board[new_y][new_x]===0)
-			{
-				valid_moves[new_y][new_x]=1;
-				return			
-			}
-			else
-			{
-				up_combo(ix,iy,JSON.parse(JSON.stringify(cur_board)));
-			}		
-		}
-		
-		function down(ix,iy,cur_board){
-			var new_x=ix;
-			var new_y=iy+1;
-			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
-			
-			if (valid_moves[new_y][new_x]===1)
-				return;
-			
-			if (cur_board[new_y][new_x]===0)
-			{
-				valid_moves[new_y][new_x]=1;
-				return			
-			}
-			else
-			{
-				down_combo(ix,iy,JSON.parse(JSON.stringify(cur_board)));
-			}	
-		}
-		
-		function left_combo(ix,iy,cur_board) {
-			
-			var new_x=ix-2;
-			var new_y=iy;
-			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
-			
-			if (cur_board[iy][ix-1]===0)
-				return;
-			
-					
-			if (valid_moves[new_y][new_x]===1)
-				return;
-			
-			
-			if (cur_board[new_y][new_x]===0)
-			{
-				cur_board[new_y][new_x]=cur_board[iy][ix];
-				cur_board[iy][ix]=0;
-				valid_moves[new_y][new_x]=1;
-				
-				//продолжаем попытки комбо
-				left_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));
-				up_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));
-				down_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));
-			}
-		}
-		
-		function right_combo(ix,iy,cur_board) {
-			
-			var new_x=ix+2;
-			var new_y=iy;
-			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
-			
-			if (cur_board[iy][ix+1]===0)
-				return;
-			
-			if (valid_moves[new_y][new_x]===1)
-				return;
-			
-			
-			if (cur_board[new_y][new_x]===0)
-			{
-				cur_board[new_y][new_x]=cur_board[iy][ix];
-				cur_board[iy][ix]=0;
-				valid_moves[new_y][new_x]=1;
-				
-				//продолжаем попытки комбо
-				right_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));
-				up_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));
-				down_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));			
-			}
-		}
-		
-		function up_combo(ix,iy,cur_board) {
-			
-			var new_x=ix;
-			var new_y=iy-2;
-			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
-			
-			if (cur_board[iy-1][ix]===0)
-				return;
-			
-			if (valid_moves[new_y][new_x]===1)
-				return;
-			
-			
-			if (cur_board[new_y][new_x]===0)
-			{
-				cur_board[new_y][new_x]=cur_board[iy][ix];
-				cur_board[iy][ix]=0;
-				valid_moves[new_y][new_x]=1;
-				
-				//продолжаем попытки комбо
-				right_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));
-				up_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));
-				left_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));			
-			}
-		}
-		
-		function down_combo(ix,iy,cur_board) {
-			
-			var new_x=ix;
-			var new_y=iy+2;
-			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
-			
-			if (cur_board[iy+1][ix]===0)
-				return;
-			
-			if (valid_moves[new_y][new_x]===1)
-				return;
-			
-			
-			if (cur_board[new_y][new_x]===0)
-			{
-				cur_board[new_y][new_x]=cur_board[iy][ix];
-				cur_board[iy][ix]=0;
-				valid_moves[new_y][new_x]=1;
-				
-				//продолжаем попытки комбо
-				right_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));
-				down_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));
-				left_combo(new_x,new_y,JSON.parse(JSON.stringify(cur_board)));			
-			}
-		}
-			
-
-		left(ix,iy,JSON.parse(JSON.stringify(g_board)));
-		right(ix,iy,JSON.parse(JSON.stringify(g_board)));
-		up(ix,iy,JSON.parse(JSON.stringify(g_board)));
-		down(ix,iy,JSON.parse(JSON.stringify(g_board)));
-		
-		return valid_moves;
-	
-	},
-	
 	get_moves_path: function(move_data){
 		
-		var g_archive=[];
+		var g_archive=[0,0,0,0,0,0,0,0,0,0,0];
 		var move_archive=[[move_data.x1,move_data.y1]];
+		
 		
 		function left(move_data,cur_board, m_archive) {
 			
 			var new_x=move_data.x1-1;
 			var new_y=move_data.y1;
 			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
+			if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;
 			
 			if (cur_board[new_y][new_x]===0)
 			{
@@ -512,7 +307,7 @@ var board_func={
 			}
 			else
 			{
-				left_combo(move_data,JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+				left_combo(move_data,cur_board,	m_archive);
 			}		
 		}
 		
@@ -533,7 +328,7 @@ var board_func={
 			}
 			else
 			{
-				right_combo(move_data,JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+				right_combo(move_data,cur_board, m_archive);
 			}	
 		}
 		
@@ -554,7 +349,7 @@ var board_func={
 			}
 			else
 			{
-				up_combo(move_data,JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+				up_combo(move_data,cur_board, m_archive);
 			}		
 		}
 		
@@ -575,49 +370,37 @@ var board_func={
 			}
 			else
 			{
-				down_combo(move_data,JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+				down_combo(move_data,cur_board, m_archive);
 			}	
 		}
 		
-		function left_combo(move_data,cur_board, m_archive) {
+		function left_combo(move_data, cur_board, m_archive) {
 			
 			var new_x=move_data.x1-2;
 			var new_y=move_data.y1;
 			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
+			if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;			
+			if (cur_board[move_data.y1][move_data.x1-1]===0) return;				
+			if (cur_board[new_y][new_x]!==0) return;
 			
-			if (cur_board[move_data.y1][move_data.x1-1]===0)
-				return;		
+			cur_board[new_y][new_x]=cur_board[move_data.y1][move_data.x1];
 			
-			if (cur_board[new_y][new_x]===0)
-			{
-				cur_board[new_y][new_x]=cur_board[move_data.y1][move_data.x1];
-				cur_board[move_data.y1][move_data.x1]=0;
-				
-				m_archive.push([new_x,new_y]);		
-				if (new_x===move_data.x2 && new_y===move_data.y2) {		
-					
-					if (g_archive.length>0) {
-						if (m_archive.length<g_archive.length)
-							g_archive=m_archive;
-					}
-					else {
-						g_archive=m_archive;						
-					}
-					return;
-				}
-				
-				if (valid_moves[new_y][new_x]===1)
-					return;			
-				valid_moves[new_y][new_x]=1;
-				
-				//продолжаем попытки комбо
-				let m_data={x1:new_x,y1:new_y,x2:move_data.x2,y2:move_data.y2}
-				left_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
-				up_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
-				down_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
-			}
+			m_archive.push([new_x,new_y]);		
+			if (new_x===move_data.x2 && new_y===move_data.y2) {						
+				//только если мы нашли более коротку последовательность
+				if (m_archive.length<=g_archive.length)
+					g_archive=m_archive;
+				return;	
+			}							
+			
+			//в первую часть хода записываем текущую позицию
+			let m_data={x1:new_x,y1:new_y,x2:move_data.x2,y2:move_data.y2}
+			
+			//продолжаем попытки комбо			
+			left_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+			up_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+			down_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+
 		}
 		
 		function right_combo(move_data,cur_board, m_archive) {
@@ -625,41 +408,27 @@ var board_func={
 			var new_x=move_data.x1+2;
 			var new_y=move_data.y1;
 			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
+			if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;			
+			if (cur_board[move_data.y1][move_data.x1+1]===0) return;				
+			if (cur_board[new_y][new_x]!==0) return;
 			
-			if (cur_board[move_data.y1][move_data.x1+1]===0)
-				return;
+			cur_board[new_y][new_x]=cur_board[move_data.y1][move_data.x1];
 			
+			m_archive.push([new_x,new_y]);		
+			if (new_x===move_data.x2 && new_y===move_data.y2) {						
+				//только если мы нашли более коротку последовательность
+				if (m_archive.length<=g_archive.length)
+					g_archive=m_archive;
+				return;	
+			}							
 			
-			if (cur_board[new_y][new_x]===0)
-			{
-				cur_board[new_y][new_x]=cur_board[move_data.y1][move_data.x1];
-				cur_board[move_data.y1][move_data.x1]=0;
-							
-				m_archive.push([new_x,new_y]);		
-				if (new_x===move_data.x2 && new_y===move_data.y2) {						
-					
-					if (g_archive.length>0) {
-						if (m_archive.length<g_archive.length)
-							g_archive=m_archive;
-					}
-					else {
-						g_archive=m_archive;						
-					}
-					return;
-				}
-				
-				if (valid_moves[new_y][new_x]===1)
-					return;			
-				valid_moves[new_y][new_x]=1;
-				
-				//продолжаем попытки комбо
-				let m_data={x1:new_x,y1:new_y,x2:move_data.x2,y2:move_data.y2}
-				right_combo(	m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
-				up_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
-				down_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));			
-			}
+			//в первую часть хода записываем текущую позицию
+			let m_data={x1:new_x,y1:new_y,x2:move_data.x2,y2:move_data.y2}
+		
+			right_combo(	m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+			up_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+			down_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));			
+
 		}
 		
 		function up_combo(move_data,cur_board, m_archive) {
@@ -667,40 +436,27 @@ var board_func={
 			var new_x=move_data.x1;
 			var new_y=move_data.y1-2;
 			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
+			if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;			
+			if (cur_board[move_data.y1-1][move_data.x1]===0) return;				
+			if (cur_board[new_y][new_x]!==0) return;
 			
-			if (cur_board[move_data.y1-1][move_data.x1]===0)
-				return;
+			cur_board[new_y][new_x]=cur_board[move_data.y1][move_data.x1];
 			
-			if (cur_board[new_y][new_x]===0)
-			{
-				cur_board[new_y][new_x]=cur_board[move_data.y1][move_data.x1];
-				cur_board[move_data.y1][move_data.x1]=0;
-				
-				m_archive.push([new_x,new_y]);		
-				if (new_x===move_data.x2 && new_y===move_data.y2) {						
-					
-					if (g_archive.length>0) {
-						if (m_archive.length<g_archive.length)
-							g_archive=m_archive;
-					}
-					else {
-						g_archive=m_archive;						
-					}
-					return;
-				}
-				
-				if (valid_moves[new_y][new_x]===1)
-					return;			
-				valid_moves[new_y][new_x]=1;
-				
-				//продолжаем попытки комбо
-				let m_data={x1:new_x,y1:new_y,x2:move_data.x2,y2:move_data.y2}
-				right_combo(	m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
-				up_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
-				left_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));			
-			}
+			m_archive.push([new_x,new_y]);		
+			if (new_x===move_data.x2 && new_y===move_data.y2) {						
+				//только если мы нашли более коротку последовательность
+				if (m_archive.length<=g_archive.length)
+					g_archive=m_archive;
+				return;	
+			}							
+			
+			//в первую часть хода записываем текущую позицию
+			let m_data={x1:new_x,y1:new_y,x2:move_data.x2,y2:move_data.y2}
+			
+			right_combo(	m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+			up_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+			left_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));			
+			
 		}
 		
 		function down_combo(move_data,cur_board, m_archive) {
@@ -708,59 +464,43 @@ var board_func={
 			var new_x=move_data.x1;
 			var new_y=move_data.y1+2;
 			
-			if (new_x>7 || new_x<0 || new_y>7 || new_y<0)
-				return;
+			if (new_x>7 || new_x<0 || new_y>7 || new_y<0) return;			
+			if (cur_board[move_data.y1+1][move_data.x1]===0) return;				
+			if (cur_board[new_y][new_x]!==0) return;
 			
-			if (cur_board[move_data.y1+1][move_data.x1]===0)
-				return;
+			cur_board[new_y][new_x]=cur_board[move_data.y1][move_data.x1];
 			
-			if (cur_board[new_y][new_x]===0)
-			{
-				cur_board[new_y][new_x]=cur_board[move_data.y1][move_data.x1];
-				cur_board[move_data.y1][move_data.x1]=0;
-				
-				m_archive.push([new_x,new_y]);		
-				if (new_x===move_data.x2 && new_y===move_data.y2) {						
-					
-					if (g_archive.length>0) {
-						if (m_archive.length<g_archive.length)
-							g_archive=m_archive;
-					}
-					else {
-						g_archive=m_archive;						
-					}
-					return;
-				}
-				
-				if (valid_moves[new_y][new_x]===1)
-					return;			
-				valid_moves[new_y][new_x]=1;
-				
-				//продолжаем попытки комбо
-				let m_data={x1:new_x,y1:new_y,x2:move_data.x2,y2:move_data.y2}
-				right_combo(	m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
-				down_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
-				left_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));			
-			}
+			m_archive.push([new_x,new_y]);		
+			if (new_x===move_data.x2 && new_y===move_data.y2) {						
+				//только если мы нашли более коротку последовательность
+				if (m_archive.length<=g_archive.length)
+					g_archive=m_archive;
+				return;	
+			}							
+			
+			//в первую часть хода записываем текущую позицию
+			let m_data={x1:new_x,y1:new_y,x2:move_data.x2,y2:move_data.y2}
+			
+			right_combo(	m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+			down_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));
+			left_combo(		m_data, JSON.parse(JSON.stringify(cur_board)),	JSON.parse(JSON.stringify(m_archive)));			
+			
 		}
-				
-			
-		valid_moves=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]];
+					
 		left(	move_data,	JSON.parse(	JSON.stringify(g_board)),	JSON.parse(JSON.stringify(move_archive)));
 		right(	move_data,	JSON.parse(	JSON.stringify(g_board)),	JSON.parse(JSON.stringify(move_archive)));
 		up(		move_data,	JSON.parse(	JSON.stringify(g_board)),	JSON.parse(JSON.stringify(move_archive)));
 		down(	move_data,	JSON.parse(	JSON.stringify(g_board)),	JSON.parse(JSON.stringify(move_archive)));
-			
 		
 		return g_archive;
 	},
 	
-	start_gentle_move: function(move_data,callback) {
+	start_gentle_move: function(move_data,moves,callback) {
 	
 		//подготавливаем данные для перестановки
 		this.move_end_callback=callback;
 		this.checker_to_move=this.get_checker_by_pos(move_data.x1,move_data.y1);		
-		this.move_path=this.get_moves_path(move_data);
+		this.moves=moves;
 		this.target_point=1;
 		this.set_next_cell();
 	
@@ -792,12 +532,12 @@ var board_func={
 	set_next_cell() {
 		
 		//проверяем что движение завершилось
-		if (this.target_point===this.move_path.length) {
+		if (this.target_point===this.moves.length) {
 			
 			this.target_point=0;
 			
-			var [sx,sy]=this.move_path[0];			
-			var [tx,ty]=this.move_path[this.move_path.length-1];	
+			var [sx,sy]=this.moves[0];			
+			var [tx,ty]=this.moves[this.moves.length-1];	
 			
 			//меняем старую и новую позицию шашки
 			[g_board[ty][tx],g_board[sy][sx]]=[g_board[sy][sx],g_board[ty][tx]];
@@ -813,7 +553,7 @@ var board_func={
 		
 
 		
-		var [next_ix,next_iy]=this.move_path[this.target_point];
+		var [next_ix,next_iy]=this.moves[this.target_point];
 		
 		this.checker_to_move.tx=next_ix*50+objects.board_sprite.x+10;
 		this.checker_to_move.ty=next_iy*50+objects.board_sprite.y+10;
@@ -822,6 +562,18 @@ var board_func={
 		this.checker_to_move.dy=(this.checker_to_move.ty-this.checker_to_move.y)/10;		
 	
 		this.target_point++;	
+	},
+		
+	process_home_danger: function() {
+		
+		if (bot_play===1)
+			return;
+		
+		for (let c of objects.checkers) {			
+			if (c.danger===1)
+				c.alpha=Math.sin(game_tick*5)*0.5+0.5;
+		}
+		
 	},
 	
 	finished1: function (boardv) {
@@ -855,19 +607,7 @@ var board_func={
 					return 1;
 		return 0;	
 	},
-
-	any_home: function(boardv, checker) {
-		
-		let shift_x=0, shift_y=0;	
-		if (checker===1) {shift_x=4, shift_y=5};				
-					
-		for (var y=shift_y;y<shift_y+3;y++)
-			for (var x=shift_x;x<shift_x+4;x++)
-				if (boardv[y][x]===checker)
-					return 1;
-		return 0;	
-	},
-
+	
 	get_board_state: function(board, cur_move) {	
 		
 		var w1=this.finished1(board);
@@ -962,9 +702,13 @@ var bot_game={
 		else
 			m_data=minimax_solver.minimax_4_single(g_board,move);
 	
-		board_func.start_gentle_move(m_data,function(){
+		//получаем последовательность ходов
+		let moves=board_func.get_moves_path(m_data);
+	
+		board_func.start_gentle_move(m_data,moves,function(){
 			
 			who_play_next=1;
+			
 			let board_state=board_func.get_board_state(g_board, move);
 			//проверяем не закончена ли игра
 			if (board_state===1 || board_state===2 || board_state===3) 
@@ -1084,7 +828,7 @@ var confirm_dialog= {
 			return;
 		
 		//добавляем сообщение о цвете шашек
-		add_message("Цвет ваших щашек - красные");	
+		add_message("Цвет ваших шашек - красные");	
 		
 		//проигрываем звук
 		game_res.resources.click.sound.play();
@@ -2193,21 +1937,25 @@ var mouse_down_on_board=function(e) {
 			return;
 		}
 		
-		//получаем перечень доступных ходов для проверки		
-		let valid_moves=board_func.get_valid_moves(selected_checker.ix,selected_checker.iy);		
-		if (valid_moves[new_y][new_x]===1)
+		
+		
+		//формируем объект содержащий информацию о ходе
+		let m_data={x1:selected_checker.ix,y1:selected_checker.iy,x2:new_x, y2:new_y};		
+		
+		//пытыемся получить последовательность ходов
+		let moves=board_func.get_moves_path(m_data);
+		
+	
+		if (moves.length!==11)
 		{				
 
 			objects.selected_frame.visible=false;
-			
-			//формируем объект содержащий информацию о ходе
-			let m_data={x1:selected_checker.ix,y1:selected_checker.iy,x2:new_x, y2:new_y};
 			
 			//отменяем выделение
 			selected_checker=0;		
 			
 			//отправляем ход сопернику
-			process_my_move(m_data);				
+			process_my_move(m_data,moves);				
 		}
 		else
 		{
@@ -2285,7 +2033,7 @@ var process_new_message=function(msg) {
 		
 }
 
-var process_my_move=function (move_data) {
+var process_my_move=function (move_data, moves) {
 			
 	move++;
 		
@@ -2298,13 +2046,10 @@ var process_my_move=function (move_data) {
 		board_state=board_func.get_board_state(new_board, move);
 			
 	//начинаем процесс плавного перемещения шашки		
-	if (bot_play===0)
-		board_func.start_gentle_move(move_data,function(){});	
-	else
-		board_func.start_gentle_move(move_data,function(){bot_game.make_move()});	
-	
-	//отправляем ход с состоянием оппоненту
 	if (bot_play===0) {
+		
+		//начинаем плавное перемещение шашки
+		board_func.start_gentle_move(move_data,moves,function(){});		
 		
 		//переворачиваем данные о ходе так как оппоненту они должны попасть как ход шашками №2
 		move_data.x1=7-move_data.x1;
@@ -2312,8 +2057,15 @@ var process_my_move=function (move_data) {
 		move_data.x2=7-move_data.x2;
 		move_data.y2=7-move_data.y2;	
 		
+		//отправляем ход сопернику
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",timestamp:Date.now(),data:{...move_data,board_state:board_state}});		
+	}	
+	else
+	{		
+		board_func.start_gentle_move(move_data,moves,function(){setTimeout(bot_game.make_move(),100)});		
 	}
+
+	
 
 	
 	//проверяем не закончена ли игра
@@ -2323,7 +2075,7 @@ var process_my_move=function (move_data) {
 	
 	//уведомление что нужно вывести шашки из дома
 	if (move>24 && move<31 ) {
-		if (board_func.any_home(new_board,my_checkers))
+		if (board_func.any1home(new_board))
 			add_message("После 30 ходов не должно остаться шашек в доме");
 	}
 		
@@ -2345,8 +2097,11 @@ var receive_move = function(move_data) {
 	//воспроизводим уведомление о том что соперник произвел ход
 	game_res.resources.receive_move.sound.play();
 	
+	//считаем последовательность ходов
+	let moves=board_func.get_moves_path(move_data);
+	
 	//плавно перемещаем шашку
-	board_func.start_gentle_move(move_data,function(){});
+	board_func.start_gentle_move(move_data,moves,function(){});
 	
 	//если игра завершена то переходим
 	if (move_data.board_state!==0)	{
@@ -2762,6 +2517,9 @@ function main_loop() {
 	
 	//обработака окна поиска соперника и не только
 	search_opponent.process();
+	
+	//мигание шашек в доме
+	board_func.process_home_danger();
 	
 	//обработка передвижения шашек
 	board_func.process_checker_move();
