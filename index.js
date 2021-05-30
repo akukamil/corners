@@ -2062,7 +2062,7 @@ var process_my_move=function (move_data, moves) {
 	}	
 	else
 	{		
-		board_func.start_gentle_move(move_data,moves,function(){setTimeout(bot_game.make_move(),500)});		
+		board_func.start_gentle_move(move_data,moves,function() {setTimeout(function(){bot_game.make_move()},400));		
 	}
 
 	
