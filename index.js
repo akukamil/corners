@@ -3026,9 +3026,7 @@ function resize() {
 function init_game_env() {
 	
 	document.getElementById("m_bar").outerHTML = "";		
-	document.getElementById("top_w").outerHTML = "";
 	document.getElementById("m_progress").outerHTML = "";
-	document.getElementById("m_button_win").outerHTML = "";
 	
 	
 	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x333333});
