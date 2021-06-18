@@ -283,12 +283,12 @@ var big_message={
 		
 		any_dialog_active=1;
 		
-	/*
+
 		if (text2!==undefined || text2!=="")
 			objects.big_message_text2.text=text2;
 		else
 			objects.big_message_text2.text='**********';
-		*/
+		
 		if (callback===undefined)
 			this.callback_func=()=>{};
 		else
@@ -3122,8 +3122,6 @@ function init_game_env() {
 	load_user_data.local();*/
 	
 	
-	big_message.show("В ближайщие дни игра может работать не стабильно", ")))");
-
 	
 	//устанавливаем начальный вид шашек
 	board_func.tex_1=game_res.resources.chk_quad_1_tex.texture;
