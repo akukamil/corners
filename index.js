@@ -2857,8 +2857,11 @@ var cards_menu={
 		
 		anim.add_pos({obj:objects.invite_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',400],	speed:0.04});
 			
-		if (state==="wait_response")
-			state="online";
+		if (state==="wait_response") {
+			state="online";			
+			firebase.database().ref("states/"+my_data.uid).set(state);
+		}
+
 		
 	},
 	
