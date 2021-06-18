@@ -283,12 +283,12 @@ var big_message={
 		
 		any_dialog_active=1;
 		
-
+	/*
 		if (text2!==undefined || text2!=="")
 			objects.big_message_text2.text=text2;
 		else
 			objects.big_message_text2.text='**********';
-		
+		*/
 		if (callback===undefined)
 			this.callback_func=()=>{};
 		else
