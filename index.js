@@ -2358,6 +2358,8 @@ var main_menu= {
 	
 	activate: function() {
 		
+		big_message.show("В ближайщие дни игра может работать не стабильно", ")))");
+		
 		//просто добавляем контейнер с кнопками
 		objects.main_buttons_cont.visible=true;
 		objects.desktop.visible=true;
