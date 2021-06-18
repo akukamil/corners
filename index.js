@@ -1615,7 +1615,8 @@ var load_user_data={
 			firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",tm:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
 					
 			//устанавливаем мой статус в онлайн
-			firebase.database().ref("states/"+my_data.uid).set("online");	
+			state="online";
+			firebase.database().ref("states/"+my_data.uid).set(state);	
 			
 			//подписываемся на новые сообщения
 			firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
