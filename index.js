@@ -15,7 +15,7 @@ class player_mini_card_class extends PIXI.Container {
 		this.visible=false;
 		this.id=id;
 		this.uid=0;
-		this.need_update=0;
+		this.update_level=0;
 		this.sx=this.x=x;
 		this.sy=this.y=y;
 		this.bcg=new PIXI.Sprite(game_res.resources.mini_player_card.texture);
@@ -2592,11 +2592,12 @@ var lb={
 var cards_menu={
 	
 	card_i: 1,
+	activation_update:0,
 	cards_pos: [[20,60],[20,140],[20,220],[20,300],[270,60],[270,140],[270,220],[270,300],[520,60],[520,140],[520,220]],
 	
 	activate: function () {
 		
-		
+		this.activation_update=1;
 		objects.cards_cont.visible=true;
 		objects.back_button.visible=true;
 		
@@ -2640,11 +2641,11 @@ var cards_menu={
 				//это если уже есть карточка с этими данными
 				if (uid===objects.mini_cards[i].uid) {
 						
-					//проверяем изменилось ли состояние
-					let need_update=0;
+					//проверяем изменилось ли состояние если да то нужно обновить состояние и рейтинг
+					let update_level=this.activation_update;
 					if (players[uid]!==objects.mini_cards[i].state)
-						need_update=1;					
-					this.place_next_cart({id:i, need_update:need_update, state:players[uid]});
+						update_level=1;					
+					this.place_next_cart({id:i, update_level:update_level, state:players[uid]});
 					new_players[uid]=0;
 					break;
 				}				
@@ -2655,25 +2656,23 @@ var cards_menu={
 		for (let uid in new_players)
 			if (new_players[uid]===1)
 				this.place_new_cart({uid:uid, state:players[uid]});
+	
 
+		//теперь обновляем данные на карточках если это требуется
+		for(let i=1;i<11;i++)			
+			if (objects.mini_cards[i].visible===true)
+				this.update_cart(i);  					
 		
-
-		//теперь обновляем данные на карточки если это требуется
-		for(let i=1;i<11;i++) {		
 		
-			if (objects.mini_cards[i].visible===true) {
-				if (objects.mini_cards[i].need_update===1) {
-					
-					this.update_cart(i);  					
-					
-				}
-			}				
-		}
-		
+		//когда карточки запускаются то надо обновить все
+		this.activation_update=0;
 		
 	},
 	
 	update_cart: function(id) {		
+	
+		if (objects.mini_cards[id].update_level===0)
+			return;
 		
 		firebase.database().ref("players/"+objects.mini_cards[id].uid).once('value').then((snapshot) => {
 
@@ -2692,8 +2691,9 @@ var cards_menu={
 				objects.mini_cards[id].rating_text.text=player_data.rating;
 				objects.mini_cards[id].rating=player_data.rating;
 				
-				//загружаем фото
-				this.load_avatar(id);
+				//загружаем фото если уровень апдейта установлен на 2
+				if (objects.mini_cards[id].update_level===2)
+					this.load_avatar(id);
 			}					  
 		});			
 		
@@ -2711,32 +2711,42 @@ var cards_menu={
 		
 	},
 	
-	place_next_cart: function(params={id:0, need_update:0, state:"online"}) {
+	get_state_tint: function(s) {
 		
-		switch(params.state) {
+		switch(s) {
 			
 			case "online":
-				objects.mini_cards[params.id].bcg.tint=0xff00ff;
+				return 0x559955;
 			break;
 				
 			case "idle":
-				objects.mini_cards[params.id].bcg.tint=0x00ff00;
+				return 0x00ff00;
 			break;
 			
 			case "bot":
-				objects.mini_cards[params.id].bcg.tint=0x00ffff;
+				return 0x376f37;
 			break;
 			
 			case "playing":
-				objects.mini_cards[params.id].bcg.tint=0xff0000;
-			break;			
-		}
+				return 0x344472;
+			break;	
+
+			case "wait_response":
+				return 0x990000;
+			break;	
+		}		
+	},
+	
+	place_next_cart: function(params={id:0, update_level:0, state:"online"}) {
+		
+		//устанавливаем цвет карточки в зависимости от состояния
+		objects.mini_cards[params.id].bcg.tint=this.get_state_tint(params.state);
 		
 		objects.mini_cards[params.id].state=params.state;
 		objects.mini_cards[params.id].visible=true;
 		objects.mini_cards[params.id].x=this.cards_pos[this.card_i][0];
 		objects.mini_cards[params.id].y=this.cards_pos[this.card_i][1];		
-		objects.mini_cards[params.id].need_update=params.need_update;
+		objects.mini_cards[params.id].update_level=params.update_level;
 		this.card_i++;
 	},
 	
@@ -2748,32 +2758,18 @@ var cards_menu={
 			if (objects.mini_cards[i].visible===false) {
 					
 					
-				switch(params.state) {
-					
-					case "online":
-						objects.mini_cards[i].bcg.tint=0xff00ff;
-					break;
-						
-					case "idle":
-						objects.mini_cards[i].bcg.tint=0x00ff00;
-					break;
-					
-					case "bot":
-						objects.mini_cards[i].bcg.tint=0x00ffff;
-					break;
-					
-					case "playing":
-						objects.mini_cards[i].bcg.tint=0xff0000;
-					break;			
-				}
-							
+				//устанавливаем цвет карточки в зависимости от состояния
+				objects.mini_cards[i].bcg.tint=this.get_state_tint(params.state);
+									
 					
 				objects.mini_cards[i].state=params.state;
 				objects.mini_cards[i].uid=params.uid;
 				objects.mini_cards[i].visible=true;
 				objects.mini_cards[i].x=this.cards_pos[this.card_i][0];
 				objects.mini_cards[i].y=this.cards_pos[this.card_i][1];
-				objects.mini_cards[i].need_update=1;
+				
+				//здесь нужно обновить все и рейтинг и имя и аватар
+				objects.mini_cards[i].update_level=2;
 				this.card_i++;
 				break;
 			}				
@@ -2885,7 +2881,11 @@ var cards_menu={
 			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"INV",tm:Date.now()});
 			pending_player=opp_data.uid;
 			any_dialog_active=1
-			state="wait_response";					
+			
+			//устанавливаем локальный и удаленный статус
+			state="wait_response";	
+			firebase.database().ref("states/"+my_data.uid).set(state);	
+			
 		}
 
 		
@@ -2896,9 +2896,7 @@ var cards_menu={
 		objects.opp_card_avatar.texture=objects.invite_avatar.texture;
 		
 	},
-	
-	
-	
+		
 	rejected_invite: function() {
 		
 		state="online";
@@ -3109,11 +3107,11 @@ function init_game_env() {
 		load_user_data.vk();				 
 
 	if (env.includes('yandex'))
-		load_user_data.yandex();			 
+		load_user_data.yandex();	 			 
 		 
 	/*
 	//загружаем данные пользователя
-	load_user_data.local();*/ 	
+	load_user_data.local();*/
 	
 	//устанавливаем начальный вид шашек
 	board_func.tex_1=game_res.resources.chk_quad_1_tex.texture;
