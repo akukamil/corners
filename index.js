@@ -1425,7 +1425,6 @@ var giveup_menu={
 var load_user_data={
 		
 	// эта функция вызывается один раз в начале игры
-	warning_message_show: 0,
 	req_result: "",
 	yndx_no_personal_data:0,
 			
@@ -1548,10 +1547,7 @@ var load_user_data={
 	process_results: function() {
 		
 		
-		if (this.warning_message_show===0) {
-			big_message.show("В ближайщие дни игра может работать не стабильно", ")))");
-			this.warning_message_show=1;
-		}
+
 		
 		//загружаем мою аватарку на табло
 		if (my_data.pic_url!=undefined) {			
@@ -3119,10 +3115,15 @@ function init_game_env() {
 
 	if (env.includes('yandex'))
 		load_user_data.yandex();	 			 
+	 
 		 
 	/*
 	//загружаем данные пользователя
 	load_user_data.local();*/
+	
+	
+	big_message.show("В ближайщие дни игра может работать не стабильно", ")))");
+
 	
 	//устанавливаем начальный вид шашек
 	board_func.tex_1=game_res.resources.chk_quad_1_tex.texture;
