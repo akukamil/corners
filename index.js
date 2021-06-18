@@ -966,7 +966,9 @@ var finish_game = {
 		big_message.show(game_result_text,game_result_text2, function(){finish_game.show_ad()});
 		
 		//если диалоги еще открыты
-		//objects.stickers_cont.visible=false;
+		objects.stickers_cont.visible=false;
+		objects.giveup_dialog.visible=false;
+		objects.stickers_cont.visible=false;
 		objects.cur_move_text.visible=false;
 		objects.timer_cont.visible=false;
 		objects.board.visible=false;
@@ -1146,6 +1148,10 @@ var game={
 			objects.timer_cont.x=10;
 			who_play_next=1;
 		}
+		
+		//если открыт лидерборд то закрываем его
+		if (objects.lb_1_cont.visible===true)
+			lb.close();
 		
 		//ни я ни оппонент пока не подтвердили игру
 		me_conf_play=0;
@@ -1609,7 +1615,6 @@ var load_user_data={
 			firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",tm:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
 					
 			//устанавливаем мой статус в онлайн
-			state="online";
 			firebase.database().ref("states/"+my_data.uid).set("online");	
 			
 			//подписываемся на новые сообщения
@@ -2493,9 +2498,6 @@ var lb={
 		
 		this.update();
 		
-		
-		
-		
 	},
 	
 	close: function() {
@@ -2866,7 +2868,6 @@ var cards_menu={
 			game_res.resources.locked.sound.play();
 			return
 		};	
-
 		
 		if (opp_data.uid==="AI")
 		{			
@@ -2892,10 +2893,12 @@ var cards_menu={
 		
 	},
 	
+	
+	
 	rejected_invite: function() {
 		
 		state="online";
-
+		pending_player="";
 		this.hide_invite_dialog();
 		big_message.show("Соперник отказался от игры",'(((');		
 		
@@ -3028,6 +3031,7 @@ function init_game_env() {
 	
 	document.getElementById("m_bar").outerHTML = "";		
 	document.getElementById("m_progress").outerHTML = "";
+
 	
 	
 	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x333333});
