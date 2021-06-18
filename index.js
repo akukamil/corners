@@ -2356,9 +2356,15 @@ var rules={
 var main_menu= {
 		
 	
+	warning_message_show: 0,
+	
 	activate: function() {
 		
-		big_message.show("В ближайщие дни игра может работать не стабильно", ")))");
+		if (this.warning_message_show===0) {
+			big_message.show("В ближайщие дни игра может работать не стабильно", ")))");
+			this.warning_message_show=1;
+		}
+
 		
 		//просто добавляем контейнер с кнопками
 		objects.main_buttons_cont.visible=true;
