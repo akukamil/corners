@@ -1,6 +1,6 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, sn=""; 
-var move_start_time=0, me_conf_play=0,opp_conf_play=0, any_dialog_active=0, pl_update_tm=0, min_move_amount=0;
+var move_start_time=0, me_conf_play=0,opp_conf_play=0, any_dialog_active=1, pl_update_tm=0, min_move_amount=0;
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={},opp_data={};
@@ -1561,7 +1561,8 @@ var load_user_data={
 			my_data.last_name	=	"";
 			my_data.uid			=	"";	
 			my_data.pic_url		=	undefined;	
-			state="offline";			
+			state="offline";
+			any_dialog_active=0;
 			big_message.show("Вы не авторизованы в социальной сети. Доступна только оффлайн игра.",'')
 		}		
 		
@@ -1634,8 +1635,9 @@ var load_user_data={
 			firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
 			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();	
 			
-			//показыаем основное меню	
-			main_menu.activate();
+			
+			//это для того чтобы все успело загрузиться и ни на что нельзя нажать
+			any_dialog_active=0;
 			
 		})
 		
@@ -3133,7 +3135,8 @@ function init_game_env() {
 	board_func.tex_1=game_res.resources.chk_quad_1_tex.texture;
 	board_func.tex_2=game_res.resources.chk_quad_2_tex.texture;
 	
-
+	//показыаем основное меню	
+	main_menu.activate();
 
 	//запускаем главный цикл
 	main_loop(); 
