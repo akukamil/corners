@@ -1580,8 +1580,7 @@ var load_user_data={
 		let t=my_data.first_name;
 		objects.my_card_name.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
 		
-		//показыаем основное меню	
-		main_menu.activate();
+
 		
 	},
 	
@@ -1633,7 +1632,10 @@ var load_user_data={
 				
 			//отключение от игры и удаление не нужного
 			firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
-			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();				
+			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();	
+			
+			//показыаем основное меню	
+			main_menu.activate();
 			
 		})
 		
