@@ -1573,11 +1573,15 @@ var load_user_data={
 			
 			this.init_firebase();	
 		}	
+		
+		
 
 		//Отображаем мое имя и фамилию и рейтинг на табло
 		let t=my_data.first_name;
 		objects.my_card_name.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
 		
+		//показыаем основное меню	
+		main_menu.activate();
 		
 	},
 	
@@ -3127,8 +3131,7 @@ function init_game_env() {
 	board_func.tex_1=game_res.resources.chk_quad_1_tex.texture;
 	board_func.tex_2=game_res.resources.chk_quad_2_tex.texture;
 	
-	//показыаем основное меню	
-	main_menu.activate();
+
 
 	//запускаем главный цикл
 	main_loop(); 
