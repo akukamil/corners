@@ -2918,6 +2918,7 @@ var cards_menu={
 	rejected_invite: function() {
 		
 		state="online";
+		firebase.database().ref("states/"+my_data.uid).set(state);
 		pending_player="";
 		this.hide_invite_dialog();
 		big_message.show("Соперник отказался от игры",'(((');		
