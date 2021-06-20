@@ -2825,10 +2825,16 @@ var cards_menu={
 		opp_data.rating=objects.mini_cards[cart_id].rating;		
 		opp_data.uid=objects.mini_cards[cart_id].uid;
 		
-		if(state==="offline" || objects.mini_cards[cart_id].state==="playing" || opp_data.uid===my_data.uid)
-			objects.invite_button.visible=false;	
+		let invite_available = 	opp_data.uid!==my_data.uid;
+		invite_available=invite_available && (objects.mini_cards[cart_id].state==="online" || objects.mini_cards[cart_id].state==="bot");
+		invite_available=invite_available && state!=="offline";
+		invite_available=invite_available || opp_data.uid==="AI";
+								
+		
+		if(invite_available===true)
+			objects.invite_button.visible=true;	
 		else
-			objects.invite_button.visible=true;					
+			objects.invite_button.visible=false;				
 		
 		objects.invite_avatar.texture=objects.mini_cards[cart_id].avatar.texture;
 		objects.invite_name.text=objects.mini_cards[cart_id].name.text;
