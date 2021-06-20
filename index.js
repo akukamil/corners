@@ -1,6 +1,6 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, sn=""; 
-var move_start_time=0, me_conf_play=0,opp_conf_play=0, any_dialog_active=1, pl_update_tm=0, min_move_amount=0;
+var move_start_time=0, me_conf_play=0,opp_conf_play=0, any_dialog_active=1, pl_update_tm=0, min_move_amount=0, h_state="";
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={},opp_data={};
@@ -3042,11 +3042,17 @@ function change_vis_state() {
 
 	if (state==="offline")
 		return;
+	
 
-	if (document.hidden===true)		 
-		firebase.database().ref("states/"+my_data.uid).set("inactive");		 
-	else
+	if (document.hidden===true) {
+		h_state=state;
+		state="inactive";
+		firebase.database().ref("states/"+my_data.uid).set(state);	
+	} else {		
+		state=h_state;
 		firebase.database().ref("states/"+my_data.uid).set(state);
+	}
+		
 
 }
 
@@ -3060,7 +3066,11 @@ function init_game_env() {
 
 	resize();
 	window.addEventListener("resize", resize);	
-	document.addEventListener('visibilitychange', function(e) { change_vis_state()});
+	document.addEventListener('visibilitychange', 
+	
+	function(e) { change_vis_state()}
+	
+	);
 	
 	//создаем спрайты и массивы спрайтов и запускаем первую часть кода
 	for (var i=0;i<load_list.length;i++) {			
