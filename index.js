@@ -1159,6 +1159,8 @@ var game={
 		
 		game_res.resources.note.sound.play();	
 		
+		//это если перешли из бот игры
+		objects.stop_bot_button.visible=false;
 		
 		objects.board.visible=true;
 		
