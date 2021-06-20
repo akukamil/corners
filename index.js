@@ -1546,9 +1546,6 @@ var load_user_data={
 	
 	process_results: function() {
 		
-		
-
-		
 		//загружаем мою аватарку на табло
 		if (my_data.pic_url!=undefined) {			
 			let loader2 = new PIXI.Loader();
@@ -2370,15 +2367,12 @@ var main_menu= {
 	
 	activate: function() {
 		
-
-
 		
 		//просто добавляем контейнер с кнопками
 		objects.main_buttons_cont.visible=true;
 		objects.desktop.visible=true;
 		objects.desktop.texture=game_res.resources.desktop.texture;
-		
-		
+	
 		
 	},
 	
@@ -3044,19 +3038,29 @@ function resize() {
     app.stage.scale.set(nvw / M_WIDTH, nvh / M_HEIGHT);
 }
 
+function change_vis_state() {	
+
+	if (state==="offline")
+		return;
+
+	if (document.hidden===true)		 
+		firebase.database().ref("states/"+my_data.uid).set("inactive");		 
+	else
+		firebase.database().ref("states/"+my_data.uid).set(state);
+
+}
+
 function init_game_env() {
 	
 	document.getElementById("m_bar").outerHTML = "";		
-	document.getElementById("m_progress").outerHTML = "";
-
-	
+	document.getElementById("m_progress").outerHTML = "";	
 	
 	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x333333});
 	document.body.appendChild(app.view);
 
 	resize();
 	window.addEventListener("resize", resize);	
-
+	document.addEventListener('visibilitychange', function(e) { change_vis_state();};
 	
 	//создаем спрайты и массивы спрайтов и запускаем первую часть кода
 	for (var i=0;i<load_list.length;i++) {			
