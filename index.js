@@ -1169,6 +1169,7 @@ var game={
 		objects.cur_move_text.visible=true;
 		
 		//обозначаем какой сейчас ход
+		move=0;
 		objects.cur_move_text.text="Ход: "+move;
 		
 		//включаем взаимодейтсвие с доской
