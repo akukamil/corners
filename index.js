@@ -3060,7 +3060,7 @@ function init_game_env() {
 
 	resize();
 	window.addEventListener("resize", resize);	
-	document.addEventListener('visibilitychange', function(e) { change_vis_state();};
+	document.addEventListener('visibilitychange', function(e) { change_vis_state()});
 	
 	//создаем спрайты и массивы спрайтов и запускаем первую часть кода
 	for (var i=0;i<load_list.length;i++) {			
