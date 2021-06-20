@@ -3043,12 +3043,15 @@ function change_vis_state() {
 	if (state==="offline")
 		return;
 	
-
 	if (document.hidden===true) {
+		
+		//запоминаем состояние до деактивации
 		h_state=state;
 		state="inactive";
 		firebase.database().ref("states/"+my_data.uid).set(state);	
-	} else {		
+	} else {	
+
+		//возвращаем состояние которое было до деактивации
 		state=h_state;
 		firebase.database().ref("states/"+my_data.uid).set(state);
 	}
@@ -3160,18 +3163,18 @@ function init_game_env() {
 function load_resources() {
 	
 	game_res=new PIXI.Loader();	
-	game_res.add("m2_font", "m_font.fnt");
+	game_res.add("m2_font", "https://akukamil.github.io/corners/m_font.fnt");
 	
-	game_res.add('receive_move','receive_move.mp3');
-	game_res.add('note','note.mp3');
-	game_res.add('receive_sticker','receive_sticker.mp3');
-	game_res.add('message','message.mp3');
-	game_res.add('lose','lose.mp3');
-	game_res.add('win','win.mp3');
-	game_res.add('click','click.mp3');
-	game_res.add('close','close.mp3');
-	game_res.add('move','move.mp3');
-	game_res.add('locked','locked.mp3');
+	game_res.add('receive_move','https://akukamil.github.io/corners/receive_move.mp3');
+	game_res.add('note','https://akukamil.github.io/corners/note.mp3');
+	game_res.add('receive_sticker','https://akukamil.github.io/corners/receive_sticker.mp3');
+	game_res.add('message','https://akukamil.github.io/corners/message.mp3');
+	game_res.add('lose','https://akukamil.github.io/corners/lose.mp3');
+	game_res.add('win','https://akukamil.github.io/corners/win.mp3');
+	game_res.add('click','https://akukamil.github.io/corners/click.mp3');
+	game_res.add('close','https://akukamil.github.io/corners/close.mp3');
+	game_res.add('move','https://akukamil.github.io/corners/move.mp3');
+	game_res.add('locked','https://akukamil.github.io/corners/locked.mp3');
 
 
 
