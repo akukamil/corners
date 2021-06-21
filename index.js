@@ -1543,15 +1543,20 @@ var load_user_data={
 	
 	process_results: function() {
 		
+		
+		
+		//если с аватаркой какие-то проблемы то ставим деофлтную
+		if (my_data.pic_url===undefined || if (my_data.pic_url=="")
+			my_data.pic_url	="https://i.ibb.co/LN0NqZq/ava.jpg";
+		
 		//загружаем мою аватарку на табло
-		if (my_data.pic_url!=undefined) {			
-			let loader2 = new PIXI.Loader();
-			loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
-			loader2.load((loader, resources) => {objects.my_card_avatar.texture = resources.my_avatar.texture;});				
-		}
+		let loader2 = new PIXI.Loader();
+		loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
+		loader2.load((loader, resources) => {objects.my_card_avatar.texture = resources.my_avatar.texture;});				
+
 					
 		if (this.req_result!=="ok") {			
-			my_data.first_name 	=	"Нет имени";
+			my_data.first_name 	=	"Бегемот"+Math.floor(Math.random() * 99999);
 			my_data.last_name	=	"";
 			my_data.rating=1400;
 			my_data.uid			=	"u"+Math.floor(Math.random() * 9999999);	
@@ -1559,7 +1564,7 @@ var load_user_data={
 			big_message.show("Вы не авторизованы в социальной сети. Прогресс не будет сохранен.","(((")
 		}		
 		
-		//считываем рейтинг и обновляем данные об имени, фамилии и фото
+		//если нет личных данных то нет лидерборда
 		if (this.req_result==="ok")	 {			
 			if (this.yndx_no_personal_data===1)
 				big_message.show("Не удалось получить Ваши имя и аватар. Ваши данные не будут отображаться в лидерборде.","(((")
