@@ -1424,6 +1424,7 @@ var load_user_data={
 	// эта функция вызывается один раз в начале игры
 	req_result: "",
 	yndx_no_personal_data:0,
+	fb_error:0,
 			
 	vk: function() {
 		
@@ -1571,15 +1572,14 @@ var load_user_data={
 				big_message.show("Не удалось получить Ваши имя и аватар. Ваши данные не будут отображаться в лидерборде.","(((")
 		}	
 				
+				
+		//Отображаем мое имя и фамилию на табло (хотя его и не видно пока)
+		let t=my_data.first_name;
+		objects.my_card_name.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;					
+				
 		//загружаем файербейс
 		this.init_firebase();	
-
-		//Отображаем мое имя и фамилию и рейтинг на табло (хотя его и не видно пока)
-		let t=my_data.first_name;
-		objects.my_card_name.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
-		
-
-		
+	
 	},
 	
 	init_firebase: function() {
@@ -1606,6 +1606,7 @@ var load_user_data={
 
 		}).catch((error) => {		
 			console.error(error);
+			this.fb_error=1;
 			return;
 		}).finally(()=>{
 			
@@ -1632,8 +1633,11 @@ var load_user_data={
 			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();	
 			
 			
-			//это для того чтобы все успело загрузиться и ни на что нельзя нажать
-			any_dialog_active=0;
+			//теперь можно нажимать на кнопки
+			if (this.fb_error===1)
+				big_message.show("Что-то пошло не так. Попробуйте еще раз.","!!!");
+			else
+				any_dialog_active=0;
 			
 		})
 		
