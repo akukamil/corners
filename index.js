@@ -1652,7 +1652,7 @@ var keep_alive= function() {
 	
 	
 	//обновляем сосотяние только если мы активны
-	if (state!==="inactive")
+	if (state!=="inactive")
 		firebase.database().ref("states/"+my_data.uid).set(state);	
 }
 
