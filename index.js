@@ -1,6 +1,6 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, sn=""; 
-var me_conf_play=0,opp_conf_play=0, any_dialog_active=1, min_move_amount=0, h_state="", social_play=0;
+var me_conf_play=0,opp_conf_play=0, any_dialog_active=1, min_move_amount=0, h_state="";
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={},opp_data={};
@@ -1555,13 +1555,14 @@ var load_user_data={
 		loader2.load((loader, resources) => {objects.my_card_avatar.texture = resources.my_avatar.texture;});				
 
 					
-		if (this.req_result!=="ok") {			
-			my_data.first_name 	=	"Бегемот"+Math.floor(Math.random() * 99999);
+		if (this.req_result!=="ok") {		
+			let rand_uid=Math.floor(Math.random() * 9999999);
+			my_data.first_name 	=	"Бегемот"+rand_uid;
 			my_data.last_name	=	"";
 			my_data.rating=1400;
-			my_data.uid			=	"u"+Math.floor(Math.random() * 9999999);	
+			my_data.uid			=	"u"+rand_uid;	
 			my_data.pic_url		=	"https://i.ibb.co/LN0NqZq/ava.jpg";	
-			big_message.show("Вы не авторизованы в социальной сети. Прогресс не будет сохранен.","(((")
+			big_message.show("Вы не авторизованы в социальной сети. Рейтинг не будет сохранен.","(((")
 		}		
 		
 		//если нет личных данных то нет лидерборда
@@ -1644,10 +1645,7 @@ var load_user_data={
 }
 
 var keep_alive= function() {
-	
-	if (social_play===0)
-		return;
-	
+		
 	firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
 	firebase.database().ref("states/"+my_data.uid).set(state);	
 }
@@ -3017,12 +3015,6 @@ var stickers={
 
 	}
 	
-	
-}
-
-var timer_tick = function() {
-	
-
 	
 }
 
