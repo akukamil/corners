@@ -1646,8 +1646,14 @@ var load_user_data={
 
 var keep_alive= function() {
 		
+	
+		
 	firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
-	firebase.database().ref("states/"+my_data.uid).set(state);	
+	
+	
+	//обновляем сосотяние только если мы активны
+	if (state!==="inactive")
+		firebase.database().ref("states/"+my_data.uid).set(state);	
 }
 
 var minimax_solver={
