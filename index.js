@@ -724,9 +724,11 @@ var bot_game={
 		
 		
 		//устанавливаем локальный и удаленный статус
-		state="bot";
-		if (state!=="offline")			
-			firebase.database().ref("states/"+my_data.uid).set(state);			
+		if (state!=="offline") {
+			state="bot";
+			firebase.database().ref("states/"+my_data.uid).set(state);	
+		}			
+		
 
 				
 		objects.desktop.visible=false;				
