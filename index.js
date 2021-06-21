@@ -3051,7 +3051,7 @@ function change_vis_state() {
 		//запоминаем состояние до деактивации
 		h_state=state;
 		state="inactive";
-		firebase.database().ref("states/"+my_data.uid).set(state);	
+		firebase.database().ref("states/"+my_data.uid).remove();	
 	} else {	
 
 		//возвращаем состояние которое было до деактивации
