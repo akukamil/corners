@@ -1327,8 +1327,12 @@ var game={
 			board_state=board_func.get_board_state(new_board, move);
 				
 		//начинаем процесс плавного перемещения шашки		
-		if (state!=="bot") {
-			
+		if (state==="bot" || state==="offline") {			
+			//это игра с ботом
+			board_func.start_gentle_move(move_data,moves,function() {setTimeout(function(){bot_game.make_move()},400)});
+		}	
+		else
+		{		
 			//начинаем плавное перемещение шашки
 			board_func.start_gentle_move(move_data,moves,function(){});		
 			
@@ -1339,11 +1343,7 @@ var game={
 			move_data.y2=7-move_data.y2;	
 			
 			//отправляем ход сопернику
-			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",tm:Date.now(),data:{...move_data,board_state:board_state}});		
-		}	
-		else
-		{		
-			board_func.start_gentle_move(move_data,moves,function() {setTimeout(function(){bot_game.make_move()},400)});		
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",tm:Date.now(),data:{...move_data,board_state:board_state}});	
 		}
 
 		
