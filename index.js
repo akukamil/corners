@@ -2367,9 +2367,6 @@ var rules={
 
 var main_menu= {
 		
-	
-	
-	
 	activate: function() {
 		
 		
@@ -2692,7 +2689,7 @@ var cards_menu={
 
 			player_data=snapshot.val();
 			if (player_data===null) {
-				alert("Не получилось загрузить данные о сопернике");
+				console.log("Не получилось загрузить данные о сопернике");
 			}
 			else {
 
