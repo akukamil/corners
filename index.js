@@ -1590,16 +1590,14 @@ var load_user_data={
 			if (data===null)
 			{
 				//если я первый раз в игре
-				my_data.rating=1400;			  
+				my_data.rating=1400;	
+				
 				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
 			}
 			else
 			{
 				//если я уже есть в базе то считыавем мой рейтинг
 				my_data.rating=data.rating;	
-				
-				//обновляем рейтинг в моей карточке
-				objects.my_card_rating.text=my_data.rating;			
 			
 				//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
 				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
@@ -1612,7 +1610,8 @@ var load_user_data={
 		}).finally(()=>{
 			
 
-			
+			//обновляем рейтинг в моей карточке
+			objects.my_card_rating.text=my_data.rating;	
 			
 			//обновляем почтовый ящик
 			firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",tm:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
