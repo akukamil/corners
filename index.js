@@ -1651,6 +1651,9 @@ var load_user_data={
 
 var keep_alive= function() {
 	
+	if (state==="offline")
+		return;
+	
 	firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
 	firebase.database().ref("states/"+my_data.uid).set(state);	
 }
