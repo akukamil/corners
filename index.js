@@ -1,6 +1,6 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, sn=""; 
-var me_conf_play=0,opp_conf_play=0, any_dialog_active=1, min_move_amount=0, h_state="";
+var me_conf_play=0,opp_conf_play=0, any_dialog_active=1, min_move_amount=0, h_state="", platform="";
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={},opp_data={};
@@ -1085,10 +1085,8 @@ var finish_game = {
 	},
 	
 	show_ad: function() {
-		
-		
-		if (window.ysdk!==undefined)
-		{			
+			
+		if (platform==="YANDEX") {			
 			//показываем рекламу
 			window.ysdk.adv.showFullscreenAdv({
 			  callbacks: {
@@ -1098,15 +1096,14 @@ var finish_game = {
 			})
 		}
 		
-		if (sn==="vk") {
-			
-		 
+		if (platform==="VK_WEB") {
+					 
 			admanInit(
 			
 				{
 				  user_id: my_data.uid.substring(2),
-				  app_id: 7817643,
-				  type: 'preloader'         // 'preloader' or 'rewarded' (default - 'preloader')
+				  app_id: 7885384,
+				  type: 'rewarded'   
 				},
 			
 			
@@ -1119,12 +1116,32 @@ var finish_game = {
 				},							
 				
 				function onNoAds() {}
-			);
-		 
+			);		
+		}		
+				
+		if (platform==="VK_MINIAPP") {
+					 
+			admanInit(
+			
+				{
+				  user_id: my_data.uid.substring(2),
+				  mobile: true,
+				  app_id: 7885384,
+				  type: 'rewarded' 
+				},
 			
 			
+				function onAdsReady(adman) {
+				  adman.onStarted(function () {});
+				  adman.onCompleted(function() {});          
+				  adman.onSkipped(function() {});          
+				  adman.onClicked(function() {});
+				  adman.start('preroll');
+				},							
+				
+				function onNoAds() {}
+			);		
 		}
-		
 	}
 	
 } 
@@ -1419,76 +1436,92 @@ var giveup_menu={
 	}
 }
 
-var load_user_data={
+var user_data={
 		
 	// эта функция вызывается один раз в начале игры
 	req_result: "",
 	yndx_no_personal_data:0,
 	fb_error:0,
-			
-	vk: function() {
-		
-		if(typeof(VK)==='undefined')
-		{		
-			load_user_data.req_result='vk_sdk_error';
-			load_user_data.process_results();	
-		}
-		else
-		{
-			
-			VK.init(
-			
-				//функция удачной инициализации вконтакте
-				function()
-				{
-
-					VK.api(
-						"users.get",
-						{access_token: '03af491803af491803af4918d103d800b3003af03af491863c040d61bee897bd2785a50',fields: 'photo_100'},
-						function (data) {
-							if (data.error===undefined) {
-								
-								sn="vk";
-								my_data.first_name=data.response[0].first_name;
-								my_data.last_name=data.response[0].last_name;
-								my_data.uid="vk"+data.response[0].id;
-								my_data.pic_url=data.response[0].photo_100;
-								load_user_data.req_result="ok";	
-								load_user_data.process_results();	
-								
-							}	
-							else
-							{
-								load_user_data.req_result="vk_error";	
-								load_user_data.process_results();	
-							}
-
-						}
-					)
-					
-				},	
-				
-				//функция неудачной инициализации вконтакте
-				function()
-				{
-					load_user_data.req_result='vk_init_error';
-					load_user_data.process_results();				
-				},
-
-				//версия апи
-				'5.130');		
-			
-		}
-
+	
+	
+	loadScript : function(src) {
+	  return new Promise((resolve, reject) => {
+		const script = document.createElement('script')
+		script.type = 'text/javascript'
+		script.onload = resolve
+		script.onerror = reject
+		script.src = src
+		document.head.appendChild(script)
+	  })
 	},
+			
+	vkbridge_events: function(e) {
 
+		if (e.detail.type === 'VKWebAppGetUserInfoResult') {
+			
+			my_data.first_name=e.detail.data.first_name;
+			my_data.last_name=e.detail.data.last_name;
+			my_data.uid="vk"+e.detail.data.id;
+			my_data.pic_url=e.detail.data.photo_100;
+			user_data.req_result="ok";	
+			user_data.process_results();			
+		}	
+	},
+			
+	load: function() {
+						 
+		let s=window.location.href;
+
+		if (s.includes("yandex")) {
+						
+			Promise.all([
+				this.loadScript('https://yandex.ru/games/sdk/v2')
+			]).then(function(){
+				user_data.yandex();	
+			})						
+		}
+				
+		if (s.includes("vk.com") && s.includes("platform=web")) {
+			
+			Promise.all([
+				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
+				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
+				this.loadScript('//vk.com/js/api/adman_init.js')
+				
+			]).then(function(){
+				user_data.vk_web()
+			})
+			;			
+		}
+		
+		if (s.includes("vk.com") && s.includes("html5_android")) {
+			
+			Promise.all([
+				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
+				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
+				this.loadScript('//vk.com/js/api/adman_init.js'),
+				this.loadScript('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')		
+			]).then(function(){
+				user_data.vk_miniapp();	
+			})	
+					
+		}
+
+					 
+				 
+		/*
+		//загружаем данные пользователя
+		load_user_data.local();*/	
+		
+	},
+	
 	yandex: function() {
 	
-		
+		platform="YANDEX";
 		if(typeof(YaGames)==='undefined')
 		{		
-			this.req_result='yndx_sdk_error';
-			this.process_results();	
+			user_data.req_result='yndx_sdk_error';
+			user_data.process_results();	
 		}
 		else
 		{
@@ -1508,24 +1541,90 @@ var load_user_data={
 				my_data.pic_url		=	_player.getPhoto('medium');		
 				
 				console.log(my_data.uid);
-				this.req_result='ok';
+				user_data.req_result='ok';
 				sn="yandex";
 								
 				if (my_data.first_name=="" || my_data.first_name=='') {
 					my_data.first_name=my_data.uid.substring(0,5);
-					this.yndx_no_personal_data=1					
+					user_data.yndx_no_personal_data=1					
 				}
 				
 			}).catch(err => {		
 				console.log(err);
-				this.req_result='yndx_init_error';			
+				user_data.req_result='yndx_init_error';			
 			}).finally(()=>{			
-				this.process_results();			
+				user_data.process_results();			
 			})		
 			
 		}				
 
 	},
+			
+	vk_web: function() {
+		
+		platform="VK_WEB";
+		
+		if(typeof(VK)==='undefined')
+		{		
+			user_data.req_result='vk_sdk_error';
+			user_data.process_results();	
+		}
+		else
+		{
+			
+			VK.init(
+			
+				//функция удачной инициализации вконтакте
+				function()
+				{
+
+					VK.api(
+						"users.get",
+						{access_token: '2c2dcb592c2dcb592c2dcb59a62c55991122c2d2c2dcb594cfd0c5d42f4b700d3e509a5',fields: 'photo_100'},
+						function (data) {
+							if (data.error===undefined) {
+								
+								sn="vk";
+								my_data.first_name=data.response[0].first_name;
+								my_data.last_name=data.response[0].last_name;
+								my_data.uid="vk"+data.response[0].id;
+								my_data.pic_url=data.response[0].photo_100;
+								user_data.req_result="ok";	
+								user_data.process_results();									
+							}	
+							else
+							{
+								user_data.req_result="vk_error";	
+								user_data.process_results();	
+							}
+						}
+					)
+					
+				},	
+				
+				//функция неудачной инициализации вконтакте
+				function()
+				{
+					user_data.req_result='vk_init_error';
+					user_data.process_results();				
+				},
+
+				//версия апи
+				'5.130');		
+			
+		}
+
+	},
+	
+	vk_miniapp: function() {
+		
+		platform="VK_MINIAPP";
+		vkBridge.subscribe((e) => this.vkbridge_events(e)); 
+		vkBridge.send('VKWebAppInit');	
+		vkBridge.send('VKWebAppGetUserInfo');	
+		
+	},
+
 
 	local: function() {	
 		
@@ -1544,9 +1643,7 @@ var load_user_data={
 	
 	process_results: function() {
 		
-		
-		
-		//если с аватаркой какие-то проблемы то ставим деофлтную
+		//если с аватаркой какие-то проблемы то ставим дефолтную
 		if (my_data.pic_url===undefined || my_data.pic_url=="")
 			my_data.pic_url	="https://i.ibb.co/LN0NqZq/ava.jpg";
 		
@@ -1556,7 +1653,7 @@ var load_user_data={
 		loader2.load((loader, resources) => {objects.my_card_avatar.texture = resources.my_avatar.texture;});				
 
 					
-		if (this.req_result!=="ok") {		
+		if (user_data.req_result!=="ok") {		
 			let rand_uid=Math.floor(Math.random() * 9999999);
 			my_data.first_name 	=	"Бегемот"+rand_uid;
 			my_data.last_name	=	"";
@@ -1567,7 +1664,7 @@ var load_user_data={
 		}		
 		
 		//если нет личных данных то нет лидерборда
-		if (this.req_result==="ok")	 {			
+		if (user_data.req_result==="ok")	 {			
 			if (this.yndx_no_personal_data===1)
 				big_message.show("Не удалось получить Ваши имя и аватар. Ваши данные не будут отображаться в лидерборде.","(((")
 		}	
@@ -1607,7 +1704,6 @@ var load_user_data={
 		}).catch((error) => {		
 			console.error(error);
 			this.fb_error=1;
-			return;
 		}).finally(()=>{
 			
 
@@ -3136,20 +3232,7 @@ function init_game_env() {
 	}
 
 
-	//загружаем данные игрока из яндекса или вконтакте
-	let env=window.location.href;
-	
-	if (env.includes('vk.com'))
-		load_user_data.vk();				 
-
-	if (env.includes('yandex'))
-		load_user_data.yandex();	 			 
-	 
-		 
-	/*
-	//загружаем данные пользователя
-	load_user_data.local();*/
-	
+	user_data.load();	
 	
 	
 	//устанавливаем начальный вид шашек
