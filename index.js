@@ -1494,6 +1494,19 @@ var user_data={
 			;			
 		}
 		
+		if (s.includes("vk.com") && s.includes("html5_moblie")) {
+			
+			Promise.all([
+				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
+				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
+				this.loadScript('//vk.com/js/api/adman_init.js')
+				
+			]).then(function(){
+				user_data.vk_web()
+			})
+			;			
+		}
+		
 		if (s.includes("vk.com") && s.includes("html5_android")) {
 			
 			Promise.all([
