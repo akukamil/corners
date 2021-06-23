@@ -1103,7 +1103,7 @@ var finish_game = {
 				{
 				  user_id: my_data.uid.substring(2),
 				  app_id: 7885384,
-				  type: 'rewarded'   
+				  type: 'preloader'   
 				},
 			
 			
