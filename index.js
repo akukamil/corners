@@ -1121,7 +1121,7 @@ var finish_game = {
 				
 		if (platform==="VK_MINIAPP") {
 					 
-			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"rewarded"})
+			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"preloader"})
 			.then(data => console.log(data.result))
 			.catch(error => console.log(error));
 		}
