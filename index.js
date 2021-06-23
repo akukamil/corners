@@ -725,10 +725,7 @@ var bot_game={
 		//устанавливаем локальный и удаленный статус
 		state="bot";
 		firebase.database().ref("states/"+my_data.uid).set(state);	
-	
-		
-
-				
+							
 		objects.desktop.visible=false;				
 		objects.main_buttons_cont.visible=false;
 		objects.cards_cont.visible=false;
@@ -3160,7 +3157,7 @@ function init_game_env() {
 	document.getElementById("m_bar").outerHTML = "";		
 	document.getElementById("m_progress").outerHTML = "";	
 	
-	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x666666});
+	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x404040});
 	document.body.appendChild(app.view);
 
 	resize();
