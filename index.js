@@ -3160,7 +3160,7 @@ function init_game_env() {
 	document.getElementById("m_bar").outerHTML = "";		
 	document.getElementById("m_progress").outerHTML = "";	
 	
-	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x333333});
+	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x666666});
 	document.body.appendChild(app.view);
 
 	resize();
