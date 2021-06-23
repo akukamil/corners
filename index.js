@@ -1121,26 +1121,9 @@ var finish_game = {
 				
 		if (platform==="VK_MINIAPP") {
 					 
-			admanInit(
-			
-				{
-				  user_id: my_data.uid.substring(2),
-				  mobile: true,
-				  app_id: 7885384,
-				  type: 'rewarded' 
-				},
-			
-			
-				function onAdsReady(adman) {
-				  adman.onStarted(function () {});
-				  adman.onCompleted(function() {});          
-				  adman.onSkipped(function() {});          
-				  adman.onClicked(function() {});
-				  adman.start('preroll');
-				},							
-				
-				function onNoAds() {}
-			);		
+			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"rewarded"})
+			.then(data => console.log(data.result))
+			.catch(error => console.log(error));
 		}
 	}
 	
