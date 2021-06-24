@@ -5,7 +5,7 @@ g_board=[];
 var players="", pending_player="",tm={};
 var my_data={},opp_data={};
 var g_process=function(){};
-var load_list=[["sprite","desktop","objects[obj_name].x=-10;objects[obj_name].y=-10;","app.stage.addChild(objects[obj_name]);"],["image","lb_bcg",""],["sprite","board","objects[obj_name].x=190;objects[obj_name].y=10;objects[obj_name].visible=false;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){game.mouse_down_on_board()};","app.stage.addChild(objects[obj_name]);"],["sprite","send_sticker_button","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);","objects[obj_name].pointerdown=function(){stickers.show_panel()};objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["sprite","giveup_button","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.show()};objects[obj_name].x=10;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);","objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["cont","game_buttons_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].ready=true;objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=610;objects[obj_name].sy=objects[obj_name].y=310;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.send_sticker_button);objects[obj_name].addChild(objects.giveup_button);app.stage.addChild(objects[obj_name]);"],["sprite","message_bcg","objects[obj_name].x=10;objects[obj_name].y=20;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","message_text","objects[obj_name]=new PIXI.BitmapText('', {font: '20px Century Gothic'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=150;objects[obj_name].x=100;objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",""],["cont","message_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=220;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.message_bcg);objects[obj_name].addChild(objects.message_text);app.stage.addChild(objects[obj_name]);"],["sprite","timer_bcg","objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","timer_text","objects[obj_name]=new PIXI.BitmapText('0:30', {font: '30px Century Gothic'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=90;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",""],["cont","timer_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].show=function(){this.childs.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.timer_bcg);objects[obj_name].addChild(objects.timer_text);app.stage.addChild(objects[obj_name]);"],["sprite","my_card_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","my_card_name","objects[obj_name]=new PIXI.BitmapText('', {font: '27px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=128;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","my_card_rating","objects[obj_name]=new PIXI.BitmapText('', {font: '25px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["block","my_card_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=50;objects[obj_name].sy=objects[obj_name].y=30;objects[obj_name].width=100,00009765625;objects[obj_name].height=90;",""],["cont","my_card_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=0;","objects[obj_name].addChild(objects.my_card_bcg);objects[obj_name].addChild(objects.my_card_name);objects[obj_name].addChild(objects.my_card_rating);objects[obj_name].addChild(objects.my_card_avatar);app.stage.addChild(objects[obj_name]);"],["sprite","opp_card_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","opp_card_name","objects[obj_name]=new PIXI.BitmapText('', {font: '27px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=128;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","opp_card_rating","objects[obj_name]=new PIXI.BitmapText('', {font: '25px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["block","opp_card_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=50;objects[obj_name].sy=objects[obj_name].y=30;objects[obj_name].width=100,00009765625;objects[obj_name].height=90;",""],["cont","opp_card_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=600;objects[obj_name].sy=objects[obj_name].y=0;","objects[obj_name].addChild(objects.opp_card_bcg);objects[obj_name].addChild(objects.opp_card_name);objects[obj_name].addChild(objects.opp_card_rating);objects[obj_name].addChild(objects.opp_card_avatar);app.stage.addChild(objects[obj_name]);"],["image","mini_player_card",""],["array","checkers",24,"var num=n;objects[obj_name][num]=new PIXI.Sprite();objects[obj_name][num].visible=false;","var num=n;objects[obj_name][num].texture=game_res.resources.chk_quad_1_tex.texture;app.stage.addChild(objects[obj_name][num]);"],["sprite","selected_frame","objects[obj_name].visible=false;","app.stage.addChild(objects[obj_name]);"],["image","chk_quad_1_tex",""],["image","chk_quad_2_tex",""],["sprite","giveup_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","giveup_no","objects[obj_name].x=150;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.hide()};","objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["cont","giveup_dialog","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=270;objects[obj_name].sy=objects[obj_name].y=270;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.giveup_bcg);objects[obj_name].addChild(objects.giveup_yes);objects[obj_name].addChild(objects.giveup_no);app.stage.addChild(objects[obj_name]);"],["sprite","giveup_yes","objects[obj_name].x=30;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.give_up()};","objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["image","pc_icon",""],["block","cur_move_text","objects[obj_name]=new PIXI.BitmapText('', {font: '30px Century Gothic'});objects[obj_name].anchor.set(0,0.5);objects[obj_name].x=32;objects[obj_name].y=430;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;","app.stage.addChild(objects[obj_name]);"],["sprite","stop_bot_button","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].visible=false;objects[obj_name].pointerdown=function(){bot_game.stop()};objects[obj_name].x=objects[obj_name].sx=620;objects[obj_name].y=objects[obj_name].sy=370;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);","objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["sprite","stickers_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","sticker_0","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_0'].texture;",""],["block","sticker_1","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_1'].texture;",""],["block","sticker_2","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_2'].texture;",""],["block","sticker_3","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_3'].texture;",""],["block","sticker_4","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_4'].texture;",""],["block","sticker_5","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_5'].texture;",""],["block","sticker_6","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_6'].texture;",""],["block","sticker_7","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_7'].texture;",""],["block","sticker_8","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_8'].texture;",""],["block","sticker_9","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_9'].texture;",""],["block","sticker_10","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_10'].texture;",""],["block","sticker_11","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_11'].texture;",""],["block","sticker_12","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_12'].texture;",""],["block","sticker_13","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_13'].texture;",""],["block","sticker_14","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_14'].texture;",""],["block","sticker_15","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_15'].texture;",""],["cont","stickers_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=230;objects[obj_name].sy=objects[obj_name].y=60;","app.stage.addChild(objects[obj_name]);objects[obj_name].addChild(objects.stickers_bcg);objects[obj_name].addChild(objects.close_stickers);for (var z=0;z<16;z++) {objects[obj_name].addChild(objects['sticker_'+z]);objects['sticker_'+z].width=70;objects['sticker_'+z].height=70;objects['sticker_'+z].interactive=true;objects['sticker_'+z].buttonMode=true;const id=z;objects['sticker_'+id].pointerover=function(){this.tint=0xFF6666};objects['sticker_'+id].pointerout=function(){this.tint=this.base_tint};objects['sticker_'+id].pointerdown=function(){stickers.send(id)};}objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};"],["sprite","close_stickers","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=()=>{stickers.hide_panel()};objects[obj_name].x=270;objects[obj_name].y=21;","objects[obj_name].pointerover=function(){this.tint=0xff0000};objects[obj_name].pointerout=function(){this.tint=0xffffff};"],["block","cards_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;","for (let i=0;i<12;i++)objects[obj_name].addChild(objects.mini_cards[i]);app.stage.addChild(objects[obj_name]);"],["array","mini_cards",12,"var num=n;objects[obj_name][num]=new player_mini_card_class(0,0,num);",""],["sprite","play_button","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.play_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","app.stage.addChild(objects[obj_name]);"],["sprite","lb_button","objects[obj_name].x=150;objects[obj_name].y=10;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.lb_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;","app.stage.addChild(objects[obj_name]);"],["sprite","rules_button","objects[obj_name].x=290;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.rules_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","app.stage.addChild(objects[obj_name]);"],["sprite","preferences_button","objects[obj_name].x=430;objects[obj_name].y=10;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.pref_button_down()};objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","app.stage.addChild(objects[obj_name]);"],["cont","main_buttons_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=120;objects[obj_name].sy=objects[obj_name].y=279;","objects[obj_name].addChild(objects.play_button);objects[obj_name].addChild(objects.lb_button);objects[obj_name].addChild(objects.rules_button);objects[obj_name].addChild(objects.preferences_button);app.stage.addChild(objects[obj_name]);"],["sprite","back_button","objects[obj_name].x=690;objects[obj_name].y=320;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){cards_menu.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","app.stage.addChild(objects[obj_name]);"],["image","cards_bcg",""],["sprite","invite_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","invite_name","objects[obj_name]=new PIXI.BitmapText('', {font: '35px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=184;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",""],["block","invite_rating","objects[obj_name]=new PIXI.BitmapText('', {font: '43px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=210;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","invite_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].width=130;objects[obj_name].height=130;",""],["cont","invite_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=260;objects[obj_name].sy=objects[obj_name].y=40;","objects[obj_name].addChild(objects.invite_bcg);objects[obj_name].addChild(objects.invite_avatar);objects[obj_name].addChild(objects.invite_name);objects[obj_name].addChild(objects.invite_rating);objects[obj_name].addChild(objects.invite_button);objects[obj_name].addChild(objects.invite_close);app.stage.addChild(objects[obj_name]);"],["sprite","invite_button","objects[obj_name].x=20;objects[obj_name].y=240;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.send_invite()};objects[obj_name].pointerover=function(){this.tint=0x444444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","invite_close","objects[obj_name].x=206;objects[obj_name].y=23;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.hide_invite_dialog()};objects[obj_name].base_tint=objects[obj_name].tint;",""],["image","chk_round_1_tex",""],["image","chk_7_1_tex",""],["image","chk_7_2_tex",""],["image","chk_round_2_tex",""],["sprite","pref_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","pref_ok","objects[obj_name].x=130;objects[obj_name].y=195;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.pref_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",""],["cont","pref_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=50;","objects[obj_name].addChild(objects.pref_bcg);objects[obj_name].addChild(objects.pref_ok);objects[obj_name].addChild(objects.chk_quad_block);objects[obj_name].addChild(objects.chk_7_block);objects[obj_name].addChild(objects.chk_round_block);objects[obj_name].addChild(objects.chk_opt_frame);app.stage.addChild(objects[obj_name]);"],["block","chk_7_block","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(1)};","objects[obj_name].texture=game_res.resources.chk_7_1_tex.texture;"],["block","chk_round_block","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=280;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(2)};","objects[obj_name].texture=game_res.resources.chk_round_1_tex.texture;"],["block","chk_quad_block","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=80;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(0)};","objects[obj_name].texture=game_res.resources.chk_quad_1_tex.texture;"],["sprite","chk_opt_frame","objects[obj_name].x=60;objects[obj_name].y=70;",""],["image","lb_player_card_bcg",""],["block","lb_cards_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=0;","for (let i=0;i<7;i++)objects[obj_name].addChild(objects.lb_cards[i]);app.stage.addChild(objects[obj_name]);"],["array","lb_cards",7,"var num=n;objects[obj_name][num]=new lb_player_card_class(0,0,num+4);",""],["block","lb_back_button","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=700;objects[obj_name].y=320;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){lb.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","objects[obj_name].texture=objects.back_button.texture;app.stage.addChild(objects[obj_name]);"],["block","sent_sticker_area","objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=345;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].width=105;objects[obj_name].height=100;","app.stage.addChild(objects[obj_name]);"],["block","rec_sticker_area","objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=260;objects[obj_name].width=140;objects[obj_name].height=140;","app.stage.addChild(objects[obj_name]);"],["block","lb_3_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=40;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;","objects[obj_name].mask=objects.lb_3_mask;"],["sprite","lb_3_mask","objects[obj_name].x=40;objects[obj_name].y=50;",""],["block","lb_3_name","objects[obj_name]=new PIXI.BitmapText('Махмуд Аббас', {font: '30px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","lb_3_rating","objects[obj_name]=new PIXI.BitmapText('1234', {font: '28px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["cont","lb_3_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=-10;objects[obj_name].sy=objects[obj_name].y=1730-1510+40;","objects[obj_name].addChild(objects.lb_3_avatar);objects[obj_name].addChild(objects.lb_3_mask);objects[obj_name].addChild(objects.lb_3_frame);objects[obj_name].addChild(objects.lb_3_crown);objects[obj_name].addChild(objects.lb_3_name);objects[obj_name].addChild(objects.lb_3_rating);app.stage.addChild(objects[obj_name]);"],["sprite","lb_3_frame","objects[obj_name].x=40;objects[obj_name].y=50;",""],["sprite","lb_3_crown","objects[obj_name].x=11;objects[obj_name].y=22;",""],["block","lb_1_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;","objects[obj_name].mask=objects.lb_1_mask;"],["sprite","lb_1_mask","objects[obj_name].x=10;objects[obj_name].y=50;",""],["cont","lb_1_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=1480-1510+40;","objects[obj_name].addChild(objects.lb_1_mask);objects[obj_name].addChild(objects.lb_1_avatar);objects[obj_name].addChild(objects.lb_1_frame);objects[obj_name].addChild(objects.lb_1_crown);objects[obj_name].addChild(objects.lb_1_name);objects[obj_name].addChild(objects.lb_1_rating);app.stage.addChild(objects[obj_name]);"],["block","lb_1_name","objects[obj_name]=new PIXI.BitmapText('Иван Семенов', {font: '35px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","lb_1_rating","objects[obj_name]=new PIXI.BitmapText('1899', {font: '30px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=190;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["sprite","lb_1_frame","objects[obj_name].x=10;objects[obj_name].y=50;",""],["sprite","lb_1_crown","objects[obj_name].x=98;objects[obj_name].y=24;",""],["block","lb_2_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=130;objects[obj_name].height=130;","objects[obj_name].mask=objects.lb_2_mask;"],["sprite","lb_2_mask","objects[obj_name].x=10;objects[obj_name].y=40;",""],["block","lb_2_name","objects[obj_name]=new PIXI.BitmapText('Игорь Васильев', {font: '32px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=85;objects[obj_name].y=140;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","lb_2_rating","objects[obj_name]=new PIXI.BitmapText('1455', {font: '30px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=88;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["cont","lb_2_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=130;objects[obj_name].sy=objects[obj_name].y=1635-1510+40;","objects[obj_name].addChild(objects.lb_2_avatar);objects[obj_name].addChild(objects.lb_2_mask);objects[obj_name].addChild(objects.lb_2_frame);objects[obj_name].addChild(objects.lb_2_crown);objects[obj_name].addChild(objects.lb_2_name);objects[obj_name].addChild(objects.lb_2_rating);app.stage.addChild(objects[obj_name]);"],["sprite","lb_2_frame","objects[obj_name].x=10;objects[obj_name].y=40;",""],["sprite","lb_2_crown","objects[obj_name].x=87;objects[obj_name].y=17;",""],["sprite","req_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","req_name","objects[obj_name]=new PIXI.BitmapText('', {font: '27px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=251;objects[obj_name].y=63;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","req_rating","objects[obj_name]=new PIXI.BitmapText('', {font: '25px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=251;objects[obj_name].y=92;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["block","req_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=52;objects[obj_name].sy=objects[obj_name].y=55;objects[obj_name].width=90;objects[obj_name].height=80;",""],["sprite","req_ok","objects[obj_name].x=20;objects[obj_name].y=145;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.accept()};objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","req_deny","objects[obj_name].x=190;objects[obj_name].y=145;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.reject()};objects[obj_name].base_tint=objects[obj_name].tint;",""],["cont","req_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=210;objects[obj_name].sy=objects[obj_name].y=-10;","objects[obj_name].addChild(objects.req_bcg);objects[obj_name].addChild(objects.req_avatar);objects[obj_name].addChild(objects.req_name);objects[obj_name].addChild(objects.req_rating);objects[obj_name].addChild(objects.req_ok);objects[obj_name].addChild(objects.req_deny);app.stage.addChild(objects[obj_name]);"],["image","wait_response",""],["sprite","big_message_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","big_message_text","objects[obj_name]=new PIXI.BitmapText('', {font: '25px Century Gothic', align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=270;objects[obj_name].x=160;objects[obj_name].y=30;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",""],["cont","big_message_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=240;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.big_message_bcg);objects[obj_name].addChild(objects.big_message_text);objects[obj_name].addChild(objects.close_big_message);objects[obj_name].addChild(objects.big_message_text2);app.stage.addChild(objects[obj_name]);"],["sprite","close_big_message","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=99;objects[obj_name].y=147;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){big_message.close()};    ",""],["block","big_message_text2","objects[obj_name]=new PIXI.BitmapText('------', {font: '30px Century Gothic', align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=270;objects[obj_name].x=159;objects[obj_name].y=119;objects[obj_name].base_tint=objects[obj_name].tint=0XFFC000;",""],["sprite","rules_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","rules_ok_button","objects[obj_name].x=290;objects[obj_name].y=350;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.rules_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",""],["cont","rules_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=0;","objects[obj_name].addChild(objects.rules_bcg);objects[obj_name].addChild(objects.rules_ok_button);app.stage.addChild(objects[obj_name]);"]];
+var load_list=[["sprite","desktop","objects[obj_name].x=-10;objects[obj_name].y=-10;","app.stage.addChild(objects[obj_name]);"],["image","lb_bcg",""],["sprite","board","objects[obj_name].x=190;objects[obj_name].y=10;objects[obj_name].visible=false;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){game.mouse_down_on_board()};","app.stage.addChild(objects[obj_name]);"],["sprite","send_sticker_button","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);","objects[obj_name].pointerdown=function(){stickers.show_panel()};objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["sprite","giveup_button","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.show()};objects[obj_name].x=10;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);","objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["cont","game_buttons_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].ready=true;objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=610;objects[obj_name].sy=objects[obj_name].y=310;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.send_sticker_button);objects[obj_name].addChild(objects.giveup_button);app.stage.addChild(objects[obj_name]);"],["sprite","message_bcg","objects[obj_name].x=10;objects[obj_name].y=20;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","message_text","objects[obj_name]=new PIXI.BitmapText('', {font: '20px Century Gothic'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=150;objects[obj_name].x=100;objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",""],["cont","message_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=220;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.message_bcg);objects[obj_name].addChild(objects.message_text);app.stage.addChild(objects[obj_name]);"],["sprite","timer_bcg","objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","timer_text","objects[obj_name]=new PIXI.BitmapText('0:30', {font: '30px Century Gothic'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=90;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",""],["cont","timer_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].show=function(){this.childs.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.timer_bcg);objects[obj_name].addChild(objects.timer_text);app.stage.addChild(objects[obj_name]);"],["sprite","my_card_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","my_card_name","objects[obj_name]=new PIXI.BitmapText('', {font: '27px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=128;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","my_card_rating","objects[obj_name]=new PIXI.BitmapText('', {font: '25px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["block","my_card_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=50;objects[obj_name].sy=objects[obj_name].y=30;objects[obj_name].width=100,00009765625;objects[obj_name].height=90;",""],["cont","my_card_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=0;","objects[obj_name].addChild(objects.my_card_bcg);objects[obj_name].addChild(objects.my_card_name);objects[obj_name].addChild(objects.my_card_rating);objects[obj_name].addChild(objects.my_card_avatar);app.stage.addChild(objects[obj_name]);"],["sprite","opp_card_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","opp_card_name","objects[obj_name]=new PIXI.BitmapText('', {font: '27px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=128;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","opp_card_rating","objects[obj_name]=new PIXI.BitmapText('', {font: '25px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["block","opp_card_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=50;objects[obj_name].sy=objects[obj_name].y=30;objects[obj_name].width=100,00009765625;objects[obj_name].height=90;",""],["cont","opp_card_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=600;objects[obj_name].sy=objects[obj_name].y=0;","objects[obj_name].addChild(objects.opp_card_bcg);objects[obj_name].addChild(objects.opp_card_name);objects[obj_name].addChild(objects.opp_card_rating);objects[obj_name].addChild(objects.opp_card_avatar);app.stage.addChild(objects[obj_name]);"],["image","mini_player_card",""],["array","checkers",24,"var num=n;objects[obj_name][num]=new PIXI.Sprite();objects[obj_name][num].visible=false;","var num=n;objects[obj_name][num].texture=game_res.resources.chk_quad_1_tex.texture;app.stage.addChild(objects[obj_name][num]);"],["sprite","selected_frame","objects[obj_name].visible=false;","app.stage.addChild(objects[obj_name]);"],["image","chk_quad_1_tex",""],["image","chk_quad_2_tex",""],["sprite","giveup_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","giveup_no","objects[obj_name].x=150;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.hide()};","objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["cont","giveup_dialog","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=270;objects[obj_name].sy=objects[obj_name].y=270;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.giveup_bcg);objects[obj_name].addChild(objects.giveup_yes);objects[obj_name].addChild(objects.giveup_no);app.stage.addChild(objects[obj_name]);"],["sprite","giveup_yes","objects[obj_name].x=30;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.give_up()};","objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["image","pc_icon",""],["block","cur_move_text","objects[obj_name]=new PIXI.BitmapText('', {font: '30px Century Gothic'});objects[obj_name].anchor.set(0,0.5);objects[obj_name].x=32;objects[obj_name].y=430;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;","app.stage.addChild(objects[obj_name]);"],["sprite","stop_bot_button","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].visible=false;objects[obj_name].pointerdown=function(){bot_game.stop()};objects[obj_name].x=objects[obj_name].sx=620;objects[obj_name].y=objects[obj_name].sy=370;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);","objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"],["sprite","stickers_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","sticker_0","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_0'].texture;",""],["block","sticker_1","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_1'].texture;",""],["block","sticker_2","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_2'].texture;",""],["block","sticker_3","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_3'].texture;",""],["block","sticker_4","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_4'].texture;",""],["block","sticker_5","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_5'].texture;",""],["block","sticker_6","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_6'].texture;",""],["block","sticker_7","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_7'].texture;",""],["block","sticker_8","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_8'].texture;",""],["block","sticker_9","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_9'].texture;",""],["block","sticker_10","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_10'].texture;",""],["block","sticker_11","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_11'].texture;",""],["block","sticker_12","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_12'].texture;",""],["block","sticker_13","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_13'].texture;",""],["block","sticker_14","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_14'].texture;",""],["block","sticker_15","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_15'].texture;",""],["cont","stickers_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=230;objects[obj_name].sy=objects[obj_name].y=60;","app.stage.addChild(objects[obj_name]);objects[obj_name].addChild(objects.stickers_bcg);objects[obj_name].addChild(objects.close_stickers);for (var z=0;z<16;z++) {objects[obj_name].addChild(objects['sticker_'+z]);objects['sticker_'+z].width=70;objects['sticker_'+z].height=70;objects['sticker_'+z].interactive=true;objects['sticker_'+z].buttonMode=true;const id=z;objects['sticker_'+id].pointerover=function(){this.tint=0xFF6666};objects['sticker_'+id].pointerout=function(){this.tint=this.base_tint};objects['sticker_'+id].pointerdown=function(){stickers.send(id)};}objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};"],["sprite","close_stickers","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=()=>{stickers.hide_panel()};objects[obj_name].x=270;objects[obj_name].y=21;","objects[obj_name].pointerover=function(){this.tint=0xff0000};objects[obj_name].pointerout=function(){this.tint=0xffffff};"],["block","cards_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;","for (let i=0;i<12;i++)objects[obj_name].addChild(objects.mini_cards[i]);app.stage.addChild(objects[obj_name]);"],["array","mini_cards",12,"var num=n;objects[obj_name][num]=new player_mini_card_class(0,0,num);",""],["sprite","play_button","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.play_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","app.stage.addChild(objects[obj_name]);"],["sprite","lb_button","objects[obj_name].x=150;objects[obj_name].y=10;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.lb_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;","app.stage.addChild(objects[obj_name]);"],["sprite","rules_button","objects[obj_name].x=290;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.rules_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","app.stage.addChild(objects[obj_name]);"],["sprite","preferences_button","objects[obj_name].x=430;objects[obj_name].y=10;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.pref_button_down()};objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","app.stage.addChild(objects[obj_name]);"],["cont","main_buttons_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=120;objects[obj_name].sy=objects[obj_name].y=279;","objects[obj_name].addChild(objects.play_button);objects[obj_name].addChild(objects.lb_button);objects[obj_name].addChild(objects.rules_button);objects[obj_name].addChild(objects.preferences_button);app.stage.addChild(objects[obj_name]);"],["sprite","back_button","objects[obj_name].x=690;objects[obj_name].y=320;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){cards_menu.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","app.stage.addChild(objects[obj_name]);"],["image","cards_bcg",""],["sprite","invite_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","invite_name","objects[obj_name]=new PIXI.BitmapText('', {font: '35px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=184;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",""],["block","invite_rating","objects[obj_name]=new PIXI.BitmapText('', {font: '43px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=210;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","invite_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].width=130;objects[obj_name].height=130;",""],["cont","invite_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=260;objects[obj_name].sy=objects[obj_name].y=50;","objects[obj_name].addChild(objects.invite_bcg);objects[obj_name].addChild(objects.invite_avatar);objects[obj_name].addChild(objects.invite_name);objects[obj_name].addChild(objects.invite_rating);objects[obj_name].addChild(objects.invite_button);objects[obj_name].addChild(objects.invite_close);app.stage.addChild(objects[obj_name]);"],["sprite","invite_button","objects[obj_name].x=20;objects[obj_name].y=240;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.send_invite()};objects[obj_name].pointerover=function(){this.tint=0x444444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","invite_close","objects[obj_name].x=206;objects[obj_name].y=23;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.hide_invite_dialog()};objects[obj_name].base_tint=objects[obj_name].tint;",""],["image","chk_round_1_tex",""],["image","chk_7_1_tex",""],["image","chk_7_2_tex",""],["image","chk_round_2_tex",""],["sprite","pref_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","pref_ok","objects[obj_name].x=130;objects[obj_name].y=195;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.pref_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",""],["cont","pref_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=50;","objects[obj_name].addChild(objects.pref_bcg);objects[obj_name].addChild(objects.pref_ok);objects[obj_name].addChild(objects.chk_quad_block);objects[obj_name].addChild(objects.chk_7_block);objects[obj_name].addChild(objects.chk_round_block);objects[obj_name].addChild(objects.chk_opt_frame);app.stage.addChild(objects[obj_name]);"],["block","chk_7_block","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(1)};","objects[obj_name].texture=game_res.resources.chk_7_1_tex.texture;"],["block","chk_round_block","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=280;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(2)};","objects[obj_name].texture=game_res.resources.chk_round_1_tex.texture;"],["block","chk_quad_block","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=80;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(0)};","objects[obj_name].texture=game_res.resources.chk_quad_1_tex.texture;"],["sprite","chk_opt_frame","objects[obj_name].x=60;objects[obj_name].y=70;",""],["image","lb_player_card_bcg",""],["block","lb_cards_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=0;","for (let i=0;i<7;i++)objects[obj_name].addChild(objects.lb_cards[i]);app.stage.addChild(objects[obj_name]);"],["array","lb_cards",7,"var num=n;objects[obj_name][num]=new lb_player_card_class(0,0,num+4);",""],["block","lb_back_button","objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=700;objects[obj_name].y=320;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){lb.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};","objects[obj_name].texture=objects.back_button.texture;app.stage.addChild(objects[obj_name]);"],["block","sent_sticker_area","objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=345;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].width=105;objects[obj_name].height=100;","app.stage.addChild(objects[obj_name]);"],["block","rec_sticker_area","objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=260;objects[obj_name].width=140;objects[obj_name].height=140;","app.stage.addChild(objects[obj_name]);"],["block","lb_3_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=40;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;","objects[obj_name].mask=objects.lb_3_mask;"],["sprite","lb_3_mask","objects[obj_name].x=40;objects[obj_name].y=50;",""],["block","lb_3_name","objects[obj_name]=new PIXI.BitmapText('Махмуд Аббас', {font: '30px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","lb_3_rating","objects[obj_name]=new PIXI.BitmapText('1234', {font: '28px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["cont","lb_3_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=-10;objects[obj_name].sy=objects[obj_name].y=1730-1510+40;","objects[obj_name].addChild(objects.lb_3_avatar);objects[obj_name].addChild(objects.lb_3_mask);objects[obj_name].addChild(objects.lb_3_frame);objects[obj_name].addChild(objects.lb_3_crown);objects[obj_name].addChild(objects.lb_3_name);objects[obj_name].addChild(objects.lb_3_rating);app.stage.addChild(objects[obj_name]);"],["sprite","lb_3_frame","objects[obj_name].x=40;objects[obj_name].y=50;",""],["sprite","lb_3_crown","objects[obj_name].x=11;objects[obj_name].y=22;",""],["block","lb_1_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;","objects[obj_name].mask=objects.lb_1_mask;"],["sprite","lb_1_mask","objects[obj_name].x=10;objects[obj_name].y=50;",""],["cont","lb_1_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=1480-1510+40;","objects[obj_name].addChild(objects.lb_1_mask);objects[obj_name].addChild(objects.lb_1_avatar);objects[obj_name].addChild(objects.lb_1_frame);objects[obj_name].addChild(objects.lb_1_crown);objects[obj_name].addChild(objects.lb_1_name);objects[obj_name].addChild(objects.lb_1_rating);app.stage.addChild(objects[obj_name]);"],["block","lb_1_name","objects[obj_name]=new PIXI.BitmapText('Иван Семенов', {font: '35px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","lb_1_rating","objects[obj_name]=new PIXI.BitmapText('1899', {font: '30px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=190;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["sprite","lb_1_frame","objects[obj_name].x=10;objects[obj_name].y=50;",""],["sprite","lb_1_crown","objects[obj_name].x=98;objects[obj_name].y=24;",""],["block","lb_2_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=130;objects[obj_name].height=130;","objects[obj_name].mask=objects.lb_2_mask;"],["sprite","lb_2_mask","objects[obj_name].x=10;objects[obj_name].y=40;",""],["block","lb_2_name","objects[obj_name]=new PIXI.BitmapText('Игорь Васильев', {font: '32px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=85;objects[obj_name].y=140;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",""],["block","lb_2_rating","objects[obj_name]=new PIXI.BitmapText('1455', {font: '30px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=88;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",""],["cont","lb_2_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=130;objects[obj_name].sy=objects[obj_name].y=1635-1510+40;","objects[obj_name].addChild(objects.lb_2_avatar);objects[obj_name].addChild(objects.lb_2_mask);objects[obj_name].addChild(objects.lb_2_frame);objects[obj_name].addChild(objects.lb_2_crown);objects[obj_name].addChild(objects.lb_2_name);objects[obj_name].addChild(objects.lb_2_rating);app.stage.addChild(objects[obj_name]);"],["sprite","lb_2_frame","objects[obj_name].x=10;objects[obj_name].y=40;",""],["sprite","lb_2_crown","objects[obj_name].x=87;objects[obj_name].y=17;",""],["sprite","req_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","req_name","objects[obj_name]=new PIXI.BitmapText('', {font: '27px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=251;objects[obj_name].y=59;objects[obj_name].maxWidth=160;objects[obj_name].base_tint=objects[obj_name].tint=0X2F5597;",""],["block","req_rating","objects[obj_name]=new PIXI.BitmapText('', {font: '30px Century Gothic',align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=251;objects[obj_name].y=117;objects[obj_name].base_tint=objects[obj_name].tint=0X333F50;",""],["block","req_avatar","objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=50;objects[obj_name].sy=objects[obj_name].y=60;objects[obj_name].width=90;objects[obj_name].height=80;",""],["sprite","req_ok","objects[obj_name].x=20;objects[obj_name].y=145;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.accept()};objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","req_deny","objects[obj_name].x=190;objects[obj_name].y=145;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.reject()};objects[obj_name].base_tint=objects[obj_name].tint;",""],["cont","req_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=210;objects[obj_name].sy=objects[obj_name].y=-10;","objects[obj_name].addChild(objects.req_bcg);objects[obj_name].addChild(objects.req_avatar);objects[obj_name].addChild(objects.req_name);objects[obj_name].addChild(objects.req_rating);objects[obj_name].addChild(objects.req_ok);objects[obj_name].addChild(objects.req_deny);app.stage.addChild(objects[obj_name]);"],["image","wait_response",""],["sprite","big_message_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["block","big_message_text","objects[obj_name]=new PIXI.BitmapText('', {font: '25px Century Gothic', align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=270;objects[obj_name].x=160;objects[obj_name].y=30;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",""],["cont","big_message_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=240;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};","objects[obj_name].addChild(objects.big_message_bcg);objects[obj_name].addChild(objects.big_message_text);objects[obj_name].addChild(objects.close_big_message);objects[obj_name].addChild(objects.big_message_text2);app.stage.addChild(objects[obj_name]);"],["sprite","close_big_message","objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=99;objects[obj_name].y=147;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){big_message.close()};    ",""],["block","big_message_text2","objects[obj_name]=new PIXI.BitmapText('------', {font: '30px Century Gothic', align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=270;objects[obj_name].x=159;objects[obj_name].y=119;objects[obj_name].base_tint=objects[obj_name].tint=0XFFC000;",""],["sprite","rules_bcg","objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",""],["sprite","rules_ok_button","objects[obj_name].x=290;objects[obj_name].y=350;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.rules_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",""],["cont","rules_cont","objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=0;","objects[obj_name].addChild(objects.rules_bcg);objects[obj_name].addChild(objects.rules_ok_button);app.stage.addChild(objects[obj_name]);"]];
 
 class player_mini_card_class extends PIXI.Container {
 	
@@ -1416,326 +1416,6 @@ var giveup_menu={
 	}
 }
 
-var user_data={
-		
-	// эта функция вызывается один раз в начале игры
-	req_result: "",
-	yndx_no_personal_data:0,
-	fb_error:0,
-	
-	
-	loadScript : function(src) {
-	  return new Promise((resolve, reject) => {
-		const script = document.createElement('script')
-		script.type = 'text/javascript'
-		script.onload = resolve
-		script.onerror = reject
-		script.src = src
-		document.head.appendChild(script)
-	  })
-	},
-			
-	vkbridge_events: function(e) {
-
-		if (e.detail.type === 'VKWebAppGetUserInfoResult') {
-			
-			my_data.first_name=e.detail.data.first_name;
-			my_data.last_name=e.detail.data.last_name;
-			my_data.uid="vk"+e.detail.data.id;
-			my_data.pic_url=e.detail.data.photo_100;
-			user_data.req_result="ok";	
-			user_data.process_results();			
-		}	
-	},
-			
-	load: function() {
-						 
-		let s=window.location.href;
-
-		if (s.includes("yandex")) {
-						
-			Promise.all([
-				this.loadScript('https://yandex.ru/games/sdk/v2')
-			]).then(function(){
-				user_data.yandex();	
-			})						
-		}
-				
-		if (s.includes("vk.com") && s.includes("platform=web")) {
-			
-			Promise.all([
-				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
-				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
-				this.loadScript('//vk.com/js/api/adman_init.js')
-				
-			]).then(function(){
-				user_data.vk_web()
-			})
-			;			
-		}
-		
-		if (s.includes("vk.com") && s.includes("html5_mobile")) {
-			
-			Promise.all([
-				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
-				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
-				this.loadScript('//vk.com/js/api/adman_init.js')
-				
-			]).then(function(){
-				user_data.vk_web()
-			})
-			;			
-		}
-		
-		if (s.includes("vk.com") && s.includes("html5_android")) {
-			
-			Promise.all([
-				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
-				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
-				this.loadScript('//vk.com/js/api/adman_init.js'),
-				this.loadScript('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')		
-			]).then(function(){
-				user_data.vk_miniapp();	
-			})	
-					
-		}
-
-					 
-				 
-		/*
-		//загружаем данные пользователя
-		load_user_data.local();*/	
-		
-	},
-	
-	yandex: function() {
-	
-		platform="YANDEX";
-		if(typeof(YaGames)==='undefined')
-		{		
-			user_data.req_result='yndx_sdk_error';
-			user_data.process_results();	
-		}
-		else
-		{
-			//если sdk яндекса найден
-			YaGames.init({}).then(ysdk => {
-				
-				//фиксируем SDK в глобальной переменной
-				window.ysdk=ysdk;
-				
-				
-				return ysdk.getPlayer();
-			}).then((_player)=>{
-				
-				my_data.first_name 	=	_player.getName();
-				my_data.last_name	=	"";
-				my_data.uid			=	_player.getUniqueID().replace(/\//g, "Z");	
-				my_data.pic_url		=	_player.getPhoto('medium');		
-				
-				console.log(my_data.uid);
-				user_data.req_result='ok';
-				sn="yandex";
-								
-				if (my_data.first_name=="" || my_data.first_name=='') {
-					my_data.first_name=my_data.uid.substring(0,5);
-					user_data.yndx_no_personal_data=1					
-				}
-				
-			}).catch(err => {		
-				console.log(err);
-				user_data.req_result='yndx_init_error';			
-			}).finally(()=>{			
-				user_data.process_results();			
-			})		
-			
-		}				
-
-	},
-			
-	vk_web: function() {
-		
-		platform="VK_WEB";
-		
-		if(typeof(VK)==='undefined')
-		{		
-			user_data.req_result='vk_sdk_error';
-			user_data.process_results();	
-		}
-		else
-		{
-			
-			VK.init(
-			
-				//функция удачной инициализации вконтакте
-				function()
-				{
-
-					VK.api(
-						"users.get",
-						{access_token: '2c2dcb592c2dcb592c2dcb59a62c55991122c2d2c2dcb594cfd0c5d42f4b700d3e509a5',fields: 'photo_100'},
-						function (data) {
-							if (data.error===undefined) {
-								
-								sn="vk";
-								my_data.first_name=data.response[0].first_name;
-								my_data.last_name=data.response[0].last_name;
-								my_data.uid="vk"+data.response[0].id;
-								my_data.pic_url=data.response[0].photo_100;
-								user_data.req_result="ok";	
-								user_data.process_results();									
-							}	
-							else
-							{
-								user_data.req_result="vk_error";	
-								user_data.process_results();	
-							}
-						}
-					)
-					
-				},	
-				
-				//функция неудачной инициализации вконтакте
-				function()
-				{
-					user_data.req_result='vk_init_error';
-					user_data.process_results();				
-				},
-
-				//версия апи
-				'5.130');		
-			
-		}
-
-	},
-	
-	vk_miniapp: function() {
-		
-		platform="VK_MINIAPP";
-		vkBridge.subscribe((e) => this.vkbridge_events(e)); 
-		vkBridge.send('VKWebAppInit');	
-		vkBridge.send('VKWebAppGetUserInfo');	
-		
-	},
-
-
-	local: function() {	
-		
-		let test_id = prompt('Введите ID (будет добавле test)');
-		
-		this.req_result='ok'		
-		my_data.first_name="LOCALMISTERCAMILL"+test_id; ;
-		my_data.last_name="test"+test_id;
-		my_data.uid="test"+test_id;
-		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
-		state="online";
-		
-		this.process_results();
-
-	},
-	
-	process_results: function() {
-		
-		//если с аватаркой какие-то проблемы то ставим дефолтную
-		if (my_data.pic_url===undefined || my_data.pic_url=="")
-			my_data.pic_url	="https://i.ibb.co/LN0NqZq/ava.jpg";
-		
-		//загружаем мою аватарку на табло
-		let loader2 = new PIXI.Loader();
-		loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
-		loader2.load((loader, resources) => {objects.my_card_avatar.texture = resources.my_avatar.texture;});				
-
-					
-		if (user_data.req_result!=="ok") {		
-			let rand_uid=Math.floor(Math.random() * 9999999);
-			my_data.first_name 	=	"Бегемот"+rand_uid;
-			my_data.last_name	=	"";
-			my_data.rating=1400;
-			my_data.uid			=	"u"+rand_uid;	
-			my_data.pic_url		=	"https://i.ibb.co/LN0NqZq/ava.jpg";	
-			big_message.show("Вы не авторизованы в социальной сети. Рейтинг не будет сохранен.","(((")
-		}		
-		
-		//если нет личных данных то нет лидерборда
-		if (user_data.req_result==="ok")	 {			
-			if (this.yndx_no_personal_data===1)
-				big_message.show("Не удалось получить Ваши имя и аватар. Ваши данные не будут отображаться в лидерборде.","(((")
-		}	
-				
-				
-		//Отображаем мое имя и фамилию на табло (хотя его и не видно пока)
-		let t=my_data.first_name;
-		objects.my_card_name.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;					
-				
-		//загружаем файербейс
-		this.init_firebase();	
-	
-	},
-	
-	init_firebase: function() {
-	
-		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
-		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
-			var data=snapshot.val();
-			if (data===null)
-			{
-				//если я первый раз в игре
-				my_data.rating=1400;	
-				
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
-			}
-			else
-			{
-				//если я уже есть в базе то считыавем мой рейтинг
-				my_data.rating=data.rating;	
-			
-				//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
-			}			
-			
-
-		}).catch((error) => {		
-			console.error(error);
-			this.fb_error=1;
-		}).finally(()=>{
-			
-
-			//обновляем рейтинг в моей карточке
-			objects.my_card_rating.text=my_data.rating;	
-			
-			//обновляем почтовый ящик
-			firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",tm:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
-					
-			//устанавливаем мой статус в онлайн
-			state="online";
-			firebase.database().ref("states/"+my_data.uid).set(state);	
-			
-			//подписываемся на новые сообщения
-			firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
-				
-			
-			//keep-alive сервис
-			setInterval(function()	{keep_alive()}, 40000);
-				
-			//отключение от игры и удаление не нужного
-			firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
-			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();	
-			
-			
-			//теперь можно нажимать на кнопки
-			if (this.fb_error===1)
-				big_message.show("Что-то пошло не так. Попробуйте еще раз.","!!!");
-			else
-				any_dialog_active=0;
-			
-		})
-		
-	
-		
-	}	
-	
-}
-
 var keep_alive= function() {
 		
 	
@@ -2349,6 +2029,7 @@ var req_dialog={
 	show(uid) {
 		
 		any_dialog_active=1;
+		game_res.resources.receive_sticker.sound.play();
 		
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
 				
@@ -2362,7 +2043,7 @@ var req_dialog={
 
 				//Отображаем  имя и фамилию на табло
 				let t=player_data.first_name +" "+player_data.last_name;
-				objects.req_name.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;	
+				objects.req_name.text=t;	
 				objects.req_rating.text=player_data.rating;
 				opp_data.rating=player_data.rating;
 				opp_data.uid=uid;
@@ -2411,7 +2092,7 @@ var req_dialog={
 
 		
 		//заполняем карточку оппонента
-		objects.opp_card_name.text=objects.req_name.text;
+		objects.opp_card_name.text=objects.req_name.text.length > 15 ?  objects.req_name.text.substring(0, 12) + "..." : objects.req_name.text;	
 		objects.opp_card_rating.text=objects.req_rating.text;
 		objects.opp_card_avatar.texture=objects.req_avatar.texture;
 
@@ -2422,40 +2103,16 @@ var req_dialog={
 	},
 	
 	hide: function() {
+		
+		//если диалог не открыт то ничего не делаем
+		if (objects.req_cont.visible===false)
+			return;
+		
 		any_dialog_active=0;
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
-	
 	}
 
 	
-}
-
-var rules={		
-	show: function() {	
-	
-		game_res.resources.click.sound.play();
-		
-		if (objects.big_message_cont.ready===false)
-			return;	
-		
-		if (any_dialog_active===1) {
-			game_res.resources.locked.sound.play();
-			return
-		};	
-		any_dialog_active=1;
-		
-		anim.add_pos({obj:objects.rules_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[450, 	'sy'],	speed:0.03});				
-	},
-	hide: function() {		
-		game_res.resources.close.sound.play();
-		
-		if (objects.big_message_cont.ready===false)
-			return;	
-		
-		any_dialog_active=0;
-		
-		anim.add_pos({obj:objects.rules_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-450],	speed:0.03});	
-	},
 }
 
 var main_menu= {
@@ -2516,13 +2173,13 @@ var main_menu= {
 		
 		game_res.resources.click.sound.play();
 		
-		anim.add_pos({obj:objects.rules_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-200,'sy'],	speed:0.04});
+		anim.add_pos({obj:objects.rules_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-450,'sy'],	speed:0.04});
 		
 	},
 	
 	rules_ok_down: function () {
 		any_dialog_active=0;
-		anim.add_pos({obj:objects.rules_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',-200],	speed:0.04});
+		anim.add_pos({obj:objects.rules_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',-450],	speed:0.04});
 	},
 	
 	pref_button_down: function () {
@@ -2658,7 +2315,7 @@ var lb={
 				//загружаем тройку лучших
 				for (let i=0;i<3;i++) {
 					let player_name=players_array[i][0]+" "+players_array[i][1];					
-					player_name = player_name.length > 18 ?  player_name.substring(0, 15) + "..." : player_name;
+					player_name = player_name.length > 17 ?  player_name.substring(0, 14) + "..." : player_name;
 					
 					objects['lb_'+(i+1)+'_name'].text=player_name;
 					objects['lb_'+(i+1)+'_rating'].text=players_array[i][2];					
@@ -2888,7 +2545,7 @@ var cards_menu={
 		objects.mini_cards[0].bcg.tint=0x777777;
 		objects.mini_cards[0].visible=true;
 		objects.mini_cards[0].uid="AI";
-		objects.mini_cards[0].name.text="И.И.";
+		objects.mini_cards[0].name.text="Бот";
 		objects.mini_cards[0].rating_text.text="1400";
 		objects.mini_cards[0].rating=1400;
 		objects.mini_cards[0].avatar.texture=game_res.resources.pc_icon.texture;			
@@ -3116,6 +2773,328 @@ var stickers={
 	
 }
 
+var user_data={
+		
+	// эта функция вызывается один раз в начале игры
+	req_result: "",
+	yndx_no_personal_data:0,
+	fb_error:0,
+	
+	
+	loadScript : function(src) {
+	  return new Promise((resolve, reject) => {
+		const script = document.createElement('script')
+		script.type = 'text/javascript'
+		script.onload = resolve
+		script.onerror = reject
+		script.src = src
+		document.head.appendChild(script)
+	  })
+	},
+			
+	vkbridge_events: function(e) {
+
+		if (e.detail.type === 'VKWebAppGetUserInfoResult') {
+			
+			my_data.first_name=e.detail.data.first_name;
+			my_data.last_name=e.detail.data.last_name;
+			my_data.uid="vk"+e.detail.data.id;
+			my_data.pic_url=e.detail.data.photo_100;
+			user_data.req_result="ok";	
+			user_data.process_results();			
+		}	
+	},
+			
+	load: function() {
+		
+		
+		
+		//загружаем данные пользователя
+		//user_data.local();
+						 
+		let s=window.location.href;
+
+		if (s.includes("yandex")) {
+						
+			Promise.all([
+				this.loadScript('https://yandex.ru/games/sdk/v2')
+			]).then(function(){
+				user_data.yandex();	
+			})						
+		}
+				
+		if (s.includes("vk.com") && s.includes("platform=web")) {
+			
+			Promise.all([
+				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
+				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
+				this.loadScript('//vk.com/js/api/adman_init.js')
+				
+			]).then(function(){
+				user_data.vk_web()
+			})
+			;			
+		}
+		
+		if (s.includes("vk.com") && s.includes("html5_mobile")) {
+			
+			Promise.all([
+				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
+				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
+				this.loadScript('//vk.com/js/api/adman_init.js')
+				
+			]).then(function(){
+				user_data.vk_web()
+			})
+			;			
+		}
+		
+		if (s.includes("vk.com") && s.includes("html5_android")) {
+			
+			Promise.all([
+				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
+				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
+				this.loadScript('//vk.com/js/api/adman_init.js'),
+				this.loadScript('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')		
+			]).then(function(){
+				user_data.vk_miniapp();	
+			})	
+					
+		}
+
+					 
+				 
+
+		
+	},
+	
+	yandex: function() {
+	
+		platform="YANDEX";
+		if(typeof(YaGames)==='undefined')
+		{		
+			user_data.req_result='yndx_sdk_error';
+			user_data.process_results();	
+		}
+		else
+		{
+			//если sdk яндекса найден
+			YaGames.init({}).then(ysdk => {
+				
+				//фиксируем SDK в глобальной переменной
+				window.ysdk=ysdk;
+				
+				
+				return ysdk.getPlayer();
+			}).then((_player)=>{
+				
+				my_data.first_name 	=	_player.getName();
+				my_data.last_name	=	"";
+				my_data.uid			=	_player.getUniqueID().replace(/\//g, "Z");	
+				my_data.pic_url		=	_player.getPhoto('medium');		
+				
+				console.log(my_data.uid);
+				user_data.req_result='ok';
+				sn="yandex";
+								
+				if (my_data.first_name=="" || my_data.first_name=='') {
+					my_data.first_name=my_data.uid.substring(0,5);
+					user_data.yndx_no_personal_data=1					
+				}
+				
+			}).catch(err => {		
+				console.log(err);
+				user_data.req_result='yndx_init_error';			
+			}).finally(()=>{			
+				user_data.process_results();			
+			})		
+			
+		}				
+
+	},
+			
+	vk_web: function() {
+		
+		platform="VK_WEB";
+		
+		if(typeof(VK)==='undefined')
+		{		
+			user_data.req_result='vk_sdk_error';
+			user_data.process_results();	
+		}
+		else
+		{
+			
+			VK.init(
+			
+				//функция удачной инициализации вконтакте
+				function()
+				{
+
+					VK.api(
+						"users.get",
+						{access_token: '2c2dcb592c2dcb592c2dcb59a62c55991122c2d2c2dcb594cfd0c5d42f4b700d3e509a5',fields: 'photo_100'},
+						function (data) {
+							if (data.error===undefined) {
+								
+								sn="vk";
+								my_data.first_name=data.response[0].first_name;
+								my_data.last_name=data.response[0].last_name;
+								my_data.uid="vk"+data.response[0].id;
+								my_data.pic_url=data.response[0].photo_100;
+								user_data.req_result="ok";	
+								user_data.process_results();									
+							}	
+							else
+							{
+								user_data.req_result="vk_error";	
+								user_data.process_results();	
+							}
+						}
+					)
+					
+				},	
+				
+				//функция неудачной инициализации вконтакте
+				function()
+				{
+					user_data.req_result='vk_init_error';
+					user_data.process_results();				
+				},
+
+				//версия апи
+				'5.130');		
+			
+		}
+
+	},
+	
+	vk_miniapp: function() {
+		
+		platform="VK_MINIAPP";
+		vkBridge.subscribe((e) => this.vkbridge_events(e)); 
+		vkBridge.send('VKWebAppInit');	
+		vkBridge.send('VKWebAppGetUserInfo');	
+		
+	},
+
+	local: function() {	
+		
+		let test_id = prompt('Введите ID (будет добавле test)');
+		
+		this.req_result='ok'		
+		my_data.first_name="LOCALMISTERCAMILL"+test_id; ;
+		my_data.last_name="test"+test_id;
+		my_data.uid="test"+test_id;
+		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
+		state="online";
+		
+		this.process_results();
+
+	},
+	
+	process_results: function() {
+		
+		//если с аватаркой какие-то проблемы то ставим дефолтную
+		if (my_data.pic_url===undefined || my_data.pic_url=="")
+			my_data.pic_url	="https://i.ibb.co/LN0NqZq/ava.jpg";
+		
+		//загружаем мою аватарку на табло
+		let loader2 = new PIXI.Loader();
+		loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
+		loader2.load((loader, resources) => {objects.my_card_avatar.texture = resources.my_avatar.texture;});				
+
+					
+		if (user_data.req_result!=="ok") {		
+			let rand_uid=Math.floor(Math.random() * 9999999);
+			my_data.first_name 	=	"Бегемот"+rand_uid;
+			my_data.last_name	=	"";
+			my_data.rating=1400;
+			my_data.uid			=	"u"+rand_uid;	
+			my_data.pic_url		=	"https://i.ibb.co/LN0NqZq/ava.jpg";	
+			big_message.show("Вы не авторизованы в социальной сети. Рейтинг не будет сохранен.","(((")
+		}		
+		
+		//если нет личных данных то нет лидерборда
+		if (user_data.req_result==="ok")	 {			
+			if (this.yndx_no_personal_data===1)
+				big_message.show("Не удалось получить Ваши имя и аватар. Ваши данные не будут отображаться в лидерборде.","(((")
+		}	
+				
+				
+		//Отображаем мое имя и фамилию на табло (хотя его и не видно пока)
+		let t=my_data.first_name;
+		objects.my_card_name.text=t.length > 15 ?  t.substring(0, 12) + "..." : t;					
+				
+		//загружаем файербейс
+		this.init_firebase();	
+	
+	},
+	
+	init_firebase: function() {
+	
+		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
+		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
+			var data=snapshot.val();
+			if (data===null)
+			{
+				//если я первый раз в игре
+				my_data.rating=1400;	
+				
+				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
+			}
+			else
+			{
+				//если я уже есть в базе то считыавем мой рейтинг
+				my_data.rating=data.rating;	
+			
+				//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
+				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
+			}			
+			
+
+		}).catch((error) => {		
+			console.error(error);
+			this.fb_error=1;
+		}).finally(()=>{
+			
+
+			//обновляем рейтинг в моей карточке
+			objects.my_card_rating.text=my_data.rating;	
+			
+			//обновляем почтовый ящик
+			firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",tm:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
+					
+			//устанавливаем мой статус в онлайн
+			state="online";
+			firebase.database().ref("states/"+my_data.uid).set(state);	
+			
+			//подписываемся на новые сообщения
+			firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
+				
+			
+			//keep-alive сервис
+			setInterval(function()	{keep_alive()}, 40000);
+				
+			//отключение от игры и удаление не нужного
+			firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
+			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();	
+			
+			
+			//теперь можно нажимать на кнопки
+			if (this.fb_error===1)
+				big_message.show("Что-то пошло не так. Попробуйте еще раз.","!!!");
+			else
+				any_dialog_active=0;
+			
+		})
+		
+	
+		
+	}	
+	
+}
+
 function resize() {
     const vpw = window.innerWidth;  // Width of the viewport
     const vph = window.innerHeight; // Height of the viewport
@@ -3242,30 +3221,34 @@ function init_game_env() {
 
 function load_resources() {
 	
-	game_res=new PIXI.Loader();	
-	game_res.add("m2_font", "https://akukamil.github.io/corners/m_font.fnt");
+	//let git_src="https://akukamil.github.io/"
+	let git_src=""
 	
-	game_res.add('receive_move','https://akukamil.github.io/corners/receive_move.mp3');
-	game_res.add('note','https://akukamil.github.io/corners/note.mp3');
-	game_res.add('receive_sticker','https://akukamil.github.io/corners/receive_sticker.mp3');
-	game_res.add('message','https://akukamil.github.io/corners/message.mp3');
-	game_res.add('lose','https://akukamil.github.io/corners/lose.mp3');
-	game_res.add('win','https://akukamil.github.io/corners/win.mp3');
-	game_res.add('click','https://akukamil.github.io/corners/click.mp3');
-	game_res.add('close','https://akukamil.github.io/corners/close.mp3');
-	game_res.add('move','https://akukamil.github.io/corners/move.mp3');
-	game_res.add('locked','https://akukamil.github.io/corners/locked.mp3');
+	
+	game_res=new PIXI.Loader();	
+	game_res.add("m2_font", git_src+"m_font.fnt");
+	
+	game_res.add('receive_move',git_src+'receive_move.mp3');
+	game_res.add('note',git_src+'note.mp3');
+	game_res.add('receive_sticker',git_src+'receive_sticker.mp3');
+	game_res.add('message',git_src+'message.mp3');
+	game_res.add('lose',git_src+'lose.mp3');
+	game_res.add('win',git_src+'win.mp3');
+	game_res.add('click',git_src+'click.mp3');
+	game_res.add('close',git_src+'close.mp3');
+	game_res.add('move',git_src+'move.mp3');
+	game_res.add('locked',git_src+'locked.mp3');
 
 
 
 	//добавляем из листа загрузки
 	for (var i=0;i<load_list.length;i++)
 		if (load_list[i][0]=="sprite" || load_list[i][0]=="image") 
-			game_res.add(load_list[i][1], "https://akukamil.github.io/corners/res/"+load_list[i][1]+".png");
+			game_res.add(load_list[i][1], git_src+"res/"+load_list[i][1]+".png");
 	
 	//добавляем текстуры стикеров
 	for (var i=0;i<16;i++)
-		game_res.add("sticker_texture_"+i, "https://akukamil.github.io/corners/stickers/"+i+".png");
+		game_res.add("sticker_texture_"+i, git_src+"stickers/"+i+".png");
 		
 
 	game_res.load(init_game_env);		
