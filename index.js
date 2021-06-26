@@ -1984,8 +1984,10 @@ var process_new_message=function(msg) {
 		if (msg.message==="INV") {			
 			req_dialog.show(msg.sender);			
 		}
-		if (msg.message==="INV_REM") {			
-			req_dialog.hide(msg.sender);			
+		if (msg.message==="INV_REM") {	
+			//запрос игры обновляет данные оппонента поэтому отказ обрабатываем только от актуального запроса
+			if (msg.sender===opp_data.uid)
+				req_dialog.hide(msg.sender);			
 		}
 	}
 }
@@ -2047,8 +2049,7 @@ var req_dialog={
 				objects.req_rating.text=player_data.rating;
 				opp_data.rating=player_data.rating;
 				opp_data.uid=uid;
-				
-				
+								
 				//загружаем фото
 				this.load_photo(player_data.pic_url);
 
