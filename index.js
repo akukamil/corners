@@ -1,6 +1,6 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, sn=""; 
-var me_conf_play=0,opp_conf_play=0, any_dialog_active=1, min_move_amount=0, h_state="", platform="";
+var me_conf_play=0,opp_conf_play=0, any_dialog_active=1, min_move_amount=0, h_state="", game_platform="";
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={},opp_data={};
@@ -1083,7 +1083,7 @@ var finish_game = {
 	
 	show_ad: function() {
 			
-		if (platform==="YANDEX") {			
+		if (game_platform==="YANDEX") {			
 			//показываем рекламу
 			window.ysdk.adv.showFullscreenAdv({
 			  callbacks: {
@@ -1093,7 +1093,7 @@ var finish_game = {
 			})
 		}
 		
-		if (platform==="VK_WEB") {
+		if (game_platform==="VK_WEB") {
 					 
 			admanInit(
 			
@@ -1116,7 +1116,7 @@ var finish_game = {
 			);		
 		}		
 				
-		if (platform==="VK_MINIAPP") {
+		if (game_platform==="VK_MINIAPP") {
 					 
 			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"preloader"})
 			.then(data => console.log(data.result))
@@ -2881,7 +2881,7 @@ var user_data={
 	
 	yandex: function() {
 	
-		platform="YANDEX";
+		game_platform="YANDEX";
 		if(typeof(YaGames)==='undefined')
 		{		
 			user_data.req_result='yndx_sdk_error';
@@ -2926,7 +2926,7 @@ var user_data={
 			
 	vk_web: function() {
 		
-		platform="VK_WEB";
+		game_platform="VK_WEB";
 		
 		if(typeof(VK)==='undefined')
 		{		
@@ -2982,7 +2982,7 @@ var user_data={
 	
 	vk_miniapp: function() {
 		
-		platform="VK_MINIAPP";
+		game_platform="VK_MINIAPP";
 		vkBridge.subscribe((e) => this.vkbridge_events(e)); 
 		vkBridge.send('VKWebAppInit');	
 		vkBridge.send('VKWebAppGetUserInfo');	
