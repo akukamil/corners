@@ -3049,6 +3049,7 @@ var user_data={
 		firebase.database().ref("stat").push().set({
 			"id":my_data.uid,
 			"name":my_data.first_name,
+			"pic_url":my_data.pic_url,
 			"platform":platform.toString(),
 			"timestamp": firebase.database.ServerValue.TIMESTAMP
 		});
