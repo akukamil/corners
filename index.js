@@ -2811,13 +2811,20 @@ var user_data={
 		
 		
 		//загружаем данные пользователя
-		//user_data.local();
+		/*
+		Promise.all([
+			this.loadScript('platform.js')
+		]).then(function(){
+			user_data.local();	
+		})	*/
+		
 						 
 		let s=window.location.href;
 
 		if (s.includes("yandex")) {
 						
 			Promise.all([
+				this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js'),
 				this.loadScript('https://yandex.ru/games/sdk/v2')
 			]).then(function(){
 				user_data.yandex();	
@@ -2827,6 +2834,7 @@ var user_data={
 		if (s.includes("vk.com") && s.includes("platform=web")) {
 			
 			Promise.all([
+				this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js'),
 				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
 				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
 				this.loadScript('//vk.com/js/api/adman_init.js')
@@ -2840,6 +2848,7 @@ var user_data={
 		if (s.includes("vk.com") && s.includes("html5_mobile")) {
 			
 			Promise.all([
+				this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js'),
 				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
 				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
 				this.loadScript('//vk.com/js/api/adman_init.js')
@@ -2853,6 +2862,7 @@ var user_data={
 		if (s.includes("vk.com") && s.includes("html5_android")) {
 			
 			Promise.all([
+				this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js'),
 				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
 				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
 				this.loadScript('//vk.com/js/api/adman_init.js'),
@@ -3033,6 +3043,17 @@ var user_data={
 	},
 	
 	init_firebase: function() {
+	
+	
+		//это для отладки
+		firebase.database().ref("stat").push().set({
+			"id":my_data.uid,
+			"name":my_data.first_name,
+			"platform":platform.toString(),
+			"timestamp": firebase.database.ServerValue.TIMESTAMP
+		});
+	
+	
 	
 		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
 		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
