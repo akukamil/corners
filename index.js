@@ -2745,7 +2745,7 @@ var stickers={
 			return;
 		
 		//анимационное появление панели стикеров
-		anim.add_pos({obj:objects.stickers_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[450,'sy'],	speed:0.03});	
+		anim.add_pos({obj:objects.stickers_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[450,'sy'],	speed:0.02});	
 	},	
 	
 	hide_panel: function() {
@@ -2799,7 +2799,7 @@ var stickers={
 		objects.rec_sticker_area.timer_id=setTimeout(()=>{anim.add_pos({obj:objects.rec_sticker_area,param:'x',vis_on_end:false,func:'easeInBack',val:['x',-150],	speed:0.02});}, 5000);
 
 	}
-
+	
 	
 }
 
@@ -3093,22 +3093,16 @@ var user_data={
 			{
 				//если я первый раз в игре
 				my_data.rating=1400;	
-				
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
 			}
 			else
 			{
 				//если я уже есть в базе то считыавем мой рейтинг
 				my_data.rating=data.rating;	
-			
-				//на всякий случай обновляет данные так как могло поменяться имя или фамилия или фото
-				firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});	
 			}			
-			
 
 		}).catch((error) => {		
 			console.error(error);
-			this.fb_error=1;
+			user_data.fb_error=1;
 		}).finally(()=>{
 			
 
@@ -3133,12 +3127,10 @@ var user_data={
 			firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
 			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();	
 			
+			//обновляем данные в файербейс
+			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
 			
-			//теперь можно нажимать на кнопки
-			if (this.fb_error===1)
-				big_message.show("Что-то пошло не так. Попробуйте еще раз.","!!!");
-			else
-				any_dialog_active=0;
+			any_dialog_active=0;
 			
 		})
 		
@@ -3167,8 +3159,9 @@ function resize() {
 
 function change_vis_state() {	
 
-	/*
-	if (document.hidden===true) {		
+	
+	if (document.hidden===true) {
+		
 		//запоминаем состояние до деактивации
 		h_state=state;
 		state="inactive";
@@ -3178,7 +3171,7 @@ function change_vis_state() {
 		//возвращаем состояние которое было до деактивации
 		state=h_state;
 		firebase.database().ref("states/"+my_data.uid).set(state);
-	}*/
+	}
 		
 
 }
@@ -3193,11 +3186,8 @@ function init_game_env() {
 
 	resize();
 	window.addEventListener("resize", resize);	
-	document.addEventListener('visibilitychange', 
 	
-	function(e) { change_vis_state()}
-	
-	);
+	//document.addEventListener('visibilitychange', 	function(e) { change_vis_state()}	);
 	
 	//создаем спрайты и массивы спрайтов и запускаем первую часть кода
 	for (var i=0;i<load_list.length;i++) {			
