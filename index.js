@@ -2745,7 +2745,7 @@ var stickers={
 			return;
 		
 		//анимационное появление панели стикеров
-		anim.add_pos({obj:objects.stickers_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[450,'sy'],	speed:0.02});	
+		anim.add_pos({obj:objects.stickers_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[450,'sy'],	speed:0.03});	
 	},	
 	
 	hide_panel: function() {
@@ -2799,7 +2799,7 @@ var stickers={
 		objects.rec_sticker_area.timer_id=setTimeout(()=>{anim.add_pos({obj:objects.rec_sticker_area,param:'x',vis_on_end:false,func:'easeInBack',val:['x',-150],	speed:0.02});}, 5000);
 
 	}
-	
+
 	
 }
 
@@ -3167,9 +3167,8 @@ function resize() {
 
 function change_vis_state() {	
 
-	
-	if (document.hidden===true) {
-		
+	/*
+	if (document.hidden===true) {		
 		//запоминаем состояние до деактивации
 		h_state=state;
 		state="inactive";
@@ -3179,7 +3178,7 @@ function change_vis_state() {
 		//возвращаем состояние которое было до деактивации
 		state=h_state;
 		firebase.database().ref("states/"+my_data.uid).set(state);
-	}
+	}*/
 		
 
 }
