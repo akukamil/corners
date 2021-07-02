@@ -841,7 +841,10 @@ var cut_string = function(s,f_size, max_width) {
 	for (let i=0;i<s.length;i++) {
 		
 		let code_id=s.charCodeAt(i);
-		sum_v+=game_res.resources.m2_font.bitmapFont.chars[code_id].xAdvance*f_size/64;	
+		let char_obj=game_res.resources.m2_font.bitmapFont.chars[code_id];
+		if (char_obj===undefined)
+			char_obj=game_res.resources.m2_font.bitmapFont.chars[1030];
+		sum_v+=char_obj.xAdvance*f_size/64;	
 		if (sum_v>max_width)
 			return s.substring(0,i-1)+"...";		
 	}
