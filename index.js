@@ -1,6 +1,6 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, sn=""; 
-var me_conf_play=0,opp_conf_play=0, any_dialog_active=1, min_move_amount=0, h_state="", game_platform="";
+var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state="", game_platform="";
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={},opp_data={};
@@ -2813,6 +2813,16 @@ var user_data={
 	yndx_no_personal_data:0,
 	fb_error:0,
 	
+	read_cookie: function(name) {
+		var nameEQ = name + "=";
+		var ca = document.cookie.split(';');
+		for(var i=0;i < ca.length;i++) {
+			var c = ca[i];
+			while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		}
+		return undefined;
+	},
 	
 	loadScript : function(src) {
 	  return new Promise((resolve, reject) => {
@@ -2840,22 +2850,12 @@ var user_data={
 			
 	load: function() {
 				
-		
-		//загружаем данные пользователя
-		/*
-		Promise.all([
-			this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js')
-		]).then(function(){
-			user_data.local();	
-		})	
-		*/
 						 
 		let s=window.location.href;
 
 		if (s.includes("yandex")) {
 						
 			Promise.all([
-				this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js'),
 				this.loadScript('https://yandex.ru/games/sdk/v2')
 			]).then(function(){
 				user_data.yandex();	
@@ -2865,7 +2865,6 @@ var user_data={
 		if (s.includes("vk.com") && s.includes("platform=web")) {
 			
 			Promise.all([
-				this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js'),
 				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
 				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
 				this.loadScript('//vk.com/js/api/adman_init.js')
@@ -2879,7 +2878,6 @@ var user_data={
 		if (s.includes("vk.com") && s.includes("html5_mobile")) {
 			
 			Promise.all([
-				this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js'),
 				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
 				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
 				this.loadScript('//vk.com/js/api/adman_init.js')
@@ -2893,7 +2891,6 @@ var user_data={
 		if (s.includes("vk.com") && s.includes("html5_android")) {
 			
 			Promise.all([
-				this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.5/platform.min.js'),
 				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
 				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
 				this.loadScript('//vk.com/js/api/adman_init.js'),
@@ -3039,6 +3036,41 @@ var user_data={
 	
 	process_results: function() {
 		
+
+					
+		if (user_data.req_result!=="ok") {		
+		
+			let c_player_uid=this.read_cookie("pic_url");
+			if (c_player_uid===undefined) {
+				
+				let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Слон","Енот","Кролик","Бизон"];
+				let rnd_num=Math.floor(Math.random()*rnd_names.length)
+				let rand_uid=Math.floor(Math.random() * 9999999);
+				my_data.first_name 	=	rnd_names[rnd_num]+rand_uid;
+				my_data.last_name	=	"";
+				my_data.rating=1400;
+				my_data.uid			=	"u"+rand_uid;	
+				my_data.pic_url		=	"https://i.ibb.co/LN0NqZq/ava.jpg";	
+				document.cookie="corners_player="+	my_data.uid;		
+				document.cookie="first_name="+my_data.first_name;	
+				document.cookie="pic_url="+my_data.pic_url;	
+			
+			} else {				
+				my_data.uid=this.read_cookie("corners_player");;	
+				my_data.first_name=this.read_cookie("first_name");
+				my_data.last_name="";
+				my_data.pic_url=this.read_cookie("pic_url");
+			}
+
+		}		
+		
+		//если нет личных данных то нет лидерборда
+		if (user_data.req_result==="ok")	 {			
+			if (this.yndx_no_personal_data===1)
+				big_message.show("Не удалось получить Ваши имя и аватар. Ваши данные не будут отображаться в лидерборде.","(((")
+		}	
+		
+		
 		//если с аватаркой какие-то проблемы то ставим дефолтную
 		if (my_data.pic_url===undefined || my_data.pic_url=="")
 			my_data.pic_url	="https://i.ibb.co/LN0NqZq/ava.jpg";
@@ -3047,24 +3079,7 @@ var user_data={
 		let loader2 = new PIXI.Loader();
 		loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 		loader2.load((loader, resources) => {objects.my_card_avatar.texture = resources.my_avatar.texture;});				
-
-					
-		if (user_data.req_result!=="ok") {		
-			let rand_uid=Math.floor(Math.random() * 9999999);
-			my_data.first_name 	=	"Бегемот"+rand_uid;
-			my_data.last_name	=	"";
-			my_data.rating=1400;
-			my_data.uid			=	"u"+rand_uid;	
-			my_data.pic_url		=	"https://i.ibb.co/LN0NqZq/ava.jpg";	
-			big_message.show("Вы не авторизованы в социальной сети. Рейтинг не будет сохранен.","(((")
-		}		
-		
-		//если нет личных данных то нет лидерборда
-		if (user_data.req_result==="ok")	 {			
-			if (this.yndx_no_personal_data===1)
-				big_message.show("Не удалось получить Ваши имя и аватар. Ваши данные не будут отображаться в лидерборде.","(((")
-		}	
-				
+	
 				
 		//Отображаем мое имя и фамилию на табло (хотя его и не видно пока)
 		let t=my_data.first_name;		
@@ -3076,19 +3091,7 @@ var user_data={
 	},
 	
 	init_firebase: function() {
-	
-	
-		//это для отладки
-		firebase.database().ref("stat").push().set({
-			"id":my_data.uid,
-			"name":my_data.first_name,
-			"pic_url":my_data.pic_url,
-			"platform":platform.toString(),
-			"timestamp": firebase.database.ServerValue.TIMESTAMP
-		});
-	
-	
-	
+
 		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
 		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
 			var data=snapshot.val();
@@ -3121,7 +3124,6 @@ var user_data={
 			
 			//подписываемся на новые сообщения
 			firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
-				
 			
 			//keep-alive сервис
 			setInterval(function()	{keep_alive()}, 40000);
@@ -3133,7 +3135,6 @@ var user_data={
 			//обновляем данные в файербейс
 			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
 			
-			any_dialog_active=0;
 			
 		})
 		
