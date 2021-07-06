@@ -2496,7 +2496,6 @@ var cards_menu={
 		var loader=new PIXI.Loader();
 		loader.add("opponent_avatar_"+id, objects.mini_cards[id].pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 		loader.id=id;
-		console.log(id);
 		loader.load((loader, resources) => {
 			objects.mini_cards[loader.id].avatar.texture=loader.resources["opponent_avatar_"+loader.id].texture;			
 		});	
