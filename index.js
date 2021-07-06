@@ -2783,7 +2783,7 @@ var stickers={
 		if (objects.sent_sticker_area.timer_id!==undefined)
 			clearTimeout(objects.sent_sticker_area.timer_id);		
 		
-		objects.sticker_area.timer_id=setTimeout(()=>{anim.add_pos({obj:objects.sent_sticker_area,param:'alpha',vis_on_end:false,func:'linear',val:[0.5,0],	speed:0.02});}, 3000);
+		objects.sent_sticker_area.timer_id=setTimeout(()=>{anim.add_pos({obj:objects.sent_sticker_area,param:'alpha',vis_on_end:false,func:'linear',val:[0.5,0],	speed:0.02});}, 3000);
 		
 	},
 	
@@ -2850,7 +2850,9 @@ var user_data={
 			
 	load: function() {
 				
-						 
+		this.local();
+		return;		
+		
 		let s=window.location.href;
 
 		if (s.includes("yandex")) {
@@ -2900,9 +2902,6 @@ var user_data={
 			})	
 					
 		}
-
-					 
-				 
 
 		
 	},
@@ -3019,14 +3018,14 @@ var user_data={
 
 	local: function() {	
 		
-		let test_id = prompt('Введите ID (будет добавле test)');
-		var data = test_id.split(' ');
+		//let test_id = prompt('Введите ID (будет добавле test)');
+		//var data = test_id.split(' ');
 		
 		
 		this.req_result='ok'		
-		my_data.first_name=data[1];
-		my_data.last_name=data[2];
-		my_data.uid="test"+data[0];
+		my_data.first_name="Сергей";
+		my_data.last_name="Понтелеев";
+		my_data.uid="test1";
 		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
 		state="online";
 		
