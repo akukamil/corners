@@ -1,6 +1,6 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, sn=""; 
-var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state="", game_platform="";
+var me_conf_play=0,opp_conf_play=0, any_dialog_active=1, min_move_amount=0, h_state="", game_platform="";
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={},opp_data={};
@@ -1445,13 +1445,10 @@ var giveup_menu={
 var keep_alive= function() {
 		
 	
-		
 	firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
-	
-	
-	//обновляем сосотяние только если мы активны
-	if (state!=="inactive")
-		firebase.database().ref("states/"+my_data.uid).set(state);	
+	firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();				
+	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
+
 }
 
 var minimax_solver={
@@ -2259,6 +2256,7 @@ var main_menu= {
 			board_func.tex_2=game_res.resources.chk_round_2_tex.texture;
 		}
 	}
+
 }
 
 var lb={
@@ -2400,8 +2398,7 @@ var cards_menu={
 		this.card_i=1;
 		for(let i=1;i<11;i++)
 			objects.mini_cards[i].visible=false;
-		
-		
+				
 		//добавляем карточку ии
 		this.add_cart_ai();
 
@@ -2499,6 +2496,7 @@ var cards_menu={
 		var loader=new PIXI.Loader();
 		loader.add("opponent_avatar_"+id, objects.mini_cards[id].pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 		loader.id=id;
+		console.log(id);
 		loader.load((loader, resources) => {
 			objects.mini_cards[loader.id].avatar.texture=loader.resources["opponent_avatar_"+loader.id].texture;			
 		});	
@@ -2850,9 +2848,6 @@ var user_data={
 			
 	load: function() {
 				
-		this.local();
-		return;		
-		
 		let s=window.location.href;
 
 		if (s.includes("yandex")) {
@@ -3128,13 +3123,14 @@ var user_data={
 			setInterval(function()	{keep_alive()}, 40000);
 				
 			//отключение от игры и удаление не нужного
+			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();				
 			firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
-			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();	
+
 			
 			//обновляем данные в файербейс
 			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
 			
-			
+			any_dialog_active=0;
 		})
 		
 	
@@ -3160,25 +3156,6 @@ function resize() {
     app.stage.scale.set(nvw / M_WIDTH, nvh / M_HEIGHT);
 }
 
-function change_vis_state() {	
-
-	
-	if (document.hidden===true) {
-		
-		//запоминаем состояние до деактивации
-		h_state=state;
-		state="inactive";
-		firebase.database().ref("states/"+my_data.uid).remove();	
-	} else {	
-
-		//возвращаем состояние которое было до деактивации
-		state=h_state;
-		firebase.database().ref("states/"+my_data.uid).set(state);
-	}
-		
-
-}
-
 function init_game_env() {
 	
 	document.getElementById("m_bar").outerHTML = "";		
@@ -3189,9 +3166,6 @@ function init_game_env() {
 
 	resize();
 	window.addEventListener("resize", resize);	
-	
-	//document.addEventListener('visibilitychange', 	function(e) { change_vis_state()}	);
-	
 	
 	//создаем спрайты и массивы спрайтов и запускаем первую часть кода
 	for (var i=0;i<load_list.length;i++) {			
