@@ -3182,7 +3182,8 @@ function vis_change() {
 	
 	if (document.hidden===true) {
 		h_state=state;		
-		firebase.database().ref("states/"+my_data.uid).set("hidden");	
+		state="hidden";
+		firebase.database().ref("states/"+my_data.uid).set(state);	
 	}	
 }
 
