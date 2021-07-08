@@ -2415,6 +2415,12 @@ var cards_menu={
 		if (state==="playing" || state==="bot")
 			return;
 		
+		//убираем игроков с ненужными состояниями		
+		for (let uid in players) 
+			if (players[uid]==="hidden")
+				delete players[uid];
+				
+		//перечень - индикаторов новых игроков и уже имеющихся
 		new_players={};
 		
 		//отключаем все карточки
@@ -2433,8 +2439,12 @@ var cards_menu={
 					//проверяем изменилось ли состояние если да то нужно обновить состояние и рейтинг
 					let update_level=this.activation_update;
 					if (players[uid]!==objects.mini_cards[i].state)
-						update_level=1;					
+						update_level=1;		
+
+					//добавляем карточку
 					this.place_next_cart({id:i, update_level:update_level, state:players[uid]});
+					
+					//отмечаем что это не новый игрок
 					new_players[uid]=0;
 					break;
 				}				
@@ -2460,9 +2470,11 @@ var cards_menu={
 	
 	update_cart: function(id) {		
 	
+		//если необходимый уровень апдейта 0
 		if (objects.mini_cards[id].update_level===0)
 			return;
 		
+		//запрашиваем информацию для карточки игрока
 		firebase.database().ref("players/"+objects.mini_cards[id].uid).once('value').then((snapshot) => {
 
 			player_data=snapshot.val();
@@ -2847,6 +2859,10 @@ var user_data={
 			
 	load: function() {
 				
+				
+		user_data.local();
+		return;
+		
 		let s=window.location.href;
 
 		if (s.includes("yandex")) {
@@ -3012,14 +3028,14 @@ var user_data={
 
 	local: function() {	
 		
-		//let test_id = prompt('Введите ID (будет добавле test)');
-		//var data = test_id.split(' ');
+		let test_id = prompt('Введите 3 значения имя фам ид');
+		var data = test_id.split(' ');
 		
 		
 		this.req_result='ok'		
-		my_data.first_name="Сергей";
-		my_data.last_name="Понтелеев";
-		my_data.uid="test1";
+		my_data.first_name=data[0];
+		my_data.last_name=data[1];
+		my_data.uid="test"+data[2];
 		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
 		state="online";
 		
@@ -3155,6 +3171,22 @@ function resize() {
     app.stage.scale.set(nvw / M_WIDTH, nvh / M_HEIGHT);
 }
 
+function vis_change() {
+	
+	if (document.hidden===false) {
+		if (h_state==="")
+			return;
+		
+		state=h_state;
+		firebase.database().ref("states/"+my_data.uid).set(state);	
+	}
+	
+	if (document.hidden===true) {
+		h_state=state;		
+		firebase.database().ref("states/"+my_data.uid).set("hidden");	
+	}	
+}
+
 function init_game_env() {
 	
 	document.getElementById("m_bar").outerHTML = "";		
@@ -3165,6 +3197,10 @@ function init_game_env() {
 
 	resize();
 	window.addEventListener("resize", resize);	
+	
+	//это событие когда меняется видимость приложения
+	document.addEventListener("visibilitychange", vis_change);
+		
 	
 	//создаем спрайты и массивы спрайтов и запускаем первую часть кода
 	for (var i=0;i<load_list.length;i++) {			
