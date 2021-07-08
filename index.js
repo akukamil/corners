@@ -2860,8 +2860,7 @@ var user_data={
 	load: function() {
 				
 				
-		user_data.local();
-		return;
+
 		
 		let s=window.location.href;
 
