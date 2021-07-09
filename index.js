@@ -2858,9 +2858,6 @@ var user_data={
 	},
 			
 	load: function() {
-				
-				
-
 		
 		let s=window.location.href;
 
@@ -2870,7 +2867,9 @@ var user_data={
 				this.loadScript('https://yandex.ru/games/sdk/v2')
 			]).then(function(){
 				user_data.yandex();	
-			})						
+			});
+
+			return;
 		}
 				
 		if (s.includes("vk.com") && s.includes("platform=web")) {
@@ -2882,8 +2881,9 @@ var user_data={
 				
 			]).then(function(){
 				user_data.vk_web()
-			})
-			;			
+			});
+
+			return;
 		}
 		
 		if (s.includes("vk.com") && s.includes("html5_mobile")) {
@@ -2895,8 +2895,9 @@ var user_data={
 				
 			]).then(function(){
 				user_data.vk_web()
-			})
-			;			
+			});
+					
+			return;
 		}
 		
 		if (s.includes("vk.com") && s.includes("html5_android")) {
@@ -2909,9 +2910,12 @@ var user_data={
 			]).then(function(){
 				user_data.vk_miniapp();	
 			})	
-					
+			
+			return;
 		}
 
+		//это если игра запущена из неизвестного источника
+		this.local();
 		
 	},
 	
@@ -3027,17 +3031,13 @@ var user_data={
 
 	local: function() {	
 		
-		let test_id = prompt('Введите 3 значения имя фам ид');
-		var data = test_id.split(' ');
-		
-		
+
 		this.req_result='ok'		
-		my_data.first_name=data[0];
-		my_data.last_name=data[1];
-		my_data.uid="test"+data[2];
+		my_data.first_name="Дядя";
+		my_data.last_name="Федор";
+		my_data.uid="unknown"+Math.floor(Math.random()*1000);
 		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
-		state="online";
-		
+		state="online";		
 		this.process_results();
 
 	},
@@ -3189,8 +3189,26 @@ function vis_change() {
 
 function init_game_env() {
 	
+
+	//инициируем файербейс
+	if (firebase.apps.length===0) {
+		var firebaseConfig = {
+			apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
+			authDomain: "m-game-27669.firebaseapp.com",
+			projectId: "m-game-27669",
+			storageBucket: "m-game-27669.appspot.com",
+			messagingSenderId: "571786945826",
+			appId: "1:571786945826:web:7e8bd49c963bbea117317b",
+			measurementId: "G-XFJD615P3L"
+		};
+		firebase.initializeApp(firebaseConfig);		
+	}
+
+
+	//убираем загрузочные данные
 	document.getElementById("m_bar").outerHTML = "";		
 	document.getElementById("m_progress").outerHTML = "";	
+	
 	
 	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x404040});
 	document.body.appendChild(app.view);
