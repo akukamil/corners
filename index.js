@@ -2059,18 +2059,23 @@ var req_dialog={
 	
 	show(uid) {
 		
-		any_dialog_active=1;
-		game_res.resources.receive_sticker.sound.play();
-		
-		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
+
 				
 		firebase.database().ref("players/"+uid).once('value').then((snapshot) => {
-
+			
 			player_data=snapshot.val();
+			
+			
+			//показываем окно запроса только если получили данные с файербейс
 			if (player_data===null) {
 				console.log("Не получилось загрузить данные о сопернике");
 			}
 			else {
+
+				//так как успешно получили данные о сопернике то показываем окно
+				any_dialog_active=1;
+				game_res.resources.receive_sticker.sound.play();		
+				anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
 
 				//Отображаем  имя и фамилию на табло
 				let t=player_data.first_name +" "+player_data.last_name;
@@ -2084,8 +2089,7 @@ var req_dialog={
 				//загружаем фото
 				this.load_photo(player_data.pic_url);
 
-			}
-		  
+			}		  
 		});	  
 	},
 	
