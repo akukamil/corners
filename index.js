@@ -3198,6 +3198,7 @@ function vis_change() {
 		if (h_state==="")
 			return;
 		
+		h_state="";
 		state=h_state;
 		firebase.database().ref("states/"+my_data.uid).set(state);	
 	}
