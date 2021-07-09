@@ -856,7 +856,7 @@ var finish_game = {
 		
 	online: function(res) {
 	
-		if (state!=='playing')	return;
+		if (!(state==='playing' || state==="hidden"))	return;
 		
 		//удаляем счетчик оставшегося на ход времени
 		clearTimeout(game.move_timer);
