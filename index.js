@@ -3196,11 +3196,12 @@ function vis_change() {
 	
 	if (document.hidden===false) {
 		if (h_state==="")
-			return;
+			return;		
 		
-		h_state="";
 		state=h_state;
 		firebase.database().ref("states/"+my_data.uid).set(state);	
+		
+		h_state="";
 	}
 	
 	if (document.hidden===true) {
