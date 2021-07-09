@@ -1009,6 +1009,7 @@ var finish_game = {
 		opp_data.uid="";		
 		
 		//устанавливаем статус в базе данных
+		h_state="online";
 		state="online";	
 		firebase.database().ref("states/"+my_data.uid).set(state);	
 		
