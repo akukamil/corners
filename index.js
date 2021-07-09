@@ -856,7 +856,7 @@ var finish_game = {
 		
 	online: function(res) {
 	
-		if (!(state==='playing' || state==="hidden"))	return;
+		if (!(state==='playing' || h_state==="playing"))	return;
 		
 		//удаляем счетчик оставшегося на ход времени
 		clearTimeout(game.move_timer);
@@ -1964,7 +1964,7 @@ var process_new_message=function(msg) {
 	
 			
 	//получение положительного ответа от игрока которому мы отправляли запрос и который уже создал игру
-	if (state==="wait_response") {
+	if (state==="wait_response" || h_state==="wait_response") {
 		
 		//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 		if (msg.message==="ACCEPT"  && pending_player===msg.sender) {
@@ -1981,7 +1981,7 @@ var process_new_message=function(msg) {
 	}		
 	
 	//получение сообщение в состояни игры
-	if (state==="playing") {
+	if (state==="playing" || h_state==="playing") {
 		
 		//учитываем только сообщения от соперника
 		if (msg.sender===opp_data.uid) {
@@ -2009,7 +2009,7 @@ var process_new_message=function(msg) {
 	}
 		
 	//приглашение поиграть
-	if(state==="online" || state==="bot") {
+	if(state==="online" || state==="bot" || h_state==="online" || h_state==="bot") {
 		if (msg.message==="INV") {			
 			req_dialog.show(msg.sender);			
 		}
@@ -2419,7 +2419,7 @@ var cards_menu={
 
 
 		//если мы в игре то не обновляем карточки
-		if (state==="playing" || state==="bot")
+		if (state==="playing" || state==="bot" || state==="hidden")
 			return;
 		
 		//убираем игроков с ненужными состояниями		
@@ -2714,8 +2714,6 @@ var cards_menu={
 		
 	rejected_invite: function() {
 		
-		state="online";
-		firebase.database().ref("states/"+my_data.uid).set(state);
 		pending_player="";
 		this.hide_invite_dialog();
 		big_message.show("Соперник отказался от игры",'(((');		
