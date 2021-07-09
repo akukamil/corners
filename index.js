@@ -2058,14 +2058,11 @@ var req_dialog={
 	
 	
 	show(uid) {
-		
-
-				
+						
 		firebase.database().ref("players/"+uid).once('value').then((snapshot) => {
 			
 			player_data=snapshot.val();
-			
-			
+						
 			//показываем окно запроса только если получили данные с файербейс
 			if (player_data===null) {
 				console.log("Не получилось загрузить данные о сопернике");
@@ -3112,13 +3109,11 @@ var user_data={
 		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
 		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
 			var data=snapshot.val();
-			if (data===null)
-			{
+			if (data===null)	{
 				//если я первый раз в игре
 				my_data.rating=1400;	
 			}
-			else
-			{
+			else	{
 				//если я уже есть в базе то считыавем мой рейтинг
 				my_data.rating=data.rating;	
 			}			
@@ -3128,6 +3123,13 @@ var user_data={
 			user_data.fb_error=1;
 		}).finally(()=>{
 			
+			
+			//сделаем сдесь защиту от неопределенности
+			if (my_data.rating===undefined || my_data.first_name===undefined) {
+				my_data.rating=1400;
+				my_data.first_name="Игрок";
+				my_data.last_name="";				
+			}
 
 			//обновляем рейтинг в моей карточке
 			objects.my_card_rating.text=my_data.rating;	
