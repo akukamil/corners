@@ -1210,9 +1210,14 @@ var game={
 		//включаем взаимодейтсвие с доской
 		objects.board.pointerdown=game.mouse_down_on_board;
 		
-		//устанавливаем состояния
-		state="playing";
-		firebase.database().ref("states/"+my_data.uid).set(state);	
+		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
+		if (h_state==="") {
+			state="playing";	
+			firebase.database().ref("states/"+my_data.uid).set(state);				
+		}
+		else
+			h_state="playing";
+		
 		
 		//счетчик времени
 		this.move_time_left=35;
