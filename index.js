@@ -1148,6 +1148,10 @@ var finish_game = {
 			.then(data => console.log(data.result))
 			.catch(error => console.log(error));
 		}
+	
+	
+	
+	
 	}
 	
 } 
@@ -1182,6 +1186,9 @@ var game={
 		
 		//это если перешли из бот игры
 		objects.stop_bot_button.visible=false;
+		selected_checker=0;
+		objects.selected_frame.visible=false;	
+		
 		
 		objects.board.visible=true;
 		
@@ -1239,8 +1246,7 @@ var game={
 		this.move_timer=setTimeout(function(){game.timer_tick()}, 1000);	
 		
 	},
-	
-	
+		
 	mouse_down_on_board : function(e) {
 			
 		if (any_dialog_active===1) {
@@ -2782,8 +2788,7 @@ var stickers={
 
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MSG",tm:Date.now(),data:id});			
 		add_message("Стикер отправлен сопернику");
-		
-		
+				
 		//показываем какой стикер мы отправили
 		objects.sent_sticker_area.texture=game_res.resources['sticker_texture_'+id].texture;
 		anim.add_pos({obj:objects.sent_sticker_area,param:'alpha',vis_on_end:true,func:'linear',val:[0, 0.5],	speed:0.02});	
@@ -3192,7 +3197,7 @@ function init_game_env() {
 
 	//инициируем файербейс
 	if (firebase.apps.length===0) {
-		var firebaseConfig = {
+		firebase.initializeApp({
 			apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
 			authDomain: "m-game-27669.firebaseapp.com",
 			projectId: "m-game-27669",
@@ -3200,8 +3205,7 @@ function init_game_env() {
 			messagingSenderId: "571786945826",
 			appId: "1:571786945826:web:7e8bd49c963bbea117317b",
 			measurementId: "G-XFJD615P3L"
-		};
-		firebase.initializeApp(firebaseConfig);		
+		});		
 	}
 
 
