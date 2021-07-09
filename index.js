@@ -1008,10 +1008,14 @@ var finish_game = {
 
 		opp_data.uid="";		
 		
-		//устанавливаем статус в базе данных
-		h_state="online";
-		state="online";	
-		firebase.database().ref("states/"+my_data.uid).set(state);	
+		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
+		if (h_state==="") {
+			state="online";	
+			firebase.database().ref("states/"+my_data.uid).set(state);				
+		}
+		else
+			h_state="online";
+
 		
 	},
 	
@@ -2670,10 +2674,13 @@ var cards_menu={
 		
 		anim.add_pos({obj:objects.invite_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',400],	speed:0.04});
 			
-		if (state==="wait_response") {
-			state="online";			
-			firebase.database().ref("states/"+my_data.uid).set(state);
+		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
+		if (h_state==="") {
+			state="online";	
+			firebase.database().ref("states/"+my_data.uid).set(state);				
 		}
+		else
+			h_state="online";
 
 		
 	},
