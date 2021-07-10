@@ -1247,6 +1247,8 @@ var game={
 			return;			
 		}
 		
+		
+		
 		if (this.move_time_left<-5) {
 			if (who_play_next===(3-my_checkers))	{			
 				firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
@@ -1256,8 +1258,11 @@ var game={
 		}
 		
 		//подсвечиваем красным если осталость мало времени
-		if (this.move_time_left===5)
-			objects.timer_text.tint=0xff0000;		
+		if (this.move_time_left===5) {
+			objects.timer_text.tint=0xff0000;	
+			game_res.resources.clock.sound.play();
+		}
+	
 		
 		objects.timer_text.text="0:"+this.move_time_left;
 		this.move_timer=setTimeout(function(){game.timer_tick()}, 1000);	
@@ -3340,7 +3345,7 @@ function load_resources() {
 	game_res.add('close',git_src+'close.mp3');
 	game_res.add('move',git_src+'move.mp3');
 	game_res.add('locked',git_src+'locked.mp3');
-
+	game_res.add('clock',git_src+'clock.mp3');
 
 
 	//добавляем из листа загрузки
@@ -3352,7 +3357,6 @@ function load_resources() {
 	for (var i=0;i<16;i++)
 		game_res.add("sticker_texture_"+i, git_src+"stickers/"+i+".png");
 		
-
 	game_res.load(init_game_env);		
 	game_res.onProgress.add(progress);
 	
