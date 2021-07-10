@@ -158,6 +158,13 @@ var anim={
 		if (params.callback===undefined)
 			params.callback=()=>{};
 		
+		
+		//если уже идет анимация данного спрайта то отменяем ее
+		for (var i=0;i<this.anim_array.length;i++)
+			if (this.anim_array[i]!==null)
+				if (this.anim_array[i].obj===params.obj)
+					this.anim_array[i]=null;
+		
 		//ищем свободный слот для анимации
 		for (var i=0;i<this.anim_array.length;i++)	{
 			
@@ -2068,7 +2075,6 @@ var req_dialog={
 	
 	
 	show(uid) {
-						
 		firebase.database().ref("players/"+uid).once('value').then((snapshot) => {
 			
 			player_data=snapshot.val();
@@ -2081,7 +2087,7 @@ var req_dialog={
 
 				//так как успешно получили данные о сопернике то показываем окно
 				any_dialog_active=1;
-				game_res.resources.receive_sticker.sound.play();		
+				game_res.resources.receive_sticker.sound.play();	
 				anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
 
 				//Отображаем  имя и фамилию на табло
@@ -2152,7 +2158,7 @@ var req_dialog={
 		//если диалог не открыт то ничего не делаем
 		if (objects.req_cont.visible===false)
 			return;
-		
+
 		any_dialog_active=0;
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
 	}
