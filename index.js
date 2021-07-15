@@ -849,8 +849,12 @@ var cut_string = function(s,f_size, max_width) {
 		
 		let code_id=s.charCodeAt(i);
 		let char_obj=game_res.resources.m2_font.bitmapFont.chars[code_id];
-		if (char_obj===undefined)
-			char_obj=game_res.resources.m2_font.bitmapFont.chars[1030];
+		if (char_obj===undefined) {
+			char_obj=game_res.resources.m2_font.bitmapFont.chars[83];			
+			s = s.substring(0, i) + 'S' + s.substring(i + 1);
+		}
+		
+
 		sum_v+=char_obj.xAdvance*f_size/64;	
 		if (sum_v>max_width)
 			return s.substring(0,i-1)+"...";		
@@ -998,7 +1002,6 @@ var finish_game = {
 		//если диалоги еще открыты
 		objects.stickers_cont.visible=false;
 		objects.giveup_dialog.visible=false;
-		objects.stickers_cont.visible=false;
 		objects.cur_move_text.visible=false;
 		objects.timer_cont.visible=false;
 		objects.board.visible=false;
@@ -3061,7 +3064,7 @@ var user_data={
 		
 
 		this.req_result='ok'		
-		my_data.first_name="Дядя";
+		my_data.first_name="Ìòè Mèßßì";
 		my_data.last_name="Федор";
 		my_data.uid="unknown"+Math.floor(Math.random()*1000);
 		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
