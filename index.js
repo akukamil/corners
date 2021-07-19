@@ -998,7 +998,9 @@ var finish_game = {
 		big_message.show(game_result_text,game_result_text2, function(){finish_game.show_ad()});
 		
 		//если диалоги еще открыты
-		objects.stickers_cont.visible=false;
+		if (objects.stickers_cont.visible===true)
+			anim.add_pos({obj:objects.stickers_cont,param:'y',vis_on_end:false,func:'easeOutBack',val:['sy',-450],	speed:0.03});	
+
 		objects.giveup_dialog.visible=false;
 		objects.cur_move_text.visible=false;
 		objects.timer_cont.visible=false;
