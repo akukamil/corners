@@ -2450,7 +2450,7 @@ var cards_menu={
 				delete players[uid];
 				
 		//если слишком много карточек то убираем играющих игроков
-		let players_len=players.length;
+		let players_len=Object.keys(players).length;
 		if (players_len>10) {
 			let players_to_delete=players_len-10;
 			let deleted_players=0;
