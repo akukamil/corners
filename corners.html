@@ -148,7 +148,7 @@
 			data = Object.keys(data).map((key) => [key, data[key].first_name,data[key].rating,data[key].tm,new Date(data[key].tm).toLocaleString()]);
 			data.sort(function(a, b){return a[3] - b[3]});
 		
-
+			let total_removed=0;
 			data.forEach(p=>{
 			
 				var newRow = players_table.insertRow();
@@ -162,11 +162,12 @@
 				let days_without_allowed=10+35*(Math.max(Math.min(p[2],1800),1400)-1400)/400;
 				if (days_without_visit>days_without_allowed) {
 					firebase.database().ref("players/"+p[0]).remove();
+					total_removed++;
 				}
 				
 				row_cnt++;			
 			})
-			
+			alert("Total removed: "+total_removed);
 			window.scrollTo(0,document.body.scrollHeight);
 			
 			//подписываемся на изменения состояний пользователей
