@@ -2449,6 +2449,20 @@ var cards_menu={
 			if (players[uid]==="hidden")
 				delete players[uid];
 				
+		//если слишком много карточек то убираем играющих игроков
+		let players_len=players.length;
+		if (players_len>10) {
+			let players_to_delete=players_len-10;
+			let deleted_players=0;
+			for (let uid in players) {				
+				if (players[uid]==="playing" && deleted_players<players_to_delete) {
+					delete players[uid];					
+					deleted_players++;					
+				}				
+			}			
+		}
+				
+				
 		//перечень - индикаторов новых игроков и уже имеющихся
 		new_players={};
 		
