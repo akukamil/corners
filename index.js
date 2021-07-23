@@ -948,7 +948,7 @@ var finish_game = {
 					game_result_text="Вы проиграли!\nзакончилось время на ход!";
 					game_result=-1;	
 				} else {
-					game_result_text="Вы не дали согласия на игру!";
+					game_result_text="Похоже Вы не смогли начать игру!";
 					game_result=999;		
 				}
 			break;
@@ -960,7 +960,7 @@ var finish_game = {
 					firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 					game_result=1;	
 				} else {
-					game_result_text="Соперник не дал согласия на игру!";
+					game_result_text="Похоже соперник не смог начать игру!";
 					game_result=999;						
 				}	
 			break;
@@ -1178,6 +1178,7 @@ var game={
 	
 	activate: function(role) {
 		
+		console.clear();
 		console.log(role);
 		my_role=role;
 		if (my_role==="master") {
@@ -2053,6 +2054,7 @@ var receive_move = function(move_data) {
 	
 	//считаем последовательность ходов
 	let moves=board_func.get_moves_path(move_data);
+	console.log(move_data,moves,g_board);
 	
 	//плавно перемещаем шашку
 	board_func.start_gentle_move(move_data,moves,function(){});
@@ -3078,7 +3080,7 @@ var user_data={
 		
 
 		this.req_result='ok'		
-		my_data.first_name="Дядя";
+		my_data.first_name="Дядя"+Math.floor(Math.random()*100);
 		my_data.last_name="Федор";
 		my_data.uid="unknown"+Math.floor(Math.random()*1000);
 		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
@@ -3248,6 +3250,7 @@ function init_game_env() {
 		firebase.initializeApp({
 			apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
 			authDomain: "m-game-27669.firebaseapp.com",
+			databaseURL: "https://m-game-27669-default-rtdb.firebaseio.com",
 			projectId: "m-game-27669",
 			storageBucket: "m-game-27669.appspot.com",
 			messagingSenderId: "571786945826",
