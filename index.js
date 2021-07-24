@@ -3167,7 +3167,7 @@ var user_data={
 			
 			//сделаем сдесь защиту от неопределенности
 			if (my_data.rating===undefined || my_data.first_name===undefined) {
-				my_data.uid="fb_error_"+Math.floor(Math.random() * 999);
+				my_data.uid="fb_error_"+my_data.uid;
 				my_data.rating=1400;
 				my_data.first_name="Игрок";
 				my_data.last_name="";				
