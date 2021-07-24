@@ -91,7 +91,7 @@
 				
 				let data=snapshot.val();
 				for (let r=0;r<t_len;r++) {
-					if (online_table.rows[r].cells[0].innerHTML===uid.substring(0,12)) {
+					if (online_table.rows[r].cells[0].innerHTML===uid.substring(0,15)) {
 					
 						online_table.rows[r].cells[1].innerHTML=data.first_name+' ' +data.last_name;
 						online_table.rows[r].cells[2].innerHTML=data.rating;
