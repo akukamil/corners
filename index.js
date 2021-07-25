@@ -3187,7 +3187,7 @@ var user_data={
 				
 				my_data.rating=1400;
 				my_data.first_name=my_data.first_name || "Игрок";
-				my_data.last_name="";				
+				my_data.last_name=my_data.last_name || "_";			
 			}
 			
 			
