@@ -3173,11 +3173,26 @@ var user_data={
 			//сделаем сдесь защиту от неопределенности
 			if (my_data.rating===undefined || my_data.first_name===undefined) {
 				big_message.show("Не получилось загрузить Ваши данные. Попробуйте перезапустить игру","(((")
-				my_data.uid="fb_error_"+my_data.uid;
+				
+				
+				let keep_id=my_data.uid;
+				if (my_data.rating===undefined)
+					my_data.uid="re_"+keep_id;
+				
+				if (my_data.first_name===undefined)
+					my_data.uid="ne_"+keep_id;
+				
+				if (my_data.rating===undefined && my_data.first_name===undefined)
+					my_data.uid="nre_"+keep_id;
+				
 				my_data.rating=1400;
 				my_data.first_name=my_data.first_name || "Игрок";
 				my_data.last_name="";				
 			}
+			
+			
+			
+			
 
 			//обновляем рейтинг в моей карточке
 			objects.my_card_rating.text=my_data.rating;	
