@@ -3422,7 +3422,7 @@ function main_loop() {
 	
 	game_tick+=0.016666666;
 	anim.process();
-    app.render(app.stage);
+    //app.render(app.stage);
 	requestAnimationFrame(main_loop);
 }
 
