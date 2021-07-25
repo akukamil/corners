@@ -1,6 +1,6 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, sn=""; 
-var me_conf_play=0,opp_conf_play=0, any_dialog_active=1, min_move_amount=0, h_state="", game_platform="";
+var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0; 
+var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state="", game_platform="";
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={},opp_data={};
@@ -37,13 +37,13 @@ class player_mini_card_class extends PIXI.Container {
 		this.avatar.width=this.avatar.height=50;
 		
 		
-		this.name=new PIXI.BitmapText('Игорь Николаев', {font: '25px Century Gothic'});
+		this.name=new PIXI.BitmapText('Загрузка...', {font: '25px Century Gothic'});
 		this.name.tint=0xD1E5D1;
 		this.name.x=80;
 		this.name.y=20;
 		this.rating=0;
 		
-		this.rating_text=new PIXI.BitmapText('1422', {font: '28px Century Gothic'});
+		this.rating_text=new PIXI.BitmapText('...', {font: '28px Century Gothic'});
 		this.rating_text.tint=0xffff00;
 		this.rating_text.x=192;
 		this.rating_text.y=52;		
@@ -2178,6 +2178,8 @@ var req_dialog={
 
 var main_menu= {
 		
+	waiting_user_data: 1,
+		
 	activate: function() {
 		
 		//просто добавляем контейнер с кнопками
@@ -2196,7 +2198,7 @@ var main_menu= {
 	
 	play_button_down: function () {
 		
-		if (any_dialog_active===1) {
+		if (any_dialog_active===1 || this.waiting_user_data===1) {
 			game_res.resources.locked.sound.play();
 			return
 		};	
@@ -2288,7 +2290,15 @@ var main_menu= {
 			board_func.tex_1=game_res.resources.chk_round_1_tex.texture;
 			board_func.tex_2=game_res.resources.chk_round_2_tex.texture;
 		}
+	},
+	
+	unblock: function() {		
+		this.waiting_user_data=0;
+		objects.play_button.alpha=1;		
 	}
+	
+	
+
 
 }
 
@@ -2908,6 +2918,7 @@ var user_data={
 		
 		let s=window.location.href;
 
+
 		if (s.includes("yandex")) {
 						
 			Promise.all([
@@ -2993,12 +3004,9 @@ var user_data={
 				
 				console.log(my_data.uid);
 				user_data.req_result='ok';
-				sn="yandex";
 								
-				if (my_data.first_name=="" || my_data.first_name=='') {
+				if (my_data.first_name=="" || my_data.first_name=='')
 					my_data.first_name=my_data.uid.substring(0,5);
-					user_data.yndx_no_personal_data=1					
-				}
 				
 			}).catch(err => {		
 				console.log(err);
@@ -3035,7 +3043,6 @@ var user_data={
 						function (data) {
 							if (data.error===undefined) {
 								
-								sn="vk";
 								my_data.first_name=data.response[0].first_name;
 								my_data.last_name=data.response[0].last_name;
 								my_data.uid="vk"+data.response[0].id;
@@ -3082,7 +3089,7 @@ var user_data={
 		this.req_result='ok'		
 		my_data.first_name="Дядя"+Math.floor(Math.random()*100);
 		my_data.last_name="Федор";
-		my_data.uid="unknown"+Math.floor(Math.random()*1000);
+		my_data.uid="local"+Math.floor(Math.random()*1000);
 		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
 		state="online";		
 		this.process_results();
@@ -3091,16 +3098,19 @@ var user_data={
 	
 	process_results: function() {
 		
-
-					
+		console.log("Платформа: "+game_platform)
+		
+		//если не получилось авторизоваться в социальной сети то ищем куки
 		if (user_data.req_result!=="ok") {		
+		
+			big_message.show("Ошибка авторизации. Попробуйте перезапустить игру","(((")
 		
 			let c_player_uid=this.read_cookie("pic_url");
 			if (c_player_uid===undefined) {
 				
-				let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Слон","Енот","Кролик","Бизон"];
+				let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Слон","Енот","Кролик","Бизон","Пантера"];
 				let rnd_num=Math.floor(Math.random()*rnd_names.length)
-				let rand_uid=Math.floor(Math.random() * 9999999);
+				let rand_uid=Math.floor(Math.random() * 9999);
 				my_data.first_name 	=	rnd_names[rnd_num]+rand_uid;
 				my_data.last_name	=	"";
 				my_data.rating=1400;
@@ -3118,14 +3128,7 @@ var user_data={
 			}
 
 		}		
-		
-		//если нет личных данных то нет лидерборда
-		if (user_data.req_result==="ok")	 {			
-			if (this.yndx_no_personal_data===1)
-				big_message.show("Не удалось получить Ваши имя и аватар. Ваши данные не будут отображаться в лидерборде.","(((")
-		}	
-		
-		
+				
 		//если с аватаркой какие-то проблемы то ставим дефолтную
 		if (my_data.pic_url===undefined || my_data.pic_url=="")
 			my_data.pic_url	="https://i.ibb.co/LN0NqZq/ava.jpg";
@@ -3134,8 +3137,7 @@ var user_data={
 		let loader2 = new PIXI.Loader();
 		loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 		loader2.load((loader, resources) => {objects.my_card_avatar.texture = resources.my_avatar.texture;});				
-	
-				
+					
 		//Отображаем мое имя и фамилию на табло (хотя его и не видно пока)
 		let t=my_data.first_name;		
 		objects.my_card_name.text=cut_string(t,objects.my_card_name.fontSize,140);					
@@ -3148,9 +3150,10 @@ var user_data={
 	init_firebase: function() {
 
 		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
-		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {			
+		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {		
+			
 			var data=snapshot.val();
-			if (data===null)	{
+			if (data.rating===undefined)	{
 				//если я первый раз в игре
 				my_data.rating=1400;	
 			}
@@ -3161,12 +3164,12 @@ var user_data={
 
 		}).catch((error) => {		
 			console.error(error);
-			user_data.fb_error=1;
 		}).finally(()=>{
 			
 			
 			//сделаем сдесь защиту от неопределенности
 			if (my_data.rating===undefined || my_data.first_name===undefined) {
+				big_message.show("Не получилось загрузить Ваши данные. Попробуйте перезапустить игру","(((")
 				my_data.uid="fb_error_"+my_data.uid;
 				my_data.rating=1400;
 				my_data.first_name="Игрок";
@@ -3193,11 +3196,14 @@ var user_data={
 			firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();				
 			firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
 
-			
+			//это событие когда меняется видимость приложения
+			document.addEventListener("visibilitychange", vis_change);
+					
 			//обновляем данные в файербейс
 			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
 			
-			any_dialog_active=0;
+			//данные загружены и можно нажимать кнопку
+			main_menu.unblock();
 		})
 		
 	
@@ -3271,8 +3277,7 @@ function init_game_env() {
 	resize();
 	window.addEventListener("resize", resize);	
 	
-	//это событие когда меняется видимость приложения
-	document.addEventListener("visibilitychange", vis_change);
+
 		
 	
 	//создаем спрайты и массивы спрайтов и запускаем первую часть кода
@@ -3389,14 +3394,11 @@ function load_resources() {
 }
 
 function main_loop() {
-		
-	
-	//обработака окна поиска соперника и не только
-	//search_opponent.process();
-	
-	//мигание шашек в доме
-	//board_func.process_home_danger();
-	
+			
+	//мигание кнопки пока не загрузились данные
+	if (main_menu.waiting_user_data===1)		
+		objects.play_button.alpha=Math.sin(game_tick*10)*0.25+0.75;
+
 	//обработка передвижения шашек
 	board_func.process_checker_move();
 	
