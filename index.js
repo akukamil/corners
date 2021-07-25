@@ -3129,7 +3129,6 @@ var user_data={
 				my_data.last_name="";
 				my_data.pic_url=this.read_cookie("pic_url");
 			}
-
 		}		
 				
 		//если с аватаркой какие-то проблемы то ставим дефолтную
