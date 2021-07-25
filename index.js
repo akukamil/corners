@@ -3152,9 +3152,10 @@ var user_data={
 		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
 		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {		
 			
+			
 			var data=snapshot.val();
 			if (data.rating===undefined)	{
-				//если я первый раз в игре
+				//если я первый раз в  игре
 				my_data.rating=1400;	
 			}
 			else	{
