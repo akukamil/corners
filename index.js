@@ -3154,7 +3154,7 @@ var user_data={
 			
 			
 			var data=snapshot.val();
-			if (data.rating===undefined)	{
+			if (data===null)	{
 				//если я первый раз в  игре
 				my_data.rating=1400;	
 			}
