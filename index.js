@@ -3150,7 +3150,8 @@ var user_data={
 	},
 	
 	init_firebase: function() {
-
+		
+		
 		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
 		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {		
 						
@@ -3174,7 +3175,7 @@ var user_data={
 				big_message.show("Не получилось загрузить Ваши данные. Попробуйте перезапустить игру","(((")
 				my_data.uid="fb_error_"+my_data.uid;
 				my_data.rating=1400;
-				my_data.first_name="Игрок";
+				my_data.first_name=my_data.first_name || "Игрок";
 				my_data.last_name="";				
 			}
 
