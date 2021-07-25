@@ -3153,13 +3153,13 @@ var user_data={
 		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {		
 						
 			var data=snapshot.val();
-			if (data===null)	{
+			if (data===null) {
 				//если я первый раз в  игре
 				my_data.rating=1400;	
 			}
-			else	{
-				//если я уже есть в базе то считыавем мой рейтинг
-				my_data.rating=data.rating;	
+			else {
+				//если база данных вернула данные то все равно проверяем корректность ответа
+				my_data.rating = data.rating || 1400;
 			}			
 
 		}).catch((error) => {		
