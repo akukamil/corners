@@ -3113,7 +3113,7 @@ var user_data={
 				
 				let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Слон","Енот","Кролик","Бизон","Пантера"];
 				let rnd_num=Math.floor(Math.random()*rnd_names.length)
-				let rand_uid=Math.floor(Math.random() * 9999);
+				let rand_uid=Math.floor(Math.random() * 99999);
 				my_data.first_name 	=	rnd_names[rnd_num]+rand_uid;
 				my_data.last_name	=	"";
 				my_data.rating=1400;
