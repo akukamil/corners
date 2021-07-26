@@ -3152,8 +3152,8 @@ var user_data={
 	init_firebase: function() {
 		
 		
-		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
-		firebase.database().ref().child("players/"+my_data.uid).get().then((snapshot) => {		
+			//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
+		firebase.database().ref("players/"+my_data.uid).once('value').then((snapshot) => {		
 						
 			var data=snapshot.val();
 			if (data===null) {
@@ -3165,8 +3165,8 @@ var user_data={
 				my_data.rating = data.rating || 1400;
 			}			
 
-		}).catch((error) => {		
-			console.error(error);
+		}).catch((error) => {	
+			firebase.database().ref("errors/"+my_data.uid).set(error);
 		}).finally(()=>{
 			
 			
