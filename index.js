@@ -1016,7 +1016,7 @@ var finish_game = {
 					game_result_text="Вы проиграли\nсоперник перевел больше шашек в новый дом";	
 					game_result=-1;						
 				} else {
-					game_result_text="Вы выиграли\nперевели больше соперника шашек в новый дом";	
+					game_result_text="Вы выиграли\nперевели больше шашек в новый дом";	
 					game_result=1;		
 				}
 			break;
