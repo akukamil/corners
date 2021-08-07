@@ -1331,6 +1331,11 @@ var game={
 			return
 		};
 
+
+		//если происходит движение шашки то выходим
+		if (board_func.target_point!==0)
+			return;			
+
 		//проверяем что моя очередь
 		if (who_play_next!==my_checkers) {
 			add_message("не твоя очередь");			
@@ -1435,6 +1440,10 @@ var game={
 			board_func.start_gentle_move(move_data,moves,function(){});		
 			
 			//переворачиваем данные о ходе так как оппоненту они должны попасть как ход шашками №2
+			console.log("------отправка--------");
+			console.log(JSON.parse(JSON.stringify(move_data)));
+			console.log(JSON.parse(JSON.stringify(g_board)));			
+			
 			move_data.x1=7-move_data.x1;
 			move_data.y1=7-move_data.y1;
 			move_data.x2=7-move_data.x2;
@@ -2113,7 +2122,11 @@ var receive_move = function(move_data) {
 	
 	//считаем последовательность ходов
 	let moves=board_func.get_moves_path(move_data);
-	console.log(move_data,moves,g_board);
+	console.log("------получение-------");
+	console.log(JSON.parse(JSON.stringify(move_data)))
+	console.log(JSON.parse(JSON.stringify(moves)))
+	console.log(JSON.parse(JSON.stringify(g_board)))
+
 	
 	//плавно перемещаем шашку
 	board_func.start_gentle_move(move_data,moves,function(){});
