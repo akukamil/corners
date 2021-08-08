@@ -53,9 +53,29 @@
 
 <script>
 
+	var online_array=[];
 	var online_table = document.getElementById('online_table');
 	var players_table = document.getElementById('players_table');
+	online_table.addEventListener('click', function (e) {
+		const cell = e.target.closest('td');
+		if (!cell) {return;} 
 
+		for (let key in online_array) {		
+			if (key.includes(cell.innerHTML)=== true)
+			{			
+				if (confirm("Удалить "+cell.innerHTML +" ?")) {
+					firebase.database().ref("states/"+key).remove();
+					return;
+				} else {
+					return;
+				}
+			}
+		}
+		
+
+
+		
+	});
 
 		function get_state_tint(s) {
 			
@@ -98,7 +118,6 @@
 						online_table.rows[r].cells[3].innerHTML=new Date(data.tm).toLocaleString();					
 					
 					}
-
 				}
 			});	
 
@@ -106,8 +125,8 @@
 		}
 		
 		function states_updated(data) {
-		
-			
+					
+			online_array=data;
 			let row_cnt=online_table.rows.length;
 			online_table.innerHTML='';
 						
