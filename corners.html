@@ -37,8 +37,6 @@
   </tr>
 </table>
 
-
-
 <table id="online_table">
   <tr>
 	<th>ID</th>
@@ -49,21 +47,24 @@
   </tr>
 </table>
 
-
-
 <script>
 
 	var online_array=[];
 	var online_table = document.getElementById('online_table');
 	var players_table = document.getElementById('players_table');
-	online_table.addEventListener('click', function (e) {
-		const cell = e.target.closest('td');
-		if (!cell) {return;} 
+	
+	
 
+	online_table.addEventListener('click', function (e) {
+		const cell = e.target;
+		let suid=e.target.parentElement.cells[0].innerHTML;
+		let name=e.target.parentElement.cells[1].innerHTML;
+		
+		
 		for (let key in online_array) {		
-			if (key.includes(cell.innerHTML)=== true)
+			if (key.includes(suid)=== true)
 			{			
-				if (confirm("Удалить "+cell.innerHTML +" ?")) {
+				if (confirm("Удалить "+name +" ?")) {
 					firebase.database().ref("states/"+key).remove();
 					return;
 				} else {
@@ -71,9 +72,6 @@
 				}
 			}
 		}
-		
-
-
 		
 	});
 
