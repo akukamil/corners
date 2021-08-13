@@ -860,7 +860,7 @@ var calc_my_new_rating=function(res)	{
 
 var calc_oppnent_new_rating=function(res)	{
 	
-	var Ea = 1 / (1 + Math.pow(10, ((opp_data.rating-my_data.rating)/400)));
+	var Ea = 1 / (1 + Math.pow(10, ((my_data.rating-opp_data.rating)/400)));
 	if (res===1) 
 		return Math.round(opp_data.rating + 16 * (1 - Ea));
 	if (res===0) 
@@ -1026,21 +1026,24 @@ var finish_game = {
 			
 		}
 		
-		//обновляем мой рейтинг в базе и на карточке
-		var old_rating=my_data.rating;		
+	
 		
 		if (game_result!==999) {
+			
+			//обновляем мой рейтинг в базе и на карточке
+			let old_rating=my_data.rating;				
 			
 			//считаем и записываем мой новый рейтинг
 			my_data.rating=calc_my_new_rating(game_result);				
 			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
 			game_result_text2="Рейтинг: "+old_rating+" > "+my_data.rating;
 			objects.my_card_rating.text=my_data.rating;		
-
+			console.log(old_rating,my_data.rating)
+			
 			//также устанавливаем новый рейтинг оппонента так как он мог выйти из игры
 			let new_opponent_rating=calc_oppnent_new_rating(-1*game_result);
 			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
-			
+			console.log(opp_data.rating, new_opponent_rating);
 
 			//воспроизводим звук
 			if (game_result===-1)
