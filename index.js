@@ -982,8 +982,6 @@ var finish_game = {
 			case 14:	
 				if (opp_conf_play===1) {
 					game_result_text="Победа!\nсоперник не сделал ход!"; //возможно пропала связь
-					var new_opponent_rating=calc_oppnent_new_rating(-1);
-					firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 					game_result=1;	
 				} else {
 					game_result_text="Похоже соперник не смог начать игру!";
@@ -1033,10 +1031,16 @@ var finish_game = {
 		
 		if (game_result!==999) {
 			
-			my_data.rating=calc_my_new_rating(game_result);		
+			//считаем и записываем мой новый рейтинг
+			my_data.rating=calc_my_new_rating(game_result);				
 			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
 			game_result_text2="Рейтинг: "+old_rating+" > "+my_data.rating;
-			objects.my_card_rating.text=my_data.rating;				
+			objects.my_card_rating.text=my_data.rating;		
+
+			//также устанавливаем новый рейтинг оппонента так как он мог выйти из игры
+			let new_opponent_rating=calc_oppnent_new_rating(-1*game_result);
+			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
+			
 
 			//воспроизводим звук
 			if (game_result===-1)
@@ -1167,10 +1171,6 @@ var finish_game = {
 		//устанавливаем статус в базе данных только если досупна онлайн игра
 		state="online";	
 		firebase.database().ref("states/"+my_data.uid).set(state);				
-
-
-		
-
 		
 	},
 	
@@ -3147,13 +3147,14 @@ var user_data={
 		
 	},
 
-	local: function() {	
+	local: function() {			
 		
-
 		this.req_result='ok'		
-		my_data.first_name="Дядя"+Math.floor(Math.random()*100);
-		my_data.last_name="Федор";
-		my_data.uid="local"+Math.floor(Math.random()*1000);
+		let name_ = prompt('ИМЯ');
+
+		my_data.first_name=name_;
+		my_data.last_name="_";
+		my_data.uid="local"+name_;
 		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
 		state="online";		
 		this.process_results();
@@ -3343,7 +3344,6 @@ function init_game_env() {
 			measurementId: "G-XFJD615P3L"
 		});		
 	}
-
 
 	//убираем загрузочные данные
 	document.getElementById("m_bar").outerHTML = "";		
