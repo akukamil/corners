@@ -3426,7 +3426,7 @@ function init_game_env() {
 	}
 
 
-	user_data.local();	
+	user_data.load();	
 	
 	
 	//устанавливаем начальный вид шашек
