@@ -762,7 +762,6 @@ var board_func={
 var bot_game={
 	
 	start: function() {
-
 		
 		
 		//устанавливаем локальный и удаленный статус
@@ -780,18 +779,26 @@ var bot_game={
 		objects.timer_cont.visible=true;
 		objects.stop_bot_button.visible=true;
 		objects.cur_move_text.visible=true;
-		
-		
+				
 		//очереди
-		who_play_next=1;
-		
+		who_play_next=1;		
 	
 		//включаем взаимодейтсвие с доской
 		objects.board.interactive=true;
 		objects.board.pointerdown=game.mouse_down_on_board;
 		
-		//сначала скрываем все шашки
-		g_board = [[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+		//инициируем доску в зависимости от рейтинга
+		if (my_data.rating>=0 && my_data.rating<1500 )
+			g_board = [[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+		if (my_data.rating>=1500 && my_data.rating<1600 )
+			g_board = [[0,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,2,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+		if (my_data.rating>=1600 && my_data.rating<1700 )
+			g_board = [[0,0,2,2,0,0,0,0],[2,2,2,2,2,0,0,0],[2,2,2,2,2,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+		if (my_data.rating>=1700 && my_data.rating<1800 )
+			g_board = [[0,0,2,2,0,0,0,0],[0,2,2,2,2,0,0,0],[2,2,2,2,2,2,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+		if (my_data.rating>=1800)
+			g_board = [[0,0,0,2,0,0,0,0],[0,2,2,2,2,0,0,0],[2,2,2,2,2,0,0,0],[0,0,0,2,2,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+		
 		board_func.update_board();
 		
 		
@@ -1043,7 +1050,9 @@ var finish_game = {
 			//также устанавливаем новый рейтинг оппонента так как он мог выйти из игры
 			let new_opponent_rating=calc_oppnent_new_rating(-1*game_result);
 			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
-			console.log(opp_data.rating, new_opponent_rating);
+			
+			//записываем результат в базу данных
+			firebase.database().ref("finishes").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result});
 
 			//воспроизводим звук
 			if (game_result===-1)
@@ -2152,6 +2161,7 @@ var req_dialog={
 	
 	
 	show(uid) {
+	
 		firebase.database().ref("players/"+uid).once('value').then((snapshot) => {
 			
 			player_data=snapshot.val();
@@ -2159,8 +2169,7 @@ var req_dialog={
 			//показываем окно запроса только если получили данные с файербейс
 			if (player_data===null) {
 				console.log("Не получилось загрузить данные о сопернике");
-			}
-			else {
+			}	else	{
 
 				//так как успешно получили данные о сопернике то показываем окно
 				any_dialog_active=1;
@@ -2168,12 +2177,16 @@ var req_dialog={
 				anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
 
 				//Отображаем  имя и фамилию на табло
+			
 				let t=player_data.first_name +" "+player_data.last_name;
 				t=cut_string(t,objects.req_name.fontSize,200);
+				
 				
 				objects.req_name.text=t;	
 				objects.req_rating.text=player_data.rating;
 				opp_data.rating=player_data.rating;
+				
+				//throw "cut_string erroor";
 				opp_data.uid=uid;
 								
 				//загружаем фото
@@ -2206,8 +2219,7 @@ var req_dialog={
 	},
 	
 	accept: function() {
-		
-		
+				
 		if (objects.req_cont.ready===false)
 			return;
 		
@@ -2332,6 +2344,8 @@ var main_menu= {
 		
 	},
 	
+
+	
 	chk_type_sel: function (i) {
 		
 		if (i===0)
@@ -2364,9 +2378,6 @@ var main_menu= {
 		objects.play_button.alpha=1;		
 	}
 	
-	
-
-
 }
 
 var lb={
@@ -3415,7 +3426,7 @@ function init_game_env() {
 	}
 
 
-	user_data.load();	
+	user_data.local();	
 	
 	
 	//устанавливаем начальный вид шашек
