@@ -1052,7 +1052,7 @@ var finish_game = {
 			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 			
 			//записываем результат в базу данных
-			firebase.database().ref("finishes").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result});
+			firebase.database().ref("finishes").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
 
 			//воспроизводим звук
 			if (game_result===-1)
