@@ -1,5 +1,5 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0; 
+var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, game_id=0; 
 var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state="", game_platform="";
 g_board=[];
 var players="", pending_player="",tm={};
@@ -1052,7 +1052,7 @@ var finish_game = {
 			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 			
 			//записываем результат в базу данных
-			firebase.database().ref("finishes").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
+			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
 
 			//воспроизводим звук
 			if (game_result===-1)
@@ -2072,7 +2072,8 @@ var process_new_message=function(msg) {
 		//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 		if (msg.message==="ACCEPT"  && pending_player===msg.sender) {
 			//в данном случае я мастер и хожу вторым
-			opp_data.uid=msg.sender;			
+			opp_data.uid=msg.sender;		
+			game_id=msg.game_id;		
 			cards_menu.accepted_invite();		
 		}
 	
@@ -2226,7 +2227,10 @@ var req_dialog={
 		any_dialog_active=0;
 		
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
-		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now()});
+		
+		//отправляем информацию о согласии играть с идентификатором игры
+		game_id=~~(Math.random()*99999999);
+		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now(),game_id:game_id});
 
 		
 		//заполняем карточку оппонента
@@ -3169,7 +3173,7 @@ var user_data={
 		my_data.first_name=name_;
 		my_data.last_name="_";
 		my_data.uid="local"+name_;
-		my_data.pic_url="https://www.instagram.com/static/images/homepage/screenshot1.jpg/d6bf0c928b5a.jpg";
+		my_data.pic_url="https://icdn.lenta.ru/images/2021/08/24/19/20210824191306887/top7_ff241b455e87a1687fcdd3ead69add1d.jpg";
 		state="online";		
 		this.process_results();
 
