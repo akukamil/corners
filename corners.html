@@ -206,7 +206,7 @@
 	})
 	
 	
-	//загружаем данные игр
+	//загружаем данные результатов игр
 	firebase.database().ref("finishes").orderByChild('ts').limitToLast(5).on('value',(snapshot) => {
 	
 		results_table.innerHTML='';
@@ -219,11 +219,13 @@
 		data.forEach(p=>{
 
 			var newRow = results_table.insertRow();
-			newRow.insertCell(0).appendChild(document.createTextNode(p[0]));
-			newRow.insertCell(1).appendChild(document.createTextNode(p[1]));
-			newRow.insertCell(2).appendChild(document.createTextNode(p[2]));
-			newRow.insertCell(3).appendChild(document.createTextNode(p[3]));
-	
+			let p_0=newRow.insertCell(0);
+			let p_1=newRow.insertCell(1);
+			p_0.appendChild(document.createTextNode(p[0]));
+			p_1.appendChild(document.createTextNode(p[1]));
+			newRow.insertCell(2).appendChild(document.createTextNode(p[3]));
+			if (p[2]===1)	p_0.style.backgroundColor = "green";
+			if (p[2]===-1)	p_1.style.backgroundColor = "green";  
 		})
 		
 		
