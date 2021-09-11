@@ -1229,8 +1229,6 @@ var finish_game = {
 		}
 	
 	
-	
-	
 	}
 	
 } 
@@ -2957,18 +2955,7 @@ var user_data={
 	req_result: "",
 	yndx_no_personal_data:0,
 	fb_error:0,
-	
-	read_cookie: function(name) {
-		var nameEQ = name + "=";
-		var ca = document.cookie.split(';');
-		for(var i=0;i < ca.length;i++) {
-			var c = ca[i];
-			while (c.charAt(0)==' ') c = c.substring(1,c.length);
-			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-		}
-		return undefined;
-	},
-	
+
 	loadScript : function(src) {
 	  return new Promise((resolve, reject) => {
 		const script = document.createElement('script')
@@ -3185,7 +3172,7 @@ var user_data={
 		
 			big_message.show("Ошибка авторизации. Попробуйте перезапустить игру","(((")
 		
-			let c_player_uid=this.read_cookie("pic_url");
+			let c_player_uid=localStorage.getItem("pic_url");
 			if (c_player_uid===undefined) {
 				
 				let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Слон","Енот","Кролик","Бизон","Пантера"];
@@ -3196,15 +3183,17 @@ var user_data={
 				my_data.rating=1400;
 				my_data.uid			=	"u"+rand_uid;	
 				my_data.pic_url		=	"https://i.ibb.co/LN0NqZq/ava.jpg";	
-				document.cookie="corners_player="+	my_data.uid;		
-				document.cookie="first_name="+my_data.first_name;	
-				document.cookie="pic_url="+my_data.pic_url;	
+				
+				localStorage.setItem('corners_player',my_data.uid);		
+				localStorage.setItem('first_name',my_data.first_name);	
+				localStorage.setItem('pic_url',my_data.pic_url);	
 			
 			} else {				
-				my_data.uid=this.read_cookie("corners_player");;	
-				my_data.first_name=this.read_cookie("first_name");
+				my_data.uid=localStorage.getItem("corners_player");;	
+				my_data.first_name=localStorage.getItem("first_name");
 				my_data.last_name="";
-				my_data.pic_url=this.read_cookie("pic_url");
+				my_data.pic_url=localStorage.getItem("pic_url");
+				
 			}
 		}		
 				
