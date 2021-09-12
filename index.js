@@ -3170,7 +3170,7 @@ var user_data={
 		//если не получилось авторизоваться в социальной сети то ищем куки
 		if (user_data.req_result!=="ok") {		
 		
-			big_message.show("Ошибка авторизации. Попробуйте перезапустить игру","(((")
+			console.log('Ошибка авторизации в соц сети. Смотрим в локальном хранилище.');
 		
 			let c_player_uid=localStorage.getItem("uid");
 			if (c_player_uid===undefined || c_player_uid===null) {
