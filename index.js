@@ -2224,7 +2224,7 @@ var req_dialog={
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
 		
 		//отправляем информацию о согласии играть с идентификатором игры
-		game_id=~~(Math.random()*99999999);
+		game_id=~~(Math.random()*300);
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now(),game_id:game_id});
 
 		
@@ -2342,9 +2342,7 @@ var main_menu= {
 		anim.add_pos({obj:objects.pref_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',-200],	speed:0.04});
 		
 	},
-	
-
-	
+		
 	chk_type_sel: function (i) {
 		
 		if (i===0)
@@ -3255,10 +3253,6 @@ var user_data={
 				my_data.first_name=my_data.first_name || "Игрок";
 				my_data.last_name=my_data.last_name || "_";			
 			}
-			
-			
-			
-			
 
 			//обновляем рейтинг в моей карточке
 			objects.my_card_rating.text=my_data.rating;	
