@@ -1,5 +1,5 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, game_id=0; 
+var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0; 
 var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state="", game_platform="";
 g_board=[];
 var players="", pending_player="",tm={};
@@ -762,6 +762,7 @@ var board_func={
 var bot_game={
 	
 	start: function() {
+
 		
 		
 		//устанавливаем локальный и удаленный статус
@@ -779,26 +780,18 @@ var bot_game={
 		objects.timer_cont.visible=true;
 		objects.stop_bot_button.visible=true;
 		objects.cur_move_text.visible=true;
-				
+		
+		
 		//очереди
-		who_play_next=1;		
+		who_play_next=1;
+		
 	
 		//включаем взаимодейтсвие с доской
 		objects.board.interactive=true;
 		objects.board.pointerdown=game.mouse_down_on_board;
 		
-		//инициируем доску в зависимости от рейтинга
-		if (my_data.rating>=0 && my_data.rating<1500 )
-			g_board = [[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
-		if (my_data.rating>=1500 && my_data.rating<1600 )
-			g_board = [[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,0,2,0,0,0,0],[0,0,2,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
-		if (my_data.rating>=1600 && my_data.rating<1700 )
-			g_board = [[2,2,2,0,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,0,0,0,0,0],[0,2,0,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
-		if (my_data.rating>=1700 && my_data.rating<1800 )
-			g_board = [[0,0,2,2,0,0,0,0],[0,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
-		if (my_data.rating>=1800)
-			g_board = [[0,0,2,2,0,0,0,0],[0,0,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
-		
+		//сначала скрываем все шашки
+		g_board = [[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 		board_func.update_board();
 		
 		
@@ -867,7 +860,7 @@ var calc_my_new_rating=function(res)	{
 
 var calc_oppnent_new_rating=function(res)	{
 	
-	var Ea = 1 / (1 + Math.pow(10, ((my_data.rating-opp_data.rating)/400)));
+	var Ea = 1 / (1 + Math.pow(10, ((opp_data.rating-my_data.rating)/400)));
 	if (res===1) 
 		return Math.round(opp_data.rating + 16 * (1 - Ea));
 	if (res===0) 
@@ -989,6 +982,8 @@ var finish_game = {
 			case 14:	
 				if (opp_conf_play===1) {
 					game_result_text="Победа!\nсоперник не сделал ход!"; //возможно пропала связь
+					var new_opponent_rating=calc_oppnent_new_rating(-1);
+					firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 					game_result=1;	
 				} else {
 					game_result_text="Похоже соперник не смог начать игру!";
@@ -1033,26 +1028,15 @@ var finish_game = {
 			
 		}
 		
-	
+		//обновляем мой рейтинг в базе и на карточке
+		var old_rating=my_data.rating;		
 		
 		if (game_result!==999) {
 			
-			//обновляем мой рейтинг в базе и на карточке
-			let old_rating=my_data.rating;				
-			
-			//считаем и записываем мой новый рейтинг
-			my_data.rating=calc_my_new_rating(game_result);				
+			my_data.rating=calc_my_new_rating(game_result);		
 			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
 			game_result_text2="Рейтинг: "+old_rating+" > "+my_data.rating;
-			objects.my_card_rating.text=my_data.rating;		
-			console.log(old_rating,my_data.rating)
-			
-			//также устанавливаем новый рейтинг оппонента так как он мог выйти из игры
-			let new_opponent_rating=calc_oppnent_new_rating(-1*game_result);
-			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
-			
-			//записываем результат в базу данных
-			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
+			objects.my_card_rating.text=my_data.rating;				
 
 			//воспроизводим звук
 			if (game_result===-1)
@@ -1183,6 +1167,10 @@ var finish_game = {
 		//устанавливаем статус в базе данных только если досупна онлайн игра
 		state="online";	
 		firebase.database().ref("states/"+my_data.uid).set(state);				
+
+
+		
+
 		
 	},
 	
@@ -1227,6 +1215,8 @@ var finish_game = {
 			.then(data => console.log(data.result))
 			.catch(error => console.log(error));
 		}
+	
+	
 	
 	
 	}
@@ -1450,7 +1440,10 @@ var game={
 			board_func.start_gentle_move(move_data,moves,function(){});		
 			
 			//переворачиваем данные о ходе так как оппоненту они должны попасть как ход шашками №2
-
+			console.log("------отправка--------");
+			console.log(JSON.parse(JSON.stringify(move_data)));
+			console.log(JSON.parse(JSON.stringify(g_board)));			
+			
 			move_data.x1=7-move_data.x1;
 			move_data.y1=7-move_data.y1;
 			move_data.x2=7-move_data.x2;
@@ -1560,7 +1553,10 @@ var minimax_solver={
 		
 bad_1:[[1,1,3,5,7,9,11,13],[2.41421356237309,2.41421356237309,3.65028153987288,5.39834563766817,7.28538328578604,9.22212513921044,11.181782043891,13.1538303421637],[4.23606797749979,4.23606797749979,5.06449510224598,6.43397840021018,8.07768723046357,9.85730076213408,11.7097201274713,13.6046652096173],[6.16227766016838,6.16227766016838,6.76782893563237,7.84819196258327,9.24264068711928,10.8309518948453,12.5391558273447,14.3239770383633],[8.12310562561766,8.12310562561766,8.59524158061724,9.47213595499958,10.6568542494924,12.0599784869252,13.6142267883608,15.2733602992265],[10.0990195135928,10.0990195135928,10.4841843207273,11.2161167019798,12.2340761322781,13.4741920492983,14.8813174877721,16.4125749429493],[12.0827625302982,12.0827625302982,12.407317850635,13.0327592528361,13.9193064834273,15.0213522268346,16.2955310501452,17.7048258315315],[14.0710678118655,14.0710678118655,14.351177701146,14.8958829951444,15.6780308541625,16.6645830153412,17.8218697243355,19.1190393939046]],
 
+
+
 patterns:[[[0,1,1],[0,2,1],[1,0,1],[2,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,2],[2,0,1],[3,0,1]],[[0,1,1],[0,2,2],[1,0,1],[1,2,1],[2,0,2],[2,1,1]],[[0,1,1],[0,2,2],[0,3,1],[1,0,2],[2,0,1],[3,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,1],[2,0,2],[3,0,1]],[[0,1,1],[0,2,2],[1,0,2],[1,2,1],[2,0,1],[3,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,1],[2,0,2],[2,1,1]],[[0,1,1],[0,2,1],[1,0,1],[2,0,2],[2,1,1]],[[0,1,1],[0,2,2],[1,0,1],[1,2,1],[2,0,1]],[[0,1,2],[0,2,2],[1,0,2],[1,1,1],[1,2,1],[2,0,1]],[[0,1,2],[0,2,1],[1,0,2],[1,1,1],[2,0,2],[2,1,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,1],[2,0,1]],[[0,1,1],[0,2,1],[1,0,2],[2,0,1],[3,0,1]],[[0,1,2],[0,2,1],[1,0,1],[1,1,1],[2,0,1]],[[0,1,1],[0,2,1],[1,0,2],[1,1,1],[2,0,1]],[[0,1,1],[0,2,2],[1,0,1],[1,2,1],[2,0,1]],[[0,1,1],[0,2,1],[1,0,1],[2,0,2],[2,1,1]],[[0,1,1],[0,2,2],[0,3,1],[1,0,1],[2,0,1]],[[0,1,1],[0,2,1],[1,0,1],[2,0,2],[3,0,1]],[[0,1,2],[0,2,1],[1,0,2],[1,1,1],[2,0,1],[3,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,2],[1,1,1],[2,0,1]]],
+
 
 
 	clone_board : function (board) {
@@ -1942,7 +1938,7 @@ patterns:[[[0,1,1],[0,2,1],[1,0,1],[2,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,2],[2,
 		}	
 
 		if (board_func.finished2(board))
-			bad_val_1=-99999;
+			bad_val_1-=99999;
 		
 				
 		return bad_val_1;
@@ -2067,8 +2063,7 @@ var process_new_message=function(msg) {
 		//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 		if (msg.message==="ACCEPT"  && pending_player===msg.sender) {
 			//в данном случае я мастер и хожу вторым
-			opp_data.uid=msg.sender;		
-			game_id=msg.game_id;		
+			opp_data.uid=msg.sender;			
 			cards_menu.accepted_invite();		
 		}
 	
@@ -2127,6 +2122,10 @@ var receive_move = function(move_data) {
 	
 	//считаем последовательность ходов
 	let moves=board_func.get_moves_path(move_data);
+	console.log("------получение-------");
+	console.log(JSON.parse(JSON.stringify(move_data)))
+	console.log(JSON.parse(JSON.stringify(moves)))
+	console.log(JSON.parse(JSON.stringify(g_board)))
 
 	
 	//плавно перемещаем шашку
@@ -2154,10 +2153,8 @@ var receive_move = function(move_data) {
 }
 
 var req_dialog={
-	
-	
+		
 	show(uid) {
-	
 		firebase.database().ref("players/"+uid).once('value').then((snapshot) => {
 			
 			player_data=snapshot.val();
@@ -2165,7 +2162,8 @@ var req_dialog={
 			//показываем окно запроса только если получили данные с файербейс
 			if (player_data===null) {
 				console.log("Не получилось загрузить данные о сопернике");
-			}	else	{
+			}
+			else {
 
 				//так как успешно получили данные о сопернике то показываем окно
 				any_dialog_active=1;
@@ -2173,16 +2171,12 @@ var req_dialog={
 				anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
 
 				//Отображаем  имя и фамилию на табло
-			
-				let t=player_data.first_name +" "+player_data.last_name;
+				let t=player_data.name;
 				t=cut_string(t,objects.req_name.fontSize,200);
-				
 				
 				objects.req_name.text=t;	
 				objects.req_rating.text=player_data.rating;
 				opp_data.rating=player_data.rating;
-				
-				//throw "cut_string erroor";
 				opp_data.uid=uid;
 								
 				//загружаем фото
@@ -2215,17 +2209,15 @@ var req_dialog={
 	},
 	
 	accept: function() {
-				
+		
+		
 		if (objects.req_cont.ready===false)
 			return;
 		
 		any_dialog_active=0;
 		
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
-		
-		//отправляем информацию о согласии играть с идентификатором игры
-		game_id=~~(Math.random()*299);
-		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now(),game_id:game_id});
+		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now()});
 
 		
 		//заполняем карточку оппонента
@@ -2251,7 +2243,6 @@ var req_dialog={
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
 	}
 
-	
 }
 
 var main_menu= {
@@ -2342,7 +2333,7 @@ var main_menu= {
 		anim.add_pos({obj:objects.pref_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',-200],	speed:0.04});
 		
 	},
-		
+	
 	chk_type_sel: function (i) {
 		
 		if (i===0)
@@ -2375,6 +2366,9 @@ var main_menu= {
 		objects.play_button.alpha=1;		
 	}
 	
+	
+
+
 }
 
 var lb={
@@ -2443,40 +2437,37 @@ var lb={
 				
 				var players_array = [];
 				snapshot.forEach(players_data=> {			
-					if (players_data.val().first_name!=="" && players_data.val().first_name!=='')
-						players_array.push([players_data.val().first_name, players_data.val().last_name, players_data.val().rating, players_data.val().pic_url]);	
+					if (players_data.val().name!=="" && players_data.val().name!=='')
+						players_array.push([players_data.val().name, players_data.val().rating, players_data.val().pic_url]);	
 				});
 				
 
-				players_array.sort(function(a, b) {	return b[2] - a[2];});
-				
-				
-				//загружаем аватар соперника
-				var loaderOptions = {loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE};
+				players_array.sort(function(a, b) {	return b[1] - a[1];});
+								
+				//создаем загрузчик топа
 				var loader = new PIXI.Loader();
 								
 				var len=Math.min(10,players_array.length);
 				
 				//загружаем тройку лучших
 				for (let i=0;i<3;i++) {
-					let fname=players_array[i][0]+" "+players_array[i][1];					
-					fname = cut_string(fname,objects['lb_1_name'].fontSize,180);
+					let fname = cut_string(players_array[i][0],objects['lb_1_name'].fontSize,180);
 					
 					objects['lb_'+(i+1)+'_name'].text=fname;
-					objects['lb_'+(i+1)+'_rating'].text=players_array[i][2];					
-					loader.add('leaders_avatar_'+i, players_array[i][3],loaderOptions);
+					objects['lb_'+(i+1)+'_rating'].text=players_array[i][1];					
+					loader.add('leaders_avatar_'+i, players_array[i][2],{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 				};
 				
 				//загружаем остальных
 				for (let i=3;i<10;i++) {
-					let fname=players_array[i][0]+" "+players_array[i][1];	
+					let fname=players_array[i][0];	
 					objects.lb_cards[i-3].full_name=fname;
 					
 					fname = cut_string(fname,objects.lb_cards[i-3].name.fontSize,180);
 					
 					objects.lb_cards[i-3].name.text=fname;
-					objects.lb_cards[i-3].rating.text=players_array[i][2];					
-					loader.add('leaders_avatar_'+i, players_array[i][3],loaderOptions);
+					objects.lb_cards[i-3].rating.text=players_array[i][1];					
+					loader.add('leaders_avatar_'+i, players_array[i][2],{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 				};
 				
 				
@@ -2616,7 +2607,7 @@ var cards_menu={
 			else {
 
 				//Отображаем  имя и фамилию на карточке
-				let fname=player_data.first_name +" "+player_data.last_name;
+				let fname=player_data.name;
 								
 				fname = cut_string(fname,objects.mini_cards[0].name.fontSize,160);
 	
@@ -2951,9 +2942,7 @@ var user_data={
 		
 	// эта функция вызывается один раз в начале игры
 	req_result: "",
-	yndx_no_personal_data:0,
-	fb_error:0,
-
+		
 	loadScript : function(src) {
 	  return new Promise((resolve, reject) => {
 		const script = document.createElement('script')
@@ -2969,8 +2958,7 @@ var user_data={
 
 		if (e.detail.type === 'VKWebAppGetUserInfoResult') {
 			
-			my_data.first_name=e.detail.data.first_name;
-			my_data.last_name=e.detail.data.last_name;
+			my_data.name=e.detail.data.first_name + ' ' + e.detail.data.last_name;
 			my_data.uid="vk"+e.detail.data.id;
 			my_data.pic_url=e.detail.data.photo_100;
 			user_data.req_result="ok";	
@@ -2981,7 +2969,6 @@ var user_data={
 	load: function() {
 		
 		let s=window.location.href;
-
 
 		if (s.includes("yandex")) {
 						
@@ -2999,7 +2986,8 @@ var user_data={
 			Promise.all([
 				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
 				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
-				this.loadScript('//vk.com/js/api/adman_init.js')
+				this.loadScript('//vk.com/js/api/adman_init.js'),
+				this.loadScript('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')	
 				
 			]).then(function(){
 				user_data.vk_web()
@@ -3013,7 +3001,8 @@ var user_data={
 			Promise.all([
 				this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
 				this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
-				this.loadScript('//vk.com/js/api/adman_init.js')
+				this.loadScript('//vk.com/js/api/adman_init.js'),
+				this.loadScript('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')	
 				
 			]).then(function(){
 				user_data.vk_web()
@@ -3036,8 +3025,12 @@ var user_data={
 			return;
 		}
 
-		//это если игра запущена из неизвестного источника
-		this.local();
+		if (s.includes("192.168")) {			
+			this.local();	
+			return;
+		}
+		
+		this.unknown();
 		
 	},
 	
@@ -3061,16 +3054,15 @@ var user_data={
 				return ysdk.getPlayer();
 			}).then((_player)=>{
 				
-				my_data.first_name 	=	_player.getName();
-				my_data.last_name	=	"";
+				my_data.name 	=	_player.getName();
 				my_data.uid			=	_player.getUniqueID().replace(/\//g, "Z");	
 				my_data.pic_url		=	_player.getPhoto('medium');		
 				
 				console.log(my_data.uid);
 				user_data.req_result='ok';
 								
-				if (my_data.first_name=="" || my_data.first_name=='')
-					my_data.first_name=my_data.uid.substring(0,5);
+				if (my_data.name=="" || my_data.name=='')
+					my_data.name=my_data.uid.substring(0,5);
 				
 			}).catch(err => {		
 				console.log(err);
@@ -3093,8 +3085,7 @@ var user_data={
 			user_data.process_results();	
 		}
 		else
-		{
-			
+		{			
 			VK.init(
 			
 				//функция удачной инициализации вконтакте
@@ -3107,8 +3098,7 @@ var user_data={
 						function (data) {
 							if (data.error===undefined) {
 								
-								my_data.first_name=data.response[0].first_name;
-								my_data.last_name=data.response[0].last_name;
+								my_data.name=data.response[0].first_name+' '+data.response[0].last_name;
 								my_data.uid="vk"+data.response[0].id;
 								my_data.pic_url=data.response[0].photo_100;
 								user_data.req_result="ok";	
@@ -3147,18 +3137,25 @@ var user_data={
 		
 	},
 
-	local: function() {			
+	local: function() {	
+	
+		let uid = prompt('Локальная обстановка. Введите ID', 100);
 		
 		this.req_result='ok'		
-		let name_ = prompt('ИМЯ');
-
-		my_data.first_name=name_;
-		my_data.last_name="_";
-		my_data.uid="local"+name_;
-		my_data.pic_url="https://icdn.lenta.ru/images/2021/08/24/19/20210824191306887/top7_ff241b455e87a1687fcdd3ead69add1d.jpg";
+		my_data.name="Local" + uid;
+		my_data.uid="Local" + uid;
+		my_data.pic_url="https://ibb.co/GCW6vg0";
 		state="online";		
 		this.process_results();
 
+	},
+	
+	unknown: function () {
+		
+		//последний случай - запуск из неизвестного окружения
+		user_data.req_result="not ok";
+		this.process_results();
+		
 	},
 	
 	process_results: function() {
@@ -3170,44 +3167,50 @@ var user_data={
 		
 			console.log('Ошибка авторизации в соц сети. Смотрим в локальном хранилище.');
 		
-			let c_player_uid=localStorage.getItem("uid");
+			let c_player_uid=localStorage.getItem('uid');
 			if (c_player_uid===undefined || c_player_uid===null) {
 				
 				let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Слон","Енот","Кролик","Бизон","Пантера"];
 				let rnd_num=Math.floor(Math.random()*rnd_names.length)
 				let rand_uid=Math.floor(Math.random() * 99999);
-				my_data.first_name 	=	rnd_names[rnd_num]+rand_uid;
-				my_data.last_name	=	"";
+				my_data.name 	=	rnd_names[rnd_num]+rand_uid;
 				my_data.rating=1400;
+				my_data.skin_id=0;
+				my_data.money=0;
 				my_data.uid			=	"u"+rand_uid;	
 				my_data.pic_url		=	"https://i.ibb.co/LN0NqZq/ava.jpg";	
-				
 				localStorage.setItem('uid',my_data.uid);		
-				localStorage.setItem('first_name',my_data.first_name);	
+				localStorage.setItem('name',my_data.name);	
+				localStorage.setItem('money',my_data.money);	
 				localStorage.setItem('pic_url',my_data.pic_url);	
+				localStorage.setItem('skin_id',my_data.skin_id);	
 			
 			} else {				
-				my_data.uid=localStorage.getItem("uid");;	
-				my_data.first_name=localStorage.getItem("first_name");
-				my_data.last_name="";
-				my_data.pic_url=localStorage.getItem("pic_url");
-				
+				my_data.uid=localStorage.getItem('uid');
+				my_data.name=localStorage.getItem('name');
+				my_data.pic_url=localStorage.getItem('pic_url');
+				my_data.money=localStorage.getItem('money');
+				my_data.skin_id=localStorage.getItem('skin_id');
 			}
 		}		
 				
 		//если с аватаркой какие-то проблемы то ставим дефолтную
 		if (my_data.pic_url===undefined || my_data.pic_url=="")
-			my_data.pic_url	="https://i.ibb.co/LN0NqZq/ava.jpg";
+			my_data.pic_url	= "https://i.ibb.co/LN0NqZq/ava.jpg";
 		
-		//загружаем мою аватарку на табло
+		//загружаем мою аватарку на табло хотя его пока не видно
 		let loader2 = new PIXI.Loader();
 		loader2.add('my_avatar', my_data.pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 		loader2.load((loader, resources) => {objects.my_card_avatar.texture = resources.my_avatar.texture;});				
 					
-		//Отображаем мое имя и фамилию на табло (хотя его и не видно пока)
-		let t=my_data.first_name;		
-		objects.my_card_name.text=cut_string(t,objects.my_card_name.fontSize,140);					
-				
+					
+		//показываем кнопки вконтакте если мы в этой соц. сети
+		if (game_platform==='VK_WEB' || game_platform==='VK_MINIAPP') {
+			objects.invite_friends_button.visible=true;
+			objects.vk_post_button.visible=true;
+		}
+					
+					
 		//загружаем файербейс
 		this.init_firebase();	
 	
@@ -3216,7 +3219,7 @@ var user_data={
 	init_firebase: function() {
 		
 		
-			//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
+		//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
 		firebase.database().ref("players/"+my_data.uid).once('value').then((snapshot) => {		
 						
 			var data=snapshot.val();
@@ -3235,24 +3238,23 @@ var user_data={
 			
 			
 			//сделаем сдесь защиту от неопределенности
-			if (my_data.rating===undefined || my_data.first_name===undefined) {
-				big_message.show("Не получилось загрузить Ваши данные. Попробуйте перезапустить игру","(((")
-				
+			if (my_data.rating===undefined || my_data.name===undefined) {
 				
 				let keep_id=my_data.uid;
 				if (my_data.rating===undefined)
 					my_data.uid="re_"+keep_id;
 				
-				if (my_data.first_name===undefined)
-					my_data.uid="ne_"+keep_id;
+				if (my_data.name===undefined)
+					my_data.name="ne_"+keep_id;
 				
-				if (my_data.rating===undefined && my_data.first_name===undefined)
+				if (my_data.rating===undefined && my_data.name===undefined)
 					my_data.uid="nre_"+keep_id;
 				
 				my_data.rating=1400;
-				my_data.first_name=my_data.first_name || "Игрок";
-				my_data.last_name=my_data.last_name || "_";			
+				my_data.name=my_data.name || "Игрок";
+	
 			}
+			
 
 			//обновляем рейтинг в моей карточке
 			objects.my_card_rating.text=my_data.rating;	
@@ -3278,14 +3280,13 @@ var user_data={
 			document.addEventListener("visibilitychange", vis_change);
 					
 			//обновляем данные в файербейс
-			firebase.database().ref("players/"+my_data.uid).set({first_name:my_data.first_name, last_name: my_data.last_name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
+			firebase.database().ref("players/"+my_data.uid).set({name:my_data.name, rating: my_data.rating, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
 			
 			//данные загружены и можно нажимать кнопку
 			main_menu.unblock();
-		})
-		
+			
+		})	
 	
-		
 	}	
 	
 }
@@ -3342,6 +3343,7 @@ function init_game_env() {
 			measurementId: "G-XFJD615P3L"
 		});		
 	}
+
 
 	//убираем загрузочные данные
 	document.getElementById("m_bar").outerHTML = "";		
@@ -3411,6 +3413,7 @@ function init_game_env() {
 
 
 	user_data.load();	
+	
 	
 	//устанавливаем начальный вид шашек
 	board_func.tex_1=game_res.resources.chk_quad_1_tex.texture;
