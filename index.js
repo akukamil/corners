@@ -1929,7 +1929,7 @@ patterns:[[[0,1,1],[0,2,1],[1,0,1],[2,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,2],[2,
 		}	
 
 		if (board_func.finished2(board))
-			bad_val_1-=999999;
+			bad_val_1=-999999;
 		
 				
 		return bad_val_1;
