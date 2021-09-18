@@ -2180,8 +2180,8 @@ var req_dialog={
 				game_res.resources.receive_sticker.sound.play();	
 				anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
 
-				//Отображаем  имя и фамилию на табло
-				objects.req_name.text=cut_string(my_data.name,objects.req_name.fontSize,200);	
+				//Отображаем  имя и фамилию в окне приглашения
+				objects.req_name.text=cut_string(player_data.name,objects.req_name.fontSize,200);	
 				objects.req_rating.text=player_data.rating;
 				opp_data.rating=player_data.rating;
 				
