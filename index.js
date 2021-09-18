@@ -2224,7 +2224,7 @@ var req_dialog={
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
 		
 		//отправляем информацию о согласии играть с идентификатором игры
-		game_id=~~(Math.random()*300);
+		game_id=~~(Math.random()*299);
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now(),game_id:game_id});
 
 		
