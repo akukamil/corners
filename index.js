@@ -1200,25 +1200,9 @@ var finish_game = {
 		
 		if (game_platform==="VK_WEB") {
 					 
-			admanInit(
-			
-				{
-				  user_id: my_data.uid.substring(2),
-				  app_id: 7885384,
-				  type: 'preloader'   
-				},
-			
-			
-				function onAdsReady(adman) {
-				  adman.onStarted(function () {});
-				  adman.onCompleted(function() {});          
-				  adman.onSkipped(function() {});          
-				  adman.onClicked(function() {});
-				  adman.start('preroll');
-				},							
-				
-				function onNoAds() {}
-			);		
+			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
+			.then(data => console.log(data.result))
+			.catch(error => console.log(error));	
 		}		
 				
 		if (game_platform==="VK_MINIAPP") {
@@ -1227,8 +1211,7 @@ var finish_game = {
 			.then(data => console.log(data.result))
 			.catch(error => console.log(error));
 		}
-	
-	
+
 	
 	
 	}
