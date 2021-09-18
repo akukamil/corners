@@ -860,7 +860,7 @@ var calc_my_new_rating=function(res)	{
 
 var calc_oppnent_new_rating=function(res)	{
 	
-	var Ea = 1 / (1 + Math.pow(10, ((opp_data.rating-my_data.rating)/400)));
+	var Ea = 1 / (1 + Math.pow(10, ((my_data.rating-opp_data.rating)/400)));
 	if (res===1) 
 		return Math.round(opp_data.rating + 16 * (1 - Ea));
 	if (res===0) 
