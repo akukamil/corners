@@ -982,8 +982,6 @@ var finish_game = {
 			case 14:	
 				if (opp_conf_play===1) {
 					game_result_text="Победа!\nсоперник не сделал ход!"; //возможно пропала связь
-					var new_opponent_rating=calc_oppnent_new_rating(-1);
-					firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 					game_result=1;	
 				} else {
 					game_result_text="Похоже соперник не смог начать игру!";
@@ -1028,15 +1026,26 @@ var finish_game = {
 			
 		}
 		
-		//обновляем мой рейтинг в базе и на карточке
-		var old_rating=my_data.rating;		
+	
 		
 		if (game_result!==999) {
 			
-			my_data.rating=calc_my_new_rating(game_result);		
+			//обновляем мой рейтинг в базе и на карточке
+			let old_rating=my_data.rating;				
+			
+			//считаем и записываем мой новый рейтинг
+			my_data.rating=calc_my_new_rating(game_result);				
 			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
 			game_result_text2="Рейтинг: "+old_rating+" > "+my_data.rating;
-			objects.my_card_rating.text=my_data.rating;				
+			objects.my_card_rating.text=my_data.rating;		
+			console.log(old_rating,my_data.rating)
+			
+			//также устанавливаем новый рейтинг оппонента так как он мог выйти из игры
+			let new_opponent_rating=calc_oppnent_new_rating(-1*game_result);
+			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
+			
+			//записываем результат в базу данных
+			firebase.database().ref("finishes").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
 
 			//воспроизводим звук
 			if (game_result===-1)
@@ -1167,10 +1176,6 @@ var finish_game = {
 		//устанавливаем статус в базе данных только если досупна онлайн игра
 		state="online";	
 		firebase.database().ref("states/"+my_data.uid).set(state);				
-
-
-		
-
 		
 	},
 	
@@ -2063,7 +2068,8 @@ var process_new_message=function(msg) {
 		//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 		if (msg.message==="ACCEPT"  && pending_player===msg.sender) {
 			//в данном случае я мастер и хожу вторым
-			opp_data.uid=msg.sender;			
+			opp_data.uid=msg.sender;		
+			game_id=msg.game_id;		
 			cards_menu.accepted_invite();		
 		}
 	
@@ -2122,10 +2128,6 @@ var receive_move = function(move_data) {
 	
 	//считаем последовательность ходов
 	let moves=board_func.get_moves_path(move_data);
-	console.log("------получение-------");
-	console.log(JSON.parse(JSON.stringify(move_data)))
-	console.log(JSON.parse(JSON.stringify(moves)))
-	console.log(JSON.parse(JSON.stringify(g_board)))
 
 	
 	//плавно перемещаем шашку
@@ -2153,8 +2155,10 @@ var receive_move = function(move_data) {
 }
 
 var req_dialog={
-		
+	
+	
 	show(uid) {
+	
 		firebase.database().ref("players/"+uid).once('value').then((snapshot) => {
 			
 			player_data=snapshot.val();
@@ -2162,8 +2166,7 @@ var req_dialog={
 			//показываем окно запроса только если получили данные с файербейс
 			if (player_data===null) {
 				console.log("Не получилось загрузить данные о сопернике");
-			}
-			else {
+			}	else	{
 
 				//так как успешно получили данные о сопернике то показываем окно
 				any_dialog_active=1;
@@ -2171,12 +2174,11 @@ var req_dialog={
 				anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
 
 				//Отображаем  имя и фамилию на табло
-				let t=player_data.name;
-				t=cut_string(t,objects.req_name.fontSize,200);
-				
-				objects.req_name.text=t;	
+				objects.req_name.text=cut_string(player_data.name,objects.req_name.fontSize,200);	
 				objects.req_rating.text=player_data.rating;
 				opp_data.rating=player_data.rating;
+				
+				//throw "cut_string erroor";
 				opp_data.uid=uid;
 								
 				//загружаем фото
@@ -2209,15 +2211,18 @@ var req_dialog={
 	},
 	
 	accept: function() {
-		
-		
+				
 		if (objects.req_cont.ready===false)
 			return;
 		
 		any_dialog_active=0;
 		
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
-		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now()});
+		
+		//отправляем информацию о согласии играть с идентификатором игры
+		game_id=~~(Math.random()*300);
+		game_id=~~(Math.random()*299);
+		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now(),game_id:game_id});
 
 		
 		//заполняем карточку оппонента
@@ -2243,6 +2248,7 @@ var req_dialog={
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
 	}
 
+	
 }
 
 var main_menu= {
