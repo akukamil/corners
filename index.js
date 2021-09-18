@@ -3250,8 +3250,9 @@ var user_data={
 			}
 			
 
-			//обновляем рейтинг в моей карточке
+			//обновляем рейтинг и имя в моей карточке
 			objects.my_card_rating.text=my_data.rating;	
+			objects.my_card_name.text=cut_string(my_data.name,objects.my_card_name.fontSize,140);
 			
 			//обновляем почтовый ящик
 			firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",tm:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
