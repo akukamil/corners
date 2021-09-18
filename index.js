@@ -1045,7 +1045,7 @@ var finish_game = {
 			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 			
 			//записываем результат в базу данных
-			firebase.database().ref("finishes").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
+			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
 
 			//воспроизводим звук
 			if (game_result===-1)
@@ -3167,7 +3167,7 @@ var user_data={
 		
 		console.log("Платформа: "+game_platform)
 		
-		//если не получилось авторизоваться в социальной сети то ищем куки
+		//если не получилось авторизоваться в социальной сети то ищем в локальном хранилище
 		if (user_data.req_result!=="ok") {		
 		
 			console.log('Ошибка авторизации в соц сети. Смотрим в локальном хранилище.');
