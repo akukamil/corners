@@ -1888,20 +1888,16 @@ patterns:[[[0,1,1],[0,2,1],[1,0,1],[2,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,2],[2,
 				}						
 			}			
 		}
-		
-
 	
 		//проверяем не закончилась ли игра
 		if (move>=30) {
 			
 			if (board_func.any1home(board)===1)
-				val_2+=99999;	
+				val_2=999999;	
 			
 			if (board_func.any2home(board)===1)
-				val_1+=99999;		
-		}
-
-				
+				val_1=999999;		
+		}			
 				
 		return val_1-val_2;
 	},
@@ -1933,7 +1929,7 @@ patterns:[[[0,1,1],[0,2,1],[1,0,1],[2,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,2],[2,
 		}	
 
 		if (board_func.finished2(board))
-			bad_val_1-=99999;
+			bad_val_1-=999999;
 		
 				
 		return bad_val_1;
@@ -1994,13 +1990,13 @@ patterns:[[[0,1,1],[0,2,1],[1,0,1],[2,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,2],[2,
 		
 		//this.update_weights_board();
 		var m_data={};
-		var min_bad=99999;
+		var min_bad=999999;
 		var min_depth=999;
 		
 		var childs0=this.get_childs(board,2,0);		
 		for (let c0=0;c0<childs0.length;c0++) {
 			let val=this.how_bad_board_2(childs0[c0][0]);
-			if (val===min_bad && min_depth>1) {
+			if (val===-999999 && min_depth>1) {
 				min_depth=1;
 				m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
 			}		
@@ -2014,7 +2010,7 @@ patterns:[[[0,1,1],[0,2,1],[1,0,1],[2,0,1]],[[0,1,2],[0,2,1],[0,3,1],[1,0,2],[2,
 			var childs1=this.get_childs(childs0[c0][0],2,0);
 			for (let c1=0;c1<childs1.length;c1++) {
 				let val=this.how_bad_board_2(childs1[c1][0]);				
-				if (val===min_bad && min_depth>2) {
+				if (val===-999999 && min_depth>2) {
 					min_depth=2;
 					m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
 				}				
