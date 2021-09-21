@@ -1966,7 +1966,6 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 
 		if (board_func.finished2(board))	
 			return [-999999,0];
-
 		
 		if (this.check_fin_moves(board)===1)
 			return [-999999,2];
