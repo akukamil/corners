@@ -801,7 +801,7 @@ var bot_game={
 			g_board = [[0,0,2,2,0,0,0,0],[0,0,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 		
 		//это надо удалить
-		//g_board = [[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,0,0,0,0],[0,0,0,0,0,2,2,0],[0,0,0,0,2,2,2,2],[0,0,0,0,2,2,2,2],[0,0,0,0,0,2,2,0]];
+		//g_board = [[0,0,0,0,0,0,0,0],[0,0,0,0,1,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,2,2,2,2],[0,0,0,2,2,2,2,2],[0,0,0,0,2,0,2,2]];
 		//move=35;
 		
 		board_func.update_board();
@@ -1947,7 +1947,7 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 		
 	how_bad_board_2: function(board) {
 
-		var bad_val_1=0;
+		var bad_val_1=[0,999];
 						
 		for (let y=0;y<8;y++) {
 			for (let x=0;x<8;x++) {				
@@ -1956,19 +1956,21 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 					let cy=7-y;
 					let cx=7-x;
 					let v=this.bad_1[cy][cx];
-					bad_val_1+=v;						
+					bad_val_1[0]+=v;						
 				}
 
 			}
 		}	
+		
+		
 
-		if (board_func.finished2(board))
-			bad_val_1=-9999999;
+		if (board_func.finished2(board))	
+			return [-999999,0];
+
 		
 		if (this.check_fin_moves(board)===1)
-			bad_val_1=-999999;
-		
-				
+			return [-999999,2];
+						
 		return bad_val_1;
 	},
 			
@@ -2072,46 +2074,43 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 		//this.update_weights_board();
 		var m_data={};
 		var min_bad=999999;
-		var min_depth=999;
+		var min_moves_to_win=999;
 				
 		
 		var childs0=this.get_childs(board,2,0);		
 		for (let c0=0;c0<childs0.length;c0++) {
-			let val=this.how_bad_board_2(childs0[c0][0]);
-			if (val===-999999 && min_depth>1) {
-				min_depth=1;
+			let ret=this.how_bad_board_2(childs0[c0][0]);
+			let moves_to_win=ret[1]+1;
+			let val=ret[0];
+
+			if (val===-999999 && min_moves_to_win>moves_to_win) {
+				min_moves_to_win=moves_to_win;
 				m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
 			}		
-			/*if (val<min_bad) {
-				min_bad=val;
-				m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
-			}*/
-
-			
 
 			var childs1=this.get_childs(childs0[c0][0],2,0);
 			for (let c1=0;c1<childs1.length;c1++) {
-				let val=this.how_bad_board_2(childs1[c1][0]);				
-				if (val===-999999 && min_depth>2) {
-					min_depth=2;
+				let ret=this.how_bad_board_2(childs1[c1][0]);	
+				let moves_to_win=ret[1]+2;
+				let val=ret[0];
+				
+				if (val===-999999 && min_moves_to_win>moves_to_win) {
+					min_moves_to_win=moves_to_win;
 					m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
 				}				
-				/*if (val<min_bad) {
-					min_bad=val;
-					m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
-				}*/
-
 				
 				var childs2=this.get_childs(childs1[c1][0],2,0);
 				for (let c2=0;c2<childs2.length;c2++) {
-					let val=this.how_bad_board_2(childs2[c2][0]);
+					let ret=this.how_bad_board_2(childs2[c2][0]);
+					let moves_to_win=ret[1]+3;
+					let val=ret[0];
 					
-					if (val===-999999 && min_depth>3) {
+					if (val===-999999 && min_moves_to_win>moves_to_win) {
 						min_depth=3;
 						m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
 					}	
 					
-					if (val<min_bad) {
+					if (val<min_bad && min_moves_to_win>moves_to_win) {
 						min_bad=val;
 						min_depth=3;
 						m_data={x1:childs0[c0][1],y1:childs0[c0][2],x2:childs0[c0][3], y2:childs0[c0][4]};
