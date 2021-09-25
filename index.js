@@ -2763,9 +2763,24 @@ var cards_menu={
 	
 	update_cart: function(id) {		
 	
-		//если необходимый уровень апдейта 0
+
+		//если у карточки проблемы с текстурой то повышаем уровень апдейта
+		if (objects.mini_cards[id].texture_ok===0) {
+			objects.mini_cards[id].update_level=2;			
+			objects.mini_cards[id].avatar.texture=PIXI.Texture.WHITE;		
+		}
+
+
+		//если необходимый уровень апдейта 0 то просто выходим
 		if (objects.mini_cards[id].update_level===0)
 			return;
+		
+
+			
+		//также убираем текст и рейтинг перед загрузкой чтобы при ошибке он не сохранился
+		objects.mini_cards[id].name_text.text='...';
+		objects.mini_cards[id].rating_text.text='...';
+
 		
 		//запрашиваем информацию для карточки игрока
 		firebase.database().ref("players/"+objects.mini_cards[id].uid).once('value').then((snapshot) => {
@@ -2784,8 +2799,11 @@ var cards_menu={
 				objects.mini_cards[id].rating=player_data.rating;
 				
 				//загружаем фото если уровень апдейта установлен на 2
-				if (objects.mini_cards[id].update_level===2 || objects.mini_cards[id].texture_ok===0)
-					this.load_avatar(id);
+				if (objects.mini_cards[id].update_level===2 || objects.mini_cards[id].texture_ok===0) {
+					
+					this.load_avatar(id);					
+				}
+
 			}					  
 		});			
 		
@@ -2806,6 +2824,8 @@ var cards_menu={
 		loader.onError.add(() => {			
 			objects.mini_cards[loader.id].avatar.texture=PIXI.Texture.WHITE;
 			objects.mini_cards[loader.id].texture_ok=0;
+			console.log("ошибка")
+			console.log(loader)
 		});
 		
 	},
@@ -3036,6 +3056,7 @@ var cards_menu={
 	}
 	
 }
+
 
 var stickers={
 	
