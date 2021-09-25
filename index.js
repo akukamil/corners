@@ -2379,7 +2379,7 @@ var req_dialog={
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now(),game_id:game_id});
 		
 		//заполняем карточку оппонента
-		objects.opp_card_name.text=cut_string(opp_data.name,objects.opp_card_name.fontSize,200);			
+		objects.opp_card_name.text=cut_string(opp_data.name,objects.opp_card_name.fontSize,150);			
 		objects.opp_card_rating.text=objects.req_rating.text;
 		objects.opp_card_avatar.texture=objects.req_avatar.texture;
 
