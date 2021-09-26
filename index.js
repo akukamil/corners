@@ -2685,7 +2685,6 @@ var cards_menu={
 	
 	players_list_updated: function(players) {	
 
-
 		//если мы в игре то не обновляем карточки
 		if (state==="playing" || state==="bot" || state==="hidden")
 			return;
@@ -2697,11 +2696,14 @@ var cards_menu={
 				
 		//обновляем количество игроков		
 		objects.players_online.text='Игроков онлайн: '+Object.keys(players).length;		
-		
-				
+						
 		//если слишком много карточек то убираем играющих игроков
+		let too_many_players=0;
 		let players_len=Object.keys(players).length;
 		if (players_len>14) {
+			
+			
+			//убираем играющих игроков из списка
 			let players_to_delete=players_len-14;
 			let deleted_players=0;
 			for (let uid in players) {				
@@ -2709,123 +2711,100 @@ var cards_menu={
 					delete players[uid];					
 					deleted_players++;					
 				}				
-			}			
+			}		
+
+			
 		}
-				
-				
-		//перечень - индикаторов новых игроков и уже имеющихся
-		new_players={};
 		
+		//добавляем индикатор нового игрока
+		let new_player={};
+		for (let uid in players) 
+			new_player[uid]=1;
+						
 		//отключаем все карточки
 		this.card_i=1;
-		for(let i=1;i<15;i++)
-			objects.mini_cards[i].visible=false;
+		
 
-		//сначала ищем уже существующие карточки чтобы сохранить данные
-		for (let uid in players) {
-			new_players[uid]=1;
-			for(let i=1;i<15;i++) {			
+		//определяем карточки игроков которые остались
+		for(let i=1;i<15;i++) {		
+		
+			if (objects.mini_cards[i].visible===true) {				
 				
-				//это если уже есть карточка с этими данными
-				if (uid===objects.mini_cards[i].uid) {
-						
-					//проверяем изменилось ли состояние если да то нужно обновить состояние и рейтинг
-					let update_level=this.activation_update;
-					if (players[uid]!==objects.mini_cards[i].state)
-						update_level=1;		
-
-					//добавляем карточку
-					this.place_next_cart({id:i, update_level:update_level, state:players[uid]});
+				let vis=false;
+				for (let uid in players) {
 					
-					//отмечаем что это не новый игрок
-					new_players[uid]=0;
-					break;
-				}				
-			}	
+					//это если уже есть карточка с этими данными
+					if (uid===objects.mini_cards[i].uid) {
+							
+						vis=true;
+						let update_level=0;
+						
+						//проверяем изменилось ли состояние если да то нужно обновить состояние и рейтинг					
+						if (players[uid]!==objects.mini_cards[i].state)
+							update_level=1;		
+						
+						//если проблемы с текстурой то повышаем уровень апдейта
+						if (objects.mini_cards[i].texture_ok===0)
+							update_level=5;		
+
+						//добавляем карточку
+						this.place_next_cart({id:i, update_level:update_level, state:players[uid]});
+											
+						//указыаем что это старый игрок
+						new_player[uid]=0;
+						
+						break;
+					}				
+				}	
+				
+				//если игрока нет то выключаем карточку
+				if (vis===false) {				
+					
+					objects.mini_cards[i].name='...';
+					objects.mini_cards[i].name_text.text='...';
+					objects.mini_cards[i].rating_text.text='...';
+					objects.mini_cards[i].avatar.texture=PIXI.Texture.EMPTY;		
+					//objects.mini_cards[i].texture.update();
+					objects.mini_cards[i].visible=false;
+				}
+
+			}
+			
 		}
+		
 			
 		//теперь добавляем карточки новых игроков
-		for (let uid in new_players)
-			if (new_players[uid]===1)
+		for (let uid in players)
+			if (new_player[uid]===1)
 				this.place_new_cart({uid:uid, state:players[uid]});
-	
 
 		//теперь обновляем данные на карточках в соответствии с уровнем апдейта
 		for(let i=1;i<15;i++)			
 			if (objects.mini_cards[i].visible===true)
 				this.update_cart(i);  					
 		
-		
 		//когда карточки запускаются то надо обновить все
 		this.activation_update=0;
 		
 	},
 	
-	update_cart: function(id) {		
-	
-
-		//если у карточки проблемы с текстурой то повышаем уровень апдейта
-		if (objects.mini_cards[id].texture_ok===0) {
-			objects.mini_cards[id].update_level=2;			
-			objects.mini_cards[id].avatar.texture=PIXI.Texture.WHITE;		
-		}
-
-
-		//если необходимый уровень апдейта 0 то просто выходим
-		if (objects.mini_cards[id].update_level===0)
-			return;
-		
-
-			
-		//также убираем текст и рейтинг перед загрузкой чтобы при ошибке он не сохранился
-		objects.mini_cards[id].name_text.text='...';
-		objects.mini_cards[id].rating_text.text='...';
-
-		
-		//запрашиваем информацию для карточки игрока
-		firebase.database().ref("players/"+objects.mini_cards[id].uid).once('value').then((snapshot) => {
-
-			player_data=snapshot.val();
-			if (player_data===null) {
-				console.log("Не получилось загрузить данные о сопернике");
-			}
-			else {
-
-				//Отображаем  имя и фамилию на карточке
-				objects.mini_cards[id].pic_url=player_data.pic_url;
-				objects.mini_cards[id].name=player_data.name;
-				objects.mini_cards[id].name_text.text=cut_string(player_data.name,objects.mini_cards[id].name_text.fontSize,110);
-				objects.mini_cards[id].rating_text.text=player_data.rating;
-				objects.mini_cards[id].rating=player_data.rating;
-				
-				//загружаем фото если уровень апдейта установлен на 2
-				if (objects.mini_cards[id].update_level===2 || objects.mini_cards[id].texture_ok===0) {
-					
-					this.load_avatar(id);					
-				}
-
-			}					  
-		});			
-		
-	},
-	
 	load_avatar: function(id) {
 	
-
+		
+		//console.log("Загружаем текстуру "+objects.mini_cards[id].name)
 		var loader=new PIXI.Loader();
 		loader.add("opponent_avatar_"+id, objects.mini_cards[id].pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE, timeout: 3000});
 		loader.id=id;
-		loader.load((loader, resources) => {
+		loader.name=objects.mini_cards[id].name;
+		loader.load((loader, resources) => {		
+
 			objects.mini_cards[loader.id].avatar.texture=loader.resources["opponent_avatar_"+loader.id].texture;			
 			objects.mini_cards[loader.id].texture_ok=1;
 		});			
 		
 		//если какая-то ошибка произошла
-		loader.onError.add(() => {			
-			objects.mini_cards[loader.id].avatar.texture=PIXI.Texture.WHITE;
-			objects.mini_cards[loader.id].texture_ok=0;
-			console.log("ошибка")
-			console.log(loader)
+		loader.onError.add((loader) => {			
+			//console.log(loader)
 		});
 		
 	},
@@ -2863,9 +2842,10 @@ var cards_menu={
 		
 		objects.mini_cards[params.id].state=params.state;
 		objects.mini_cards[params.id].visible=true;
-		objects.mini_cards[params.id].x=this.cards_pos[this.card_i][0];
-		objects.mini_cards[params.id].y=this.cards_pos[this.card_i][1];		
+		objects.mini_cards[params.id].x=this.cards_pos[params.id][0];
+		objects.mini_cards[params.id].y=this.cards_pos[params.id][1];		
 		objects.mini_cards[params.id].update_level=params.update_level;
+		//console.log(`бывшая карточка ${params.id} ${objects.mini_cards[params.id].name}`)
 		this.card_i++;
 	},
 	
@@ -2875,19 +2855,26 @@ var cards_menu={
 			
 			//это если есть вакантная карточка
 			if (objects.mini_cards[i].visible===false) {
-					
-					
+										
 				//устанавливаем цвет карточки в зависимости от состояния
-				objects.mini_cards[i].bcg.tint=this.get_state_tint(params.state);
-									
+				objects.mini_cards[i].bcg.tint=this.get_state_tint(params.state);									
 					
 				objects.mini_cards[i].state=params.state;
 				objects.mini_cards[i].uid=params.uid;
 				objects.mini_cards[i].visible=true;
-				objects.mini_cards[i].x=this.cards_pos[this.card_i][0];
-				objects.mini_cards[i].y=this.cards_pos[this.card_i][1];
+				objects.mini_cards[i].x=this.cards_pos[i][0];
+				objects.mini_cards[i].y=this.cards_pos[i][1];
+				
+				//стираем старые данные
+				objects.mini_cards[i].name='...';
+				objects.mini_cards[i].name_text.text='...';
+				objects.mini_cards[i].rating_text.text='...';
+				objects.mini_cards[i].texture=PIXI.Texture.EMPTY;
+				objects.mini_cards[i].texture.update();
+				
 				
 				//здесь нужно обновить все и рейтинг и имя и аватар
+				//console.log(`новая карточка ${i} ${params.uid}`)
 				objects.mini_cards[i].update_level=2;
 				this.card_i++;
 				break;
@@ -2896,6 +2883,54 @@ var cards_menu={
 		
 	},
 	
+	update_cart: function(id) {		
+
+		//если необходимый уровень апдейта 0 то просто выходим
+		if (objects.mini_cards[id].update_level===0)
+			return;
+		
+		//если с текстурой проблемы то пытаемся перезагрузить ее
+		if (objects.mini_cards[id].update_level===5) {			
+			//console.log("перезагружаем аватар"+objects.mini_cards[id].name)
+			this.load_avatar(id);	
+			return;			
+		}
+			
+			
+		//также убираем текст и рейтинг перед загрузкой чтобы при ошибке он не сохранился
+		objects.mini_cards[id].name_text.text='...';
+		objects.mini_cards[id].rating_text.text='...';
+
+		
+		//запрашиваем информацию для карточки игрока
+		firebase.database().ref("players/"+objects.mini_cards[id].uid).once('value').then((snapshot) => {
+
+			player_data=snapshot.val();
+			if (player_data===null) {
+				//console.log(`Не получилось загрузить данные ФБ ${objects.mini_cards[id].name}`)
+			}
+			else {
+
+				//Отображаем  имя и фамилию на карточке
+				objects.mini_cards[id].pic_url=player_data.pic_url;
+				objects.mini_cards[id].name=player_data.name;
+				objects.mini_cards[id].name_text.text=cut_string(player_data.name,objects.mini_cards[id].name_text.fontSize,110);
+				objects.mini_cards[id].rating_text.text=player_data.rating;
+				objects.mini_cards[id].rating=player_data.rating;
+				
+				//загружаем фото если уровень апдейта установлен на 2
+				if (objects.mini_cards[id].update_level===2) {		
+					//console.log(`загружаем аватар ${objects.mini_cards[id].name}`)
+					this.load_avatar(id);
+					
+				}
+										
+
+			}					  
+		});			
+		
+	},
+			
 	add_cart_ai: function() {
 						
 		objects.mini_cards[0].x=this.cards_pos[0][0];	
@@ -2984,8 +3019,7 @@ var cards_menu={
 			
 		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
 		if (h_state==="") {
-			state="online";	
-			firebase.database().ref("states/"+my_data.uid).set(state);				
+			set_state('online');
 		}
 		else
 			h_state="online";
@@ -3014,8 +3048,7 @@ var cards_menu={
 			any_dialog_active=1
 			
 			//устанавливаем локальный и удаленный статус
-			state="wait_response";	
-			firebase.database().ref("states/"+my_data.uid).set(state);	
+			set_state('wait_response');
 			
 		}
 
@@ -3056,7 +3089,6 @@ var cards_menu={
 	}
 	
 }
-
 
 var stickers={
 	
