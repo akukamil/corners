@@ -1284,7 +1284,7 @@ var game={
 		
 		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
 		if (h_state==="") {
-			set_state('online');
+			set_state('playing');
 		}
 		else
 			h_state="playing";
