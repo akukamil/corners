@@ -770,8 +770,7 @@ var bot_game={
 		
 		
 		//устанавливаем локальный и удаленный статус
-		state="bot";
-		firebase.database().ref("states/"+my_data.uid).set(state);	
+		set_state ('bot');
 							
 		objects.desktop.visible=false;				
 		objects.main_buttons_cont.visible=false;
@@ -1104,8 +1103,7 @@ var finish_game = {
 		
 		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
 		if (h_state==="") {
-			state="online";	
-			firebase.database().ref("states/"+my_data.uid).set(state);				
+			set_state ('online');
 		}
 		else
 			h_state="online";
@@ -1197,8 +1195,8 @@ var finish_game = {
 		
 		
 		//устанавливаем статус в базе данных только если досупна онлайн игра
-		state="online";	
-		firebase.database().ref("states/"+my_data.uid).set(state);				
+		set_state('online');
+		
 		
 	},
 	
@@ -1286,8 +1284,7 @@ var game={
 		
 		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
 		if (h_state==="") {
-			state="playing";	
-			firebase.database().ref("states/"+my_data.uid).set(state);				
+			set_state('online');
 		}
 		else
 			h_state="playing";
@@ -1451,9 +1448,9 @@ var game={
 			board_func.start_gentle_move(move_data,moves,function(){});		
 			
 			//переворачиваем данные о ходе так как оппоненту они должны попасть как ход шашками №2
-			console.log("------отправка--------");
-			console.log(JSON.parse(JSON.stringify(move_data)));
-			console.log(JSON.parse(JSON.stringify(g_board)));			
+			//console.log("------отправка--------");
+			//console.log(JSON.parse(JSON.stringify(move_data)));
+			//console.log(JSON.parse(JSON.stringify(g_board)));			
 			
 			move_data.x1=7-move_data.x1;
 			move_data.y1=7-move_data.y1;
@@ -1556,7 +1553,7 @@ var keep_alive= function() {
 	firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
 	firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();				
 	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
-	firebase.database().ref("states/"+my_data.uid).set(state);	
+	set_state(state);
 }
 
 var minimax_solver={
@@ -2021,7 +2018,6 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 		}		
 		}
 		
-		console.log(max_0,max_val2);
 		m_data={x1:childs0[max_ind][1],y1:childs0[max_ind][2],x2:childs0[max_ind][3], y2:childs0[max_ind][4]};
 
 		
@@ -2075,7 +2071,6 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 		
 		this.download(JSON.stringify(arr2),"comb","text/plain");
 		
-		console.log("Всегода комбинаций: " + bcnt);		
 	},
 	
 	minimax_3_single: function(board) {
@@ -3288,14 +3283,14 @@ var user_data={
 				my_data.uid			=	_player.getUniqueID().replace(/\//g, "Z");	
 				my_data.pic_url		=	_player.getPhoto('medium');		
 				
-				console.log(my_data.uid);
+				//console.log(my_data.uid);
 				user_data.req_result='ok';
 								
 				if (my_data.name=="" || my_data.name=='')
 					my_data.name=my_data.uid.substring(0,5);
 				
 			}).catch(err => {		
-				console.log(err);
+				//console.log(err);
 				user_data.req_result='yndx_init_error';			
 			}).finally(()=>{			
 				user_data.process_results();			
@@ -3390,12 +3385,12 @@ var user_data={
 	
 	process_results: function() {
 		
-		console.log("Платформа: "+game_platform)
+		//console.log("Платформа: "+game_platform)
 		
 		//если не получилось авторизоваться в социальной сети то ищем в локальном хранилище
 		if (user_data.req_result!=="ok") {		
 		
-			console.log('Ошибка авторизации в соц сети. Смотрим в локальном хранилище.');
+			//console.log('Ошибка авторизации в соц сети. Смотрим в локальном хранилище.');
 		
 			let c_player_uid=localStorage.getItem('uid');
 			if (c_player_uid===undefined || c_player_uid===null) {
@@ -3488,8 +3483,7 @@ var user_data={
 			firebase.database().ref("inbox/"+my_data.uid).set({sender:"-",message:"-",tm:"-",data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
 					
 			//устанавливаем мой статус в онлайн
-			state="online";
-			firebase.database().ref("states/"+my_data.uid).set(state);	
+			set_state('online');
 			
 			//подписываемся на новые сообщения
 			firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
@@ -3545,27 +3539,31 @@ function resize() {
     app.stage.scale.set(nvw / M_WIDTH, nvh / M_HEIGHT);
 }
 
+function set_state(s) {
+	state=s;
+	firebase.database().ref("states/"+my_data.uid).set(state);	
+}
+
 function vis_change() {
 	
 	if (document.hidden===false) {
 		if (h_state==="")
 			return;		
 		
-		state=h_state;
-		firebase.database().ref("states/"+my_data.uid).set(state);	
+		set_state(h_state);
 		
 		h_state="";
 	}
 	
 	if (document.hidden===true) {
 		h_state=state;		
-		state="hidden";
-		firebase.database().ref("states/"+my_data.uid).set(state);	
+		set_state ('hidden');
 	}	
 }
 
 function init_game_env() {
 	
+
 
 	//инициируем файербейс
 	if (firebase.apps.length===0) {
@@ -3665,6 +3663,9 @@ function init_game_env() {
 }
 
 function load_resources() {
+	
+
+	
 	
 	let git_src="https://akukamil.github.io/corners/"
 	//let git_src=""
