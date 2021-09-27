@@ -2791,15 +2791,18 @@ var cards_menu={
 		loader.add("opponent_avatar_"+id, objects.mini_cards[id].pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE, timeout: 3000});
 		loader.id=id;
 		loader.name=objects.mini_cards[id].name;
-		loader.load((loader, resources) => {		
-
-			objects.mini_cards[loader.id].avatar.texture=loader.resources["opponent_avatar_"+loader.id].texture;			
-			objects.mini_cards[loader.id].texture_ok=1;
-		});			
+		loader.load();			
+		
+		loader.onComplete.add((l,r) => {	
+			//console.log("загружено " +l.name)
+			objects.mini_cards[l.id].avatar.texture=l.resources["opponent_avatar_"+l.id].texture;			
+			objects.mini_cards[l.id].texture_ok=1;
+		});
+		
 		
 		//если какая-то ошибка произошла
-		loader.onError.add((loader) => {			
-			//console.log(loader)
+		loader.onError.add((err,l,r) => {			
+			//console.log("ошибка " +l.name)
 		});
 		
 	},
