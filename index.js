@@ -2680,10 +2680,17 @@ var cards_menu={
 		objects.desktop.visible=true;
 		objects.desktop.texture=game_res.resources.cards_bcg.texture;
 		
+		//расставляем по соответствующим координатам
+		for(let i=0;i<15;i++) {
+			objects.mini_cards[i].x=this.cards_pos[i][0];
+			objects.mini_cards[i].y=this.cards_pos[i][1];	
+		}
+		
+		
 		//отключаем все карточки
 		this.card_i=1;
 		for(let i=1;i<15;i++)
-			objects.mini_cards[i].visible=false;
+			objects.mini_cards[i].visible=false;				
 				
 		//добавляем карточку ии
 		this.add_cart_ai();
@@ -2755,9 +2762,10 @@ var cards_menu={
 							
 						vis=true;
 						
-						//проверяем изменилось ли состояние если да то нужно обновить состояние и рейтинг из файербейс					
-						if (players[uid]!==objects.mini_cards[i].state)
+						//проверяем произошло ли изменение которое могло привести к смене рейтинга				
+						if ((objects.mini_cards[i].state==='bot' || objects.mini_cards[i].state==='playing') && players[uid]==='online')							
 							objects.mini_cards[i].fb_update=1;
+												
 						
 						//если проблемы с текстурой то повышаем уровень апдейта
 						if (objects.mini_cards[i].avatar.texture===undefined || objects.mini_cards[i].avatar.texture.width===1)
@@ -2879,12 +2887,10 @@ var cards_menu={
 	place_next_cart: function(params={id:0, state:"online"}) {
 		
 		//устанавливаем цвет карточки в зависимости от состояния
-		objects.mini_cards[params.id].bcg.tint=this.get_state_tint(params.state);
-		
+		objects.mini_cards[params.id].bcg.tint=this.get_state_tint(params.state);		
 		objects.mini_cards[params.id].state=params.state;
 		objects.mini_cards[params.id].visible=true;
-		objects.mini_cards[params.id].x=this.cards_pos[params.id][0];
-		objects.mini_cards[params.id].y=this.cards_pos[params.id][1];	
+
 
 		////console.log(`бывшая карточка ${params.id} ${objects.mini_cards[params.id].name}`)
 		this.card_i++;
@@ -2903,8 +2909,6 @@ var cards_menu={
 				objects.mini_cards[i].state=params.state;
 				objects.mini_cards[i].uid=params.uid;
 				objects.mini_cards[i].visible=true;
-				objects.mini_cards[i].x=this.cards_pos[i][0];
-				objects.mini_cards[i].y=this.cards_pos[i][1];
 				
 				//указываем что нужно обновить аватар и данные из фб
 				objects.mini_cards[i].avatar_update=1;
@@ -2976,8 +2980,6 @@ var cards_menu={
 			
 	add_cart_ai: function() {
 						
-		objects.mini_cards[0].x=this.cards_pos[0][0];	
-		objects.mini_cards[0].y=this.cards_pos[0][1];		
 		objects.mini_cards[0].bcg.tint=0x777777;
 		objects.mini_cards[0].visible=true;
 		objects.mini_cards[0].uid="AI";
