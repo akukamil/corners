@@ -806,7 +806,7 @@ var bot_game={
 			g_board = [[0,0,2,2,0,0,0,0],[0,0,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 		
 		//это надо удалить
-		//g_board = [[0,0,1,0,0,0,0,0],[0,0,1,0,1,1,0,0],[0,0,0,0,2,1,1,1],[1,1,0,2,0,0,0,1],[0,0,2,2,0,2,0,0],[0,0,0,2,2,2,2,0],[0,0,1,0,2,2,0,0],[0,0,1,0,0,0,2,0]];
+		//g_board = [[0,0,2,2,0,0,0,0],[0,0,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 		//move=35;
 		
 		board_func.update_board();
@@ -1847,7 +1847,7 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 
 	},
 
-	update_weights_board: function(move) {
+	make_weights_board: function(move) {
 		
 		let p=move/60+0.5;
 		for (let y=0;y<8;y++) {
@@ -1855,7 +1855,27 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 				this.bad_1[y][x]=Math.pow(x*x+y*y,p)+Math.pow((1-x)*(1-x)+y*y,p);	
 			}
 		}
-
+	},
+	
+	make_weights_board2: function(move) {
+		
+		let p=move/60+0.5;
+		for (let y=0;y<8;y++) {
+			for (let x=0;x<8;x++) {					
+				this.bad_1[y][x]=Math.pow(x*x+y*y,p)+Math.pow((1-x)*(1-x)+y*y,p);	
+			}
+		}
+		
+		if (move>37) {
+			
+			for (let y=5;y<8;y++) {
+				for (let x=4;x<8;x++) {					
+					this.bad_1[y][x]=9999;	
+				}
+			}
+			
+		}
+		
 	},
 	
 	board_val: function(board, move) {
@@ -1989,6 +2009,7 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 			}
 		}	
 		
+		
 		if (board_func.finished2(board))	
 			return [-999999,0];
 
@@ -2000,7 +2021,7 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 			
 	minimax_3: function(board,move) {
 						
-		this.update_weights_board(move);
+		this.make_weights_board(move);
 		let inv_brd=this.invert_board(board);
 		
 		var m_data2={};
@@ -2099,9 +2120,9 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 		
 	},
 	
-	minimax_3_single: function(board) {
+	minimax_3_single: function(board, move) {
 				
-		this.update_weights_board(15);
+		this.make_weights_board2(move);
 		min_move_amount=-3;
 		
 		//this.update_weights_board();
@@ -2766,6 +2787,10 @@ var cards_menu={
 						if ((objects.mini_cards[i].state==='bot' || objects.mini_cards[i].state==='playing') && players[uid]==='online')							
 							objects.mini_cards[i].fb_update=1;
 												
+						//если проблемы с рейтингом
+						if (objects.mini_cards[i].rating === 0)
+							objects.mini_cards[i].fb_update=1;	
+						
 						
 						//если проблемы с текстурой то повышаем уровень апдейта
 						if (objects.mini_cards[i].avatar.texture===undefined || objects.mini_cards[i].avatar.texture.width===1)
