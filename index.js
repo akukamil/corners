@@ -20,6 +20,8 @@ class player_mini_card_class extends PIXI.Container {
 		this.id=id;
 		this.uid=0;
 		this.update_level=0;
+		this.avatar_update=0;
+		this.fb_update=0;
 		this.x=x;
 		this.y=y;
 		this.bcg=new PIXI.Sprite(game_res.resources.mini_player_card.texture);
@@ -2739,6 +2741,10 @@ var cards_menu={
 		//определяем карточки игроков которые остались
 		for(let i=1;i<15;i++) {		
 		
+			//убираем данные об обновлении
+			objects.mini_cards[i].avatar_update=0;	
+			objects.mini_cards[i].fb_update=0;	
+		
 			if (objects.mini_cards[i].visible===true) {				
 				
 				let vis=false;
@@ -2748,18 +2754,17 @@ var cards_menu={
 					if (uid===objects.mini_cards[i].uid) {
 							
 						vis=true;
-						let update_level=0;
 						
-						//проверяем изменилось ли состояние если да то нужно обновить состояние и рейтинг					
+						//проверяем изменилось ли состояние если да то нужно обновить состояние и рейтинг из файербейс					
 						if (players[uid]!==objects.mini_cards[i].state)
-							update_level=1;		
+							objects.mini_cards[i].fb_update=1;
 						
 						//если проблемы с текстурой то повышаем уровень апдейта
-						if (objects.mini_cards[i].texture_ok===0)
-							update_level=5;		
+						if (objects.mini_cards[i].avatar.texture===undefined || objects.mini_cards[i].avatar.texture.width===1)
+							objects.mini_cards[i].avatar_update=1;					
 
-						//добавляем карточку
-						this.place_next_cart({id:i, update_level:update_level, state:players[uid]});
+						//активируем карточку
+						this.place_next_cart({id:i, state:players[uid]});
 											
 						//указыаем что это старый игрок
 						new_player[uid]=0;
@@ -2775,7 +2780,6 @@ var cards_menu={
 					objects.mini_cards[i].name_text.text='...';
 					objects.mini_cards[i].rating_text.text='...';
 					objects.mini_cards[i].avatar.texture=PIXI.Texture.EMPTY;		
-					//objects.mini_cards[i].texture.update();
 					objects.mini_cards[i].visible=false;
 				}
 
@@ -2801,32 +2805,47 @@ var cards_menu={
 	
 	load_avatar: function(id) {
 	
+		let pic_url=objects.mini_cards[id].pic_url;
 		
-		//console.log("Загружаем текстуру "+objects.mini_cards[id].name)
-		var loader=new PIXI.Loader();
-		loader.add("opponent_avatar_"+id, objects.mini_cards[id].pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE, timeout: 3000});
-		loader.id=id;
-		loader.name=objects.mini_cards[id].name;
-		loader.load();			
+		//сначала смотрим на загруженные аватарки в кэше
+		if (PIXI.utils.TextureCache[pic_url]===undefined || PIXI.utils.TextureCache[pic_url].width===1) {
+						
+			//console.log("Загружаем текстуру "+objects.mini_cards[id].name)
+			var loader=new PIXI.Loader();
+			loader.add(pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE, timeout: 3000});
+			loader.id=id;
+			loader.name=objects.mini_cards[id].name;
+			
+			loader.load((l,r) => {	
+				
+				let k=Object.keys(r)[0];
+				let t=r[k].texture;
+				if (t.height===1) {
+					
+					//console.log("неудачно " +l.name)
+					objects.mini_cards[l.id].avatar.texture=PIXI.Texture.EMPTY;			
+					objects.mini_cards[l.id].texture_ok=0;				
+					
+				} else {
+					
+					////console.log("загружено " +l.name)
+					objects.mini_cards[l.id].avatar.texture=t;			
+					objects.mini_cards[l.id].texture_ok=1;				
+					
+				}
+			});			
+			
+		}
+		else
+		{
+			
+			//загружаем текустуру из кэша
+			//console.log("Ставим из кэша "+objects.mini_cards[id].name)
+			objects.mini_cards[id].avatar.texture=PIXI.utils.TextureCache[pic_url];			
+			
+		}
 		
-		loader.onComplete.add((l,r) => {	
-		
-			let t=l.resources["opponent_avatar_"+l.id].texture;
-			if (t.height===1) {
-				
-				//console.log("неудачно " +l.name)
-				objects.mini_cards[l.id].avatar.texture=PIXI.Texture.EMPTY;			
-				objects.mini_cards[l.id].texture_ok=0;				
-				
-			} else {
-				
-				//console.log("загружено " +l.name)
-				objects.mini_cards[l.id].avatar.texture=l.resources["opponent_avatar_"+l.id].texture;			
-				objects.mini_cards[l.id].texture_ok=1;				
-				
-			}
 
-		});
 		
 		
 	},
@@ -2857,7 +2876,7 @@ var cards_menu={
 		}		
 	},
 	
-	place_next_cart: function(params={id:0, update_level:0, state:"online"}) {
+	place_next_cart: function(params={id:0, state:"online"}) {
 		
 		//устанавливаем цвет карточки в зависимости от состояния
 		objects.mini_cards[params.id].bcg.tint=this.get_state_tint(params.state);
@@ -2865,9 +2884,9 @@ var cards_menu={
 		objects.mini_cards[params.id].state=params.state;
 		objects.mini_cards[params.id].visible=true;
 		objects.mini_cards[params.id].x=this.cards_pos[params.id][0];
-		objects.mini_cards[params.id].y=this.cards_pos[params.id][1];		
-		objects.mini_cards[params.id].update_level=params.update_level;
-		//console.log(`бывшая карточка ${params.id} ${objects.mini_cards[params.id].name}`)
+		objects.mini_cards[params.id].y=this.cards_pos[params.id][1];	
+
+		////console.log(`бывшая карточка ${params.id} ${objects.mini_cards[params.id].name}`)
 		this.card_i++;
 	},
 	
@@ -2887,17 +2906,19 @@ var cards_menu={
 				objects.mini_cards[i].x=this.cards_pos[i][0];
 				objects.mini_cards[i].y=this.cards_pos[i][1];
 				
+				//указываем что нужно обновить аватар и данные из фб
+				objects.mini_cards[i].avatar_update=1;
+				objects.mini_cards[i].fb_update=1;
+				
 				//стираем старые данные
 				objects.mini_cards[i].name='...';
 				objects.mini_cards[i].name_text.text='...';
 				objects.mini_cards[i].rating_text.text='...';
 				objects.mini_cards[i].texture=PIXI.Texture.EMPTY;
 				objects.mini_cards[i].texture.update();
-				
-				
-				//здесь нужно обновить все и рейтинг и имя и аватар
-				//console.log(`новая карточка ${i} ${params.uid}`)
-				objects.mini_cards[i].update_level=2;
+								
+
+				////console.log(`новая карточка ${i} ${params.uid}`)
 				this.card_i++;
 				break;
 			}				
@@ -2907,29 +2928,29 @@ var cards_menu={
 	
 	update_cart: function(id) {		
 
+		//console.log(`начинаем обновление ${objects.mini_cards[id].name}  ${objects.mini_cards[id].fb_update}   ${objects.mini_cards[id].avatar_update} `)
+		
 		//если необходимый уровень апдейта 0 то просто выходим
-		if (objects.mini_cards[id].update_level===0)
+		if ( objects.mini_cards[id].fb_update === 0 && objects.mini_cards[id].avatar_update === 0 )
 			return;
 		
 		//если с текстурой проблемы то пытаемся перезагрузить ее
-		if (objects.mini_cards[id].update_level===5) {			
-			//console.log("перезагружаем аватар"+objects.mini_cards[id].name)
+		if ( objects.mini_cards[id].fb_update === 0 && objects.mini_cards[id].avatar_update === 1 )	{
+			////console.log("перезагружаем аватар"+objects.mini_cards[id].name)
 			this.load_avatar(id);	
 			return;			
 		}
 			
-			
 		//также убираем текст и рейтинг перед загрузкой чтобы при ошибке он не сохранился
 		objects.mini_cards[id].name_text.text='...';
 		objects.mini_cards[id].rating_text.text='...';
-
 		
 		//запрашиваем информацию для карточки игрока
 		firebase.database().ref("players/"+objects.mini_cards[id].uid).once('value').then((snapshot) => {
 
 			player_data=snapshot.val();
 			if (player_data===null) {
-				//console.log(`Не получилось загрузить данные ФБ ${objects.mini_cards[id].name}`)
+				////console.log(`Не получилось загрузить данные ФБ ${objects.mini_cards[id].name}`)
 			}
 			else {
 
@@ -2943,12 +2964,10 @@ var cards_menu={
 				objects.mini_cards[id].rating=player_data.rating;
 				
 				//загружаем фото если уровень апдейта установлен на 2
-				if (objects.mini_cards[id].update_level===2) {		
-					//console.log(`загружаем аватар ${objects.mini_cards[id].name}`)
-					this.load_avatar(id);
-					
-				}
-										
+				if ( objects.mini_cards[id].avatar_update === 1 ) {		
+					////console.log(`загружаем аватар ${objects.mini_cards[id].name}`)
+					this.load_avatar(id);					
+				}									
 
 			}					  
 		});			
@@ -3317,14 +3336,14 @@ var user_data={
 				my_data.uid			=	_player.getUniqueID().replace(/\//g, "Z");	
 				my_data.pic_url		=	_player.getPhoto('medium');		
 				
-				//console.log(my_data.uid);
+				////console.log(my_data.uid);
 				user_data.req_result='ok';
 								
 				if (my_data.name=="" || my_data.name=='')
 					my_data.name=my_data.uid.substring(0,5);
 				
 			}).catch(err => {		
-				//console.log(err);
+				////console.log(err);
 				user_data.req_result='yndx_init_error';			
 			}).finally(()=>{			
 				user_data.process_results();			
@@ -3419,12 +3438,12 @@ var user_data={
 	
 	process_results: function() {
 		
-		//console.log("Платформа: "+game_platform)
+		////console.log("Платформа: "+game_platform)
 		
 		//если не получилось авторизоваться в социальной сети то ищем в локальном хранилище
 		if (user_data.req_result!=="ok") {		
 		
-			//console.log('Ошибка авторизации в соц сети. Смотрим в локальном хранилище.');
+			////console.log('Ошибка авторизации в соц сети. Смотрим в локальном хранилище.');
 		
 			let c_player_uid=localStorage.getItem('uid');
 			if (c_player_uid===undefined || c_player_uid===null) {
