@@ -90,24 +90,19 @@
 		
 		switch(s) {
 			
-			case "online":
+			case "o":
 				return "rgb(85,153,85)";					
 			break;
-				
-			case "idle":
-				return "rgb(0,255,0)";
-			break;
 			
-			case "bot":
+			case "b":
 				return "rgb(55,111,55)";
 			break;
 			
-			case "playing":
+			case "p":
 				return "rgb(52,68,114)";
 			break;	
-
-			case "wait_response":
-				return "rgb(153,0,0)";
+			case "h":
+				return "rgb(255,255,255)";
 			break;	
 		}		
 	}
@@ -117,15 +112,13 @@
 	
 		let t_len=online_table.rows.length;
 	
-		firebase.database().ref("players/"+uid).once('value').then((snapshot) => {
+		firebase.database().ref("players/"+uid + "/tm").once('value').then((snapshot) => {
 			
 			let data=snapshot.val();
 			for (let r=0;r<t_len;r++) {
 				if (online_table.rows[r].cells[0].innerHTML===uid.substring(0,15)) {
 				
-					online_table.rows[r].cells[1].innerHTML=data.name;
-					online_table.rows[r].cells[2].innerHTML=data.rating;
-					online_table.rows[r].cells[3].innerHTML=new Date(data.tm).toLocaleString();					
+					online_table.rows[r].cells[3].innerHTML=new Date(data).toLocaleString();					
 				
 				}
 			}
@@ -144,11 +137,14 @@
 		for (let key in data) {
 			let r=online_table.insertRow();
 			r.insertCell(0).appendChild(document.createTextNode(key.substring(0,15)));
-			r.insertCell(1).appendChild(document.createTextNode("-"));
-			r.insertCell(2).appendChild(document.createTextNode("-"));
+			r.insertCell(1).appendChild(document.createTextNode(data[key].name));
+			r.insertCell(2).appendChild(document.createTextNode(data[key].rating));
 			r.insertCell(3).appendChild(document.createTextNode("-"));
-			r.insertCell(4).appendChild(document.createTextNode(data[key]));
-			r.style.backgroundColor = get_state_tint(data[key]);		
+			r.insertCell(4).appendChild(document.createTextNode(data[key].hidden));
+			let s=data[key].state;
+			if (data[key].hidden===1)
+				s="h";
+			r.style.backgroundColor = get_state_tint(s);		
 			update_player_data(key);
 		}	
 		
