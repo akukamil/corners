@@ -2826,7 +2826,7 @@ var cards_menu={
 		objects.mini_cards[params.id].state=params.state;
 		
 		objects.mini_cards[params.id].rating=params.rating;
-		objects.mini_cards[params.id].rating_text=params.rating;		
+		objects.mini_cards[params.id].rating_text.text=params.rating;		
 		objects.mini_cards[params.id].visible=true;
 		
 		//если проблемы с текстурой то повышаем уровень апдейта
