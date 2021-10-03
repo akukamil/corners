@@ -2787,11 +2787,6 @@ var cards_menu={
 			if (new_player[uid]===1)
 				this.place_new_cart({uid:uid, state:players[uid].state, name : players[uid].name,  rating : players[uid].rating});
 
-		//теперь обновляем данные на карточках в соответствии с уровнем апдейта
-		//for(let i=1;i<15;i++)			
-		//	if (objects.mini_cards[i].visible===true)
-		//		this.update_cart(i);  					
-		
 		//когда карточки запускаются то надо обновить все
 		this.activation_update=0;
 		
@@ -2895,6 +2890,12 @@ var cards_menu={
 	load_avatar : function (id) {
 
 		let pic_url=objects.mini_cards[id].pic_url;
+		
+		if (pic_url==="https://vk.com/images/camera_100.png") {
+			
+			objects.mini_cards[id].avatar.texture=PIXI.Texture.EMPTY;	
+			return;
+		}
 
 		//сначала смотрим на загруженные аватарки в кэше
 		if (PIXI.utils.TextureCache[pic_url]===undefined || PIXI.utils.TextureCache[pic_url].width===1) {
