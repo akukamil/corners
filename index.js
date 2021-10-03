@@ -1224,21 +1224,12 @@ var finish_game = {
 			})
 		}
 		
-		if (game_platform==="VK_WEB") {
+		if (game_platform==="VK") {
 					 
 			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
 			.then(data => console.log(data.result))
 			.catch(error => console.log(error));	
 		}		
-				
-		if (game_platform==="VK_MINIAPP") {
-					 
-			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"preloader"})
-			.then(data => console.log(data.result))
-			.catch(error => console.log(error));
-		}
-
-	
 	
 	}
 	
