@@ -3013,7 +3013,7 @@ var cards_menu={
 		
 		//отправляем сообщение что мы уже не заинтересованы в игре
 		if (pending_player!=="") {
-			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"INV_REM",tm:Date.now()});			
+			firebase.database().ref("inbox/"+pending_player).set({sender:my_data.uid,message:"INV_REM",tm:Date.now()});			
 			pending_player="";
 		}
 
@@ -3026,6 +3026,10 @@ var cards_menu={
 	},
 	
 	send_invite: function() {
+		
+		
+		if (objects.invite_cont.ready===false || objects.invite_cont.visible===false)
+			return;
 		
 		if (any_dialog_active===1 && any_dialog_active!==3) {
 			game_res.resources.locked.sound.play();
@@ -3604,7 +3608,7 @@ function init_game_env() {
 function load_resources() {
 	
 
-	
+	//это нужно удалить потом
 	document.body.innerHTML = "Привет!\nДобавляем в игру некоторые улучшения))\nЗайдите через 40 минут.";	
 	document.body.style.fontSize="24px";
 	document.body.style.color = "red";
