@@ -3609,10 +3609,10 @@ function load_resources() {
 	
 
 	//это нужно удалить потом
-	document.body.innerHTML = "Привет!\nДобавляем в игру некоторые улучшения))\nЗайдите через 40 минут.";	
+	/*document.body.innerHTML = "Привет!\nДобавляем в игру некоторые улучшения))\nЗайдите через 40 минут.";	
 	document.body.style.fontSize="24px";
 	document.body.style.color = "red";
-	return;
+	return;*/
 	
 	
 	let git_src="https://akukamil.github.io/corners/"
