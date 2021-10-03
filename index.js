@@ -3448,13 +3448,14 @@ function init_game_env() {
 	//инициируем файербейс
 	if (firebase.apps.length===0) {
 		firebase.initializeApp({
-			apiKey: "AIzaSyDoI4rCGpjaXaTO9nEQDJLVtrIaqdnM768",
-			authDomain: "test-corners.firebaseapp.com",
-			databaseURL: "https://test-corners-default-rtdb.firebaseio.com",
-			projectId: "test-corners",
-			storageBucket: "test-corners.appspot.com",
-			messagingSenderId: "169270058542",
-			appId: "1:169270058542:web:8657049f78629c827689bf"
+apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
+authDomain: "m-game-27669.firebaseapp.com",
+databaseURL: "https://m-game-27669-default-rtdb.firebaseio.com",
+projectId: "m-game-27669",
+storageBucket: "m-game-27669.appspot.com",
+messagingSenderId: "571786945826",
+appId: "1:571786945826:web:7e8bd49c963bbea117317b",
+measurementId: "G-XFJD615P3L"
 		});		
 	}
 
