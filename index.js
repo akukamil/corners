@@ -2733,7 +2733,7 @@ var cards_menu={
 			let players_to_delete=players_len-14;
 			let deleted_players=0;
 			for (let uid in players) {				
-				if (players[uid]==="p" && deleted_players<players_to_delete) {
+				if (players[uid].state==="p" && deleted_players<players_to_delete) {
 					delete players[uid];					
 					deleted_players++;					
 				}				
@@ -3421,8 +3421,9 @@ function resize() {
 function set_state(s,h) {
 	state=s;
 	if (h===undefined)
-		h=h_state;
-	
+		h=h_state
+	else
+		h_state=h
 	firebase.database().ref("states/"+my_data.uid).set({state:s, name:my_data.name, rating : my_data.rating, hidden:h});	
 }
 
