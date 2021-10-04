@@ -764,7 +764,7 @@ var bot_game={
 		
 		
 		//устанавливаем локальный и удаленный статус
-		set_state ('b');
+		set_state ({state : 'b'});
 							
 		objects.desktop.visible=false;				
 		objects.main_buttons_cont.visible=false;
@@ -1119,7 +1119,7 @@ var finish_game = {
 		opp_data.uid="";		
 		
 		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
-		set_state ('o');
+		set_state ({state : 'o'});
 		
 	},
 	
@@ -1205,9 +1205,10 @@ var finish_game = {
 		//показыаем основное меню
 		main_menu.activate();			
 		
+		opp_data.uid="";
 		
 		//устанавливаем статус в базе данных только если досупна онлайн игра
-		set_state('o');
+		set_state({state : 'o'});
 		
 		
 	},
@@ -1286,7 +1287,7 @@ var game={
 		objects.board.pointerdown=game.mouse_down_on_board;
 		
 		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
-		set_state('p');
+		set_state({state : 'p'});
 		
 		//счетчик времени
 		this.move_time_left=35;
@@ -1551,7 +1552,7 @@ var keep_alive= function() {
 	firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
 	firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();				
 	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
-	set_state(state, h_state);
+	set_state({});
 }
 
 var minimax_solver={
@@ -3011,9 +3012,6 @@ var cards_menu={
 
 		
 		anim.add_pos({obj:objects.invite_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',400],	speed:0.04});
-			
-		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
-		set_state('o');
 		
 	},
 	
@@ -3040,9 +3038,7 @@ var cards_menu={
 			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"INV",tm:Date.now()});
 			pending_player=opp_data.uid;
 			any_dialog_active=1
-			
-			//устанавливаем локальный и удаленный статус
-			//set_state('w');			
+	
 		}
 	
 		
@@ -3410,22 +3406,25 @@ function resize() {
     app.stage.scale.set(nvw / M_WIDTH, nvh / M_HEIGHT);
 }
 
-function set_state(s,h) {
-	state=s;
-	if (h===undefined)
-		h=h_state
-	else
-		h_state=h
-	firebase.database().ref("states/"+my_data.uid).set({state:s, name:my_data.name, rating : my_data.rating, hidden:h});	
+function set_state(params) {
+		
+	if (params.state!==undefined)
+		state=params.state;
+	
+	if (params.hidden!==undefined)
+		h_state=+params.hidden;
+	
+	let small_opp_id="";
+	if (opp_data.uid!==undefined)
+		small_opp_id=opp_data.uid.substring(0,10);
+	
+	firebase.database().ref("states/"+my_data.uid).set({state:state, name:my_data.name, rating : my_data.rating, hidden:h_state, opp_id : small_opp_id});	
+	
 }
 
 function vis_change() {
 	
-	if (document.hidden===false)
-		set_state(state,0);
-	
-	if (document.hidden===true)
-		set_state(state,1);
+		set_state({hidden : document.hidden});
 }
 
 function init_game_env() {
@@ -3562,7 +3561,7 @@ measurementId: "G-XFJD615P3L"
 		firebase.database().ref("players/"+my_data.uid).set({name:my_data.name, pic_url: my_data.pic_url, rating : my_data.rating, tm:firebase.database.ServerValue.TIMESTAMP});
 		
 		//устанавливаем мой статус в онлайн
-		set_state('o');
+		set_state({state : 'o'});
 		
 		//отключение от игры и удаление не нужного
 		firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();				
