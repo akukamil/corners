@@ -140,7 +140,7 @@
 			r.insertCell(1).appendChild(document.createTextNode(data[key].name));
 			r.insertCell(2).appendChild(document.createTextNode(data[key].rating));
 			r.insertCell(3).appendChild(document.createTextNode("-"));
-			r.insertCell(4).appendChild(document.createTextNode(data[key].hidden));
+			r.insertCell(4).appendChild(document.createTextNode(data[key].opp_id));
 			let s=data[key].state;
 			if (data[key].hidden===1)
 				s="h";
