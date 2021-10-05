@@ -2883,11 +2883,9 @@ var cards_menu={
 
 		let pic_url=objects.mini_cards[id].pic_url;
 		
-		if (pic_url==="https://vk.com/images/camera_100.png") {
-			
-			objects.mini_cards[id].avatar.texture=PIXI.Texture.EMPTY;	
-			return;
-		}
+		//меняем адрес который невозможно загрузить
+		if (pic_url==="https://vk.com/images/camera_100.png")
+			pic_url = "https://i.ibb.co/kqFQWHV/vk.jpg";
 
 		//сначала смотрим на загруженные аватарки в кэше
 		if (PIXI.utils.TextureCache[pic_url]===undefined || PIXI.utils.TextureCache[pic_url].width===1) {
