@@ -1548,10 +1548,13 @@ var giveup_menu={
 
 var keep_alive= function() {
 		
+	if (h_state === 1)
+		return;
 	
 	firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
 	firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();				
 	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
+	
 	set_state({});
 }
 
@@ -3378,9 +3381,7 @@ var auth= new Promise((resolve, reject)=>{
 			objects.id_loup.y=20*Math.cos(game_tick*8)+110;		
 		}				
 	}
-	
 
-	
 	help_obj.init();
 	
 	
