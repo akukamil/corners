@@ -3084,7 +3084,7 @@ var cards_menu={
 						
 			//проверяем есть ли у этого id назначенная pic_url
 			if (this.uid_pic_url_cache[uid] !== undefined) {
-				console.log(`Взяли pic_url из кэша ${this.uid_pic_url_cache[uid]}`);
+				//console.log(`Взяли pic_url из кэша ${this.uid_pic_url_cache[uid]}`);
 				resolve(this.uid_pic_url_cache[uid]);		
 				return;
 			}
@@ -3103,7 +3103,7 @@ var cards_menu={
 				else {
 					
 					//добавляем полученный pic_url в кэш
-					console.log(`Получили pic_url из ФБ ${pic_url}`)	
+					//console.log(`Получили pic_url из ФБ ${pic_url}`)	
 					this.uid_pic_url_cache[uid] = pic_url;
 					resolve (pic_url);
 				}
@@ -3439,7 +3439,7 @@ var auth= new Promise((resolve, reject)=>{
 				my_data.uid 	= "vk"+e.detail.data.id;
 				my_data.pic_url = e.detail.data.photo_100;
 
-				console.log(`Получены данные игрока от VB MINIAPP:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
+				//console.log(`Получены данные игрока от VB MINIAPP:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
 				help_obj.process_results();
 			}
 		},
@@ -3513,7 +3513,7 @@ var auth= new Promise((resolve, reject)=>{
 					my_data.uid 	= _player.getUniqueID().replace(/\//g, "Z");
 					my_data.pic_url = _player.getPhoto('medium');
 
-					console.log(`Получены данные игрока от яндекса:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
+					//console.log(`Получены данные игрока от яндекса:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
 
 					//если личные данные не получены то берем первые несколько букв айди
 					if (my_data.name=="" || my_data.name=='')
@@ -3561,7 +3561,7 @@ var auth= new Promise((resolve, reject)=>{
 			//здесь создаем нового игрока в локальном хранилище
 			if (local_uid===undefined || local_uid===null) {
 
-				console.log("Создаем нового локального пользователя");
+				//console.log("Создаем нового локального пользователя");
 
 				let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Волк","Лиса","Мышь","Сова","Слон","Енот","Кролик","Бизон","Пантера"];
 				let rnd_num=Math.floor(Math.random()*rnd_names.length)
@@ -3577,7 +3577,7 @@ var auth= new Promise((resolve, reject)=>{
 			}
 			else
 			{
-				console.log(`Нашли айди в ЛХ (${local_uid}). Загружаем остальное из ФБ...`);
+				//console.log(`Нашли айди в ЛХ (${local_uid}). Загружаем остальное из ФБ...`);
 
 				my_data.uid = local_uid;
 				my_data.uid = local_uid;
@@ -3617,7 +3617,7 @@ var auth= new Promise((resolve, reject)=>{
 
 
 			//отображаем итоговые данные
-			console.log(`Итоговые данные:\nПлатформа:${game_platform}\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
+			//console.log(`Итоговые данные:\nПлатформа:${game_platform}\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
 
 			//обновляем данные в файербейс так могло что-то поменяться
 			//firebase.database().ref("players/"+my_data.uid).set({name:my_data.name, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
