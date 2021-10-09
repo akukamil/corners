@@ -1479,9 +1479,9 @@ var game={
 			board_func.start_gentle_move(move_data,moves,function(){});
 
 			//переворачиваем данные о ходе так как оппоненту они должны попасть как ход шашками №2
-			//console.log("------отправка--------");
-			//console.log(JSON.parse(JSON.stringify(move_data)));
-			//console.log(JSON.parse(JSON.stringify(g_board)));
+			console.log("------отправка--------");
+			console.log(JSON.parse(JSON.stringify(move_data)));
+			console.log(JSON.parse(JSON.stringify(g_board)));
 
 			move_data.x1=7-move_data.x1;
 			move_data.y1=7-move_data.y1;
@@ -2402,7 +2402,7 @@ var req_dialog={
 		//сначала смотрим на загруженные аватарки в кэше
 		if (PIXI.utils.TextureCache[pic_url]===undefined || PIXI.utils.TextureCache[pic_url].width===1) {
 
-			//console.log("Загружаем текстуру "+objects.mini_cards[id].name)
+			console.log("Загружаем текстуру "+objects.mini_cards[id].name)
 			var loader = new PIXI.Loader();
 			loader.add("inv_avatar", pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 			loader.load((loader, resources) => {
@@ -2412,7 +2412,7 @@ var req_dialog={
 		else
 		{
 			//загружаем текустуру из кэша
-			//console.log("Ставим из кэша "+objects.mini_cards[id].name)
+			console.log("Ставим из кэша "+objects.mini_cards[id].name)
 			objects.req_avatar.texture=PIXI.utils.TextureCache[pic_url];
 		}
 
@@ -3044,7 +3044,7 @@ var cards_menu={
 				//получаем аватар и загружаем его
 				this.load_avatar2({uid:params.uid, tar_obj:objects.mini_cards[i].avatar});
 
-				//console.log(`новая карточка ${i} ${params.uid}`)
+				console.log(`новая карточка ${i} ${params.uid}`)
 				break;
 			}
 		}
@@ -3084,7 +3084,7 @@ var cards_menu={
 						
 			//проверяем есть ли у этого id назначенная pic_url
 			if (this.uid_pic_url_cache[uid] !== undefined) {
-				//console.log(`Взяли pic_url из кэша ${this.uid_pic_url_cache[uid]}`);
+				console.log(`Взяли pic_url из кэша ${this.uid_pic_url_cache[uid]}`);
 				resolve(this.uid_pic_url_cache[uid]);		
 				return;
 			}
@@ -3103,7 +3103,7 @@ var cards_menu={
 				else {
 					
 					//добавляем полученный pic_url в кэш
-					//console.log(`Получили pic_url из ФБ ${pic_url}`)	
+					console.log(`Получили pic_url из ФБ ${pic_url}`)	
 					this.uid_pic_url_cache[uid] = pic_url;
 					resolve (pic_url);
 				}
@@ -3415,229 +3415,230 @@ var stickers={
 
 }
 
-var auth= new Promise((resolve, reject)=>{
+var auth = function() {
+	
+	return new Promise((resolve, reject)=>{
 
+		let help_obj = {
 
-	let help_obj = {
+			loadScript : function(src) {
+			  return new Promise((resolve, reject) => {
+				const script = document.createElement('script')
+				script.type = 'text/javascript'
+				script.onload = resolve
+				script.onerror = reject
+				script.src = src
+				document.head.appendChild(script)
+			  })
+			},
 
-		loadScript : function(src) {
-		  return new Promise((resolve, reject) => {
-			const script = document.createElement('script')
-			script.type = 'text/javascript'
-			script.onload = resolve
-			script.onerror = reject
-			script.src = src
-			document.head.appendChild(script)
-		  })
-		},
+			vkbridge_events: function(e) {
 
-		vkbridge_events: function(e) {
+				if (e.detail.type === 'VKWebAppGetUserInfoResult') {
 
-			if (e.detail.type === 'VKWebAppGetUserInfoResult') {
+					my_data.name 	= e.detail.data.first_name + ' ' + e.detail.data.last_name;
+					my_data.uid 	= "vk"+e.detail.data.id;
+					my_data.pic_url = e.detail.data.photo_100;
 
-				my_data.name 	= e.detail.data.first_name + ' ' + e.detail.data.last_name;
-				my_data.uid 	= "vk"+e.detail.data.id;
-				my_data.pic_url = e.detail.data.photo_100;
-
-				//console.log(`Получены данные игрока от VB MINIAPP:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
-				help_obj.process_results();
-			}
-		},
-
-		init: function() {
-
-			g_process=function() { help_obj.process()};
-
-			let s = window.location.href;
-
-			//-----------ЯНДЕКС------------------------------------
-			if (s.includes("yandex")) {
-				Promise.all([
-					this.loadScript('https://yandex.ru/games/sdk/v2')
-				]).then(function(){
-					help_obj.yandex();
-				});
-				return;
-			}
-
-
-			//-----------ВКОНТАКТЕ------------------------------------
-			if (s.includes("vk.com")) {
-				Promise.all([
-					this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
-					this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
-					this.loadScript('//vk.com/js/api/adman_init.js'),
-					this.loadScript('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')
-
-				]).then(function(){
-					help_obj.vk()
-				});
-				return;
-			}
-
-
-			//-----------ЛОКАЛЬНЫЙ СЕРВЕР--------------------------------
-			if (s.includes("192.168")) {
-				help_obj.debug();
-				return;
-			}
-
-
-			//-----------НЕИЗВЕСТНОЕ ОКРУЖЕНИЕ---------------------------
-			help_obj.unknown();
-
-		},
-
-		yandex: function() {
-
-			game_platform="YANDEX";
-			if(typeof(YaGames)==='undefined')
-			{
-				help_obj.local();
-			}
-			else
-			{
-				//если sdk яндекса найден
-				YaGames.init({}).then(ysdk => {
-
-					//фиксируем SDK в глобальной переменной
-					window.ysdk=ysdk;
-
-					//запрашиваем данные игрока
-					return ysdk.getPlayer();
-
-
-				}).then((_player)=>{
-
-					my_data.name 	= _player.getName();
-					my_data.uid 	= _player.getUniqueID().replace(/\//g, "Z");
-					my_data.pic_url = _player.getPhoto('medium');
-
-					//console.log(`Получены данные игрока от яндекса:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
-
-					//если личные данные не получены то берем первые несколько букв айди
-					if (my_data.name=="" || my_data.name=='')
-						my_data.name=my_data.uid.substring(0,5);
-
+					console.log(`Получены данные игрока от VB MINIAPP:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
 					help_obj.process_results();
+				}
+			},
 
-				}).catch((err)=>{
+			init: function() {
 
-					//загружаем из локального хранилища если нет авторизации в яндексе
+				g_process=function() { help_obj.process()};
+
+				let s = window.location.href;
+
+				//-----------ЯНДЕКС------------------------------------
+				if (s.includes("yandex")) {
+					Promise.all([
+						this.loadScript('https://yandex.ru/games/sdk/v2')
+					]).then(function(){
+						help_obj.yandex();
+					});
+					return;
+				}
+
+
+				//-----------ВКОНТАКТЕ------------------------------------
+				if (s.includes("vk.com")) {
+					Promise.all([
+						this.loadScript('https://vk.com/js/api/xd_connection.js?2'),
+						this.loadScript('//ad.mail.ru/static/admanhtml/rbadman-html5.min.js'),
+						this.loadScript('//vk.com/js/api/adman_init.js'),
+						this.loadScript('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')
+
+					]).then(function(){
+						help_obj.vk()
+					});
+					return;
+				}
+
+
+				//-----------ЛОКАЛЬНЫЙ СЕРВЕР--------------------------------
+				if (s.includes("192.168")) {
+					help_obj.debug();
+					return;
+				}
+
+
+				//-----------НЕИЗВЕСТНОЕ ОКРУЖЕНИЕ---------------------------
+				help_obj.unknown();
+
+			},
+
+			yandex: function() {
+
+				game_platform="YANDEX";
+				if(typeof(YaGames)==='undefined')
+				{
 					help_obj.local();
+				}
+				else
+				{
+					//если sdk яндекса найден
+					YaGames.init({}).then(ysdk => {
 
-				})
-			}
-		},
+						//фиксируем SDK в глобальной переменной
+						window.ysdk=ysdk;
 
-		vk: function() {
+						//запрашиваем данные игрока
+						return ysdk.getPlayer();
 
-			game_platform="VK";
-			vkBridge.subscribe((e) => this.vkbridge_events(e));
-			vkBridge.send('VKWebAppInit');
-			vkBridge.send('VKWebAppGetUserInfo');
 
-		},
+					}).then((_player)=>{
 
-		debug: function() {
+						my_data.name 	= _player.getName();
+						my_data.uid 	= _player.getUniqueID().replace(/\//g, "Z");
+						my_data.pic_url = _player.getPhoto('medium');
 
-			game_platform = "debug";
-			let uid = prompt('Отладка. Введите ID', 100);
+						console.log(`Получены данные игрока от яндекса:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
 
-			my_data.name = my_data.uid = "debug" + uid;
-			my_data.pic_url = "https://sun9-73.userapi.com/impf/c622324/v622324558/3cb82/RDsdJ1yXscg.jpg?size=223x339&quality=96&sign=fa6f8247608c200161d482326aa4723c&type=album";
+						//если личные данные не получены то берем первые несколько букв айди
+						if (my_data.name=="" || my_data.name=='')
+							my_data.name=my_data.uid.substring(0,5);
 
-			help_obj.process_results();
+						help_obj.process_results();
 
-		},
+					}).catch((err)=>{
 
-		local: function() {
+						//загружаем из локального хранилища если нет авторизации в яндексе
+						help_obj.local();
 
-			game_platform="LOCAL";
+					})
+				}
+			},
 
-			//ищем в локальном хранилище
-			let local_uid = localStorage.getItem('uid');
+			vk: function() {
 
-			//здесь создаем нового игрока в локальном хранилище
-			if (local_uid===undefined || local_uid===null) {
+				game_platform="VK";
+				vkBridge.subscribe((e) => this.vkbridge_events(e));
+				vkBridge.send('VKWebAppInit');
+				vkBridge.send('VKWebAppGetUserInfo');
 
-				//console.log("Создаем нового локального пользователя");
+			},
 
-				let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Волк","Лиса","Мышь","Сова","Слон","Енот","Кролик","Бизон","Пантера"];
-				let rnd_num=Math.floor(Math.random()*rnd_names.length)
-				let rand_uid=Math.floor(Math.random() * 99999);
+			debug: function() {
 
-				my_data.name 		=	rnd_names[rnd_num]+rand_uid;
-				my_data.rating 		= 	1400;
-				my_data.uid			=	"ls"+rand_uid;
-				my_data.pic_url		=	'https://avatars.dicebear.com/v2/male/'+irnd(10,10000)+'.svg';
+				game_platform = "debug";
+				let uid = prompt('Отладка. Введите ID', 100);
 
-				localStorage.setItem('uid',my_data.uid);
+				my_data.name = my_data.uid = "debug" + uid;
+				my_data.pic_url = "https://sun9-73.userapi.com/impf/c622324/v622324558/3cb82/RDsdJ1yXscg.jpg?size=223x339&quality=96&sign=fa6f8247608c200161d482326aa4723c&type=album";
+
 				help_obj.process_results();
-			}
-			else
-			{
-				//console.log(`Нашли айди в ЛХ (${local_uid}). Загружаем остальное из ФБ...`);
 
-				my_data.uid = local_uid;
-				my_data.uid = local_uid;
+			},
 
-				//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
-				firebase.database().ref("players/"+my_data.uid).once('value').then((snapshot) => {
+			local: function() {
 
-					var data=snapshot.val();
-					if (data!==null) {
-						my_data.pic_url = data.pic_url;
-						my_data.name = data.name;
-					}
+				game_platform="LOCAL";
 
-				}).catch((error) => {
+				//ищем в локальном хранилище
+				let local_uid = localStorage.getItem('uid');
 
+				//здесь создаем нового игрока в локальном хранилище
+				if (local_uid===undefined || local_uid===null) {
 
-				}).finally(()=>{
+					console.log("Создаем нового локального пользователя");
 
+					let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Волк","Лиса","Мышь","Сова","Слон","Енот","Кролик","Бизон","Пантера"];
+					let rnd_num=Math.floor(Math.random()*rnd_names.length)
+					let rand_uid=Math.floor(Math.random() * 99999);
+
+					my_data.name 		=	rnd_names[rnd_num]+rand_uid;
+					my_data.rating 		= 	1400;
+					my_data.uid			=	"ls"+rand_uid;
+					my_data.pic_url		=	'https://avatars.dicebear.com/v2/male/'+irnd(10,10000)+'.svg';
+
+					localStorage.setItem('uid',my_data.uid);
 					help_obj.process_results();
-				})
+				}
+				else
+				{
+					console.log(`Нашли айди в ЛХ (${local_uid}). Загружаем остальное из ФБ...`);
 
+					my_data.uid = local_uid;
+					my_data.uid = local_uid;
+
+					//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
+					firebase.database().ref("players/"+my_data.uid).once('value').then((snapshot) => {
+
+						var data=snapshot.val();
+						if (data!==null) {
+							my_data.pic_url = data.pic_url;
+							my_data.name = data.name;
+						}
+
+					}).catch((error) => {
+
+
+					}).finally(()=>{
+
+						help_obj.process_results();
+					})
+
+				}
+
+
+			},
+
+			unknown: function () {
+
+				game_platform="unknown";
+				alert("Неизвестная платформа! Кто Вы?")
+
+				//загружаем из локального хранилища
+				help_obj.local();
+			},
+
+			process_results: function() {
+
+
+				//отображаем итоговые данные
+				console.log(`Итоговые данные:\nПлатформа:${game_platform}\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
+
+				//обновляем данные в файербейс так могло что-то поменяться
+				//firebase.database().ref("players/"+my_data.uid).set({name:my_data.name, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
+
+				//вызываем коллбэк
+				resolve("ok");
+			},
+
+			 process : function () {
+
+				objects.id_loup.x=20*Math.sin(game_tick*8)+90;
+				objects.id_loup.y=20*Math.cos(game_tick*8)+110;
 			}
-
-
-		},
-
-		unknown: function () {
-
-			game_platform="unknown";
-			alert("Неизвестная платформа! Кто Вы?")
-
-			//загружаем из локального хранилища
-			help_obj.local();
-		},
-
-		process_results: function() {
-
-
-			//отображаем итоговые данные
-			//console.log(`Итоговые данные:\nПлатформа:${game_platform}\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
-
-			//обновляем данные в файербейс так могло что-то поменяться
-			//firebase.database().ref("players/"+my_data.uid).set({name:my_data.name, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
-
-			//вызываем коллбэк
-			resolve("ok");
-		},
-
-		 process : function () {
-
-			objects.id_loup.x=20*Math.sin(game_tick*8)+90;
-			objects.id_loup.y=20*Math.cos(game_tick*8)+110;
 		}
-	}
 
-	help_obj.init();
+		help_obj.init();
 
-
-
-});
+	});	
+	
+}
 
 function resize() {
     const vpw = window.innerWidth;  // Width of the viewport
@@ -3772,7 +3773,7 @@ function init_game_env() {
 
 
 	//загружаем данные об игроке
-    auth.then((val)=> {
+    auth().then((val)=> {
 
 		//загружаем аватарку игрока
 		return new Promise(function(resolve, reject) {
