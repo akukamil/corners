@@ -232,7 +232,7 @@ var anim={
 
 		}
 
-		console.log("Нет свободных слотов для анимации");
+		//console.log("Нет свободных слотов для анимации");
 
 	},
 	add_scl: function(params){
@@ -267,7 +267,7 @@ var anim={
 
 		}
 
-		console.log("Нет свободных слотов для анимации");
+		//console.log("Нет свободных слотов для анимации");
 
 	},
 	process: function()	{
@@ -1116,7 +1116,7 @@ var finish_game = {
 			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
 			game_result_text2="Рейтинг: "+old_rating+" > "+my_data.rating;
 			objects.my_card_rating.text=my_data.rating;
-			console.log(old_rating,my_data.rating)
+			//console.log(old_rating,my_data.rating)
 
 			//также устанавливаем новый рейтинг оппонента так как он мог выйти из игры
 			let new_opponent_rating=calc_oppnent_new_rating(-1*game_result);
@@ -1266,8 +1266,8 @@ var finish_game = {
 		if (game_platform==="VK") {
 
 			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
-			.then(data => console.log(data.result))
-			.catch(error => console.log(error));
+			.then(data => //console.log(data.result))
+			.catch(error => //console.log(error));
 		}
 
 	}
@@ -1282,7 +1282,7 @@ var game={
 	activate: function(role) {
 
 		console.clear();
-		console.log(role);
+		//console.log(role);
 		my_role=role;
 		if (my_role==="master") {
 			objects.timer_cont.x=610;
@@ -1485,9 +1485,9 @@ var game={
 			board_func.start_gentle_move(move_data,moves,function(){});
 
 			//переворачиваем данные о ходе так как оппоненту они должны попасть как ход шашками №2
-			console.log("------отправка--------");
-			console.log(JSON.parse(JSON.stringify(move_data)));
-			console.log(JSON.parse(JSON.stringify(g_board)));
+			//console.log("------отправка--------");
+			//console.log(JSON.parse(JSON.stringify(move_data)));
+			//console.log(JSON.parse(JSON.stringify(g_board)));
 
 			move_data.x1=7-move_data.x1;
 			move_data.y1=7-move_data.y1;
@@ -2378,7 +2378,7 @@ var req_dialog={
 
 			//показываем окно запроса только если получили данные с файербейс
 			if (player_data===null) {
-				console.log("Не получилось загрузить данные о сопернике");
+				//console.log("Не получилось загрузить данные о сопернике");
 			}	else	{
 
 				//так как успешно получили данные о сопернике то показываем окно
@@ -2408,7 +2408,7 @@ var req_dialog={
 		//сначала смотрим на загруженные аватарки в кэше
 		if (PIXI.utils.TextureCache[pic_url]===undefined || PIXI.utils.TextureCache[pic_url].width===1) {
 
-			console.log("Загружаем текстуру "+objects.mini_cards[id].name)
+			//console.log("Загружаем текстуру "+objects.mini_cards[id].name)
 			var loader = new PIXI.Loader();
 			loader.add("inv_avatar", pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 			loader.load((loader, resources) => {
@@ -2418,7 +2418,7 @@ var req_dialog={
 		else
 		{
 			//загружаем текустуру из кэша
-			console.log("Ставим из кэша "+objects.mini_cards[id].name)
+			//console.log("Ставим из кэша "+objects.mini_cards[id].name)
 			objects.req_avatar.texture=PIXI.utils.TextureCache[pic_url];
 		}
 
@@ -2653,7 +2653,7 @@ var lb={
 		firebase.database().ref("players").orderByChild('rating').limitToLast(25).once('value').then((snapshot) => {
 
 			if (snapshot.val()===null) {
-			  console.log("Что-то не получилось получить данные о рейтингах");
+			  //console.log("Что-то не получилось получить данные о рейтингах");
 			}
 			else {
 
@@ -2798,7 +2798,7 @@ var cards_menu={
 				
 		
 		//определяем столы
-		console.log (`--------------------------------------------------`)
+		//console.log (`--------------------------------------------------`)
 		for (let uid in p_data) {
 			let opp_id = p_data[uid].opp_id;
 			let name1 = p_data[uid].name;
@@ -2810,13 +2810,13 @@ var cards_menu={
 				if (uid === p_data[opp_id].opp_id && tables[uid] === undefined) {
 					
 					tables[uid] = opp_id;					
-					console.log(`${name1} (Hid:${hid}) (${rating}) vs ${p_data[opp_id].name} (Hid:${p_data[opp_id].hidden}) (${p_data[opp_id].rating}) `)	
+					//console.log(`${name1} (Hid:${hid}) (${rating}) vs ${p_data[opp_id].name} (Hid:${p_data[opp_id].hidden}) (${p_data[opp_id].rating}) `)	
 					delete p_data[opp_id];				
 				}
 				
 			} else 
 			{				
-				console.log(`${name1} (${rating}) - одиночка `)					
+				//console.log(`${name1} (${rating}) - одиночка `)					
 			}			
 		}
 					
@@ -3050,7 +3050,7 @@ var cards_menu={
 				//получаем аватар и загружаем его
 				this.load_avatar2({uid:params.uid, tar_obj:objects.mini_cards[i].avatar});
 
-				console.log(`новая карточка ${i} ${params.uid}`)
+				//console.log(`новая карточка ${i} ${params.uid}`)
 				break;
 			}
 		}
@@ -3069,7 +3069,7 @@ var cards_menu={
 			if (PIXI.utils.TextureCache[pic_url]===undefined || PIXI.utils.TextureCache[pic_url].width===1) {
 
 				//загружаем аватарку игрока
-				console.log(`Загружаем url из интернети или кэша браузера ${pic_url}`)	
+				//console.log(`Загружаем url из интернети или кэша браузера ${pic_url}`)	
 				let loader=new PIXI.Loader();
 				loader.add("pic", pic_url,{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE, timeout: 5000});
 				loader.load(function(l,r) {	resolve(l.resources.pic.texture)});
@@ -3077,7 +3077,7 @@ var cards_menu={
 			else
 			{
 				//загружаем текустуру из кэша
-				console.log(`Текстура взята из кэша ${pic_url}`)	
+				//console.log(`Текстура взята из кэша ${pic_url}`)	
 				resolve (PIXI.utils.TextureCache[pic_url]);
 			}
 		})
@@ -3090,7 +3090,7 @@ var cards_menu={
 						
 			//проверяем есть ли у этого id назначенная pic_url
 			if (this.uid_pic_url_cache[uid] !== undefined) {
-				console.log(`Взяли pic_url из кэша ${this.uid_pic_url_cache[uid]}`);
+				//console.log(`Взяли pic_url из кэша ${this.uid_pic_url_cache[uid]}`);
 				resolve(this.uid_pic_url_cache[uid]);		
 				return;
 			}
@@ -3109,7 +3109,7 @@ var cards_menu={
 				else {
 					
 					//добавляем полученный pic_url в кэш
-					console.log(`Получили pic_url из ФБ ${pic_url}`)	
+					//console.log(`Получили pic_url из ФБ ${pic_url}`)	
 					this.uid_pic_url_cache[uid] = pic_url;
 					resolve (pic_url);
 				}
@@ -3446,7 +3446,7 @@ var auth = function() {
 					my_data.uid 	= "vk"+e.detail.data.id;
 					my_data.pic_url = e.detail.data.photo_100;
 
-					console.log(`Получены данные игрока от VB MINIAPP:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
+					//console.log(`Получены данные игрока от VB MINIAPP:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
 					help_obj.process_results();
 				}
 			},
@@ -3520,7 +3520,7 @@ var auth = function() {
 						my_data.uid 	= _player.getUniqueID().replace(/\//g, "Z");
 						my_data.pic_url = _player.getPhoto('medium');
 
-						console.log(`Получены данные игрока от яндекса:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
+						//console.log(`Получены данные игрока от яндекса:\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
 
 						//если личные данные не получены то берем первые несколько букв айди
 						if (my_data.name=="" || my_data.name=='')
@@ -3568,7 +3568,7 @@ var auth = function() {
 				//здесь создаем нового игрока в локальном хранилище
 				if (local_uid===undefined || local_uid===null) {
 
-					console.log("Создаем нового локального пользователя");
+					//console.log("Создаем нового локального пользователя");
 
 					let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Волк","Лиса","Мышь","Сова","Слон","Енот","Кролик","Бизон","Пантера"];
 					let rnd_num=Math.floor(Math.random()*rnd_names.length)
@@ -3584,7 +3584,7 @@ var auth = function() {
 				}
 				else
 				{
-					console.log(`Нашли айди в ЛХ (${local_uid}). Загружаем остальное из ФБ...`);
+					//console.log(`Нашли айди в ЛХ (${local_uid}). Загружаем остальное из ФБ...`);
 					
 					my_data.uid = local_uid;	
 					
@@ -3600,7 +3600,7 @@ var auth = function() {
 							if (repeat === 1)
 								alert('Какая-то ошибка');
 							
-							console.log(`Нашли данные в ЛХ но не нашли в ФБ, повторный локальный запрос...`);	
+							//console.log(`Нашли данные в ЛХ но не нашли в ФБ, повторный локальный запрос...`);	
 
 							
 							//повторно запускаем локальный поиск						
@@ -3635,7 +3635,7 @@ var auth = function() {
 
 
 				//отображаем итоговые данные
-				console.log(`Итоговые данные:\nПлатформа:${game_platform}\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
+				//console.log(`Итоговые данные:\nПлатформа:${game_platform}\nимя:${my_data.name}\nid:${my_data.uid}\npic_url:${my_data.pic_url}`);
 
 				//обновляем данные в файербейс так могло что-то поменяться
 				//firebase.database().ref("players/"+my_data.uid).set({name:my_data.name, pic_url: my_data.pic_url, tm:firebase.database.ServerValue.TIMESTAMP});
