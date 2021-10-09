@@ -1266,8 +1266,8 @@ var finish_game = {
 		if (game_platform==="VK") {
 
 			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
-			.then(data => //console.log(data.result))
-			.catch(error => //console.log(error));
+			.then(data => console.log(data.result))
+			.catch(error => console.log(error));
 		}
 
 	}
