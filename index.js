@@ -3552,7 +3552,7 @@ var auth = function() {
 
 			},
 
-			local: function() {
+			local: function(repeat = 0) {
 
 				game_platform="LOCAL";
 
@@ -3579,26 +3579,37 @@ var auth = function() {
 				else
 				{
 					console.log(`Нашли айди в ЛХ (${local_uid}). Загружаем остальное из ФБ...`);
-
-					my_data.uid = local_uid;
-					my_data.uid = local_uid;
-
+					
+					my_data.uid = local_uid;	
+					
 					//запрашиваем мою информацию из бд или заносим в бд новые данные если игрока нет в бд
-					firebase.database().ref("players/"+my_data.uid).once('value').then((snapshot) => {
-
+					firebase.database().ref("players/"+my_data.uid).once('value').then((snapshot) => {		
+									
 						var data=snapshot.val();
-						if (data!==null) {
+						
+						//если на сервере нет таких данных
+						if (data === null) {
+													
+							//если повтоно нету данных то выводим предупреждение
+							if (repeat === 1)
+								alert('Какая-то ошибка');
+							
+							console.log(`Нашли данные в ЛХ но не нашли в ФБ, повторный локальный запрос...`);	
+
+							
+							//повторно запускаем локальный поиск						
+							localStorage.clear();
+							help_obj.local(1);	
+								
+							
+						} else {						
+							
 							my_data.pic_url = data.pic_url;
 							my_data.name = data.name;
+							help_obj.process_results();
 						}
 
-					}).catch((error) => {
-
-
-					}).finally(()=>{
-
-						help_obj.process_results();
-					})
+					})	
 
 				}
 
@@ -3627,7 +3638,7 @@ var auth = function() {
 				resolve("ok");
 			},
 
-			 process : function () {
+			process : function () {
 
 				objects.id_loup.x=20*Math.sin(game_tick*8)+90;
 				objects.id_loup.y=20*Math.cos(game_tick*8)+110;
