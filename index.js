@@ -3572,7 +3572,7 @@ var auth = function() {
 
 					let rnd_names=["Бегемот","Жираф","Зебра","Тигр","Ослик","Мамонт","Волк","Лиса","Мышь","Сова","Слон","Енот","Кролик","Бизон","Пантера"];
 					let rnd_num=Math.floor(Math.random()*rnd_names.length)
-					let rand_uid=Math.floor(Math.random() * 99999);
+					let rand_uid=Math.floor(Math.random() * 9999999);
 
 					my_data.name 		=	rnd_names[rnd_num]+rand_uid;
 					my_data.rating 		= 	1400;
