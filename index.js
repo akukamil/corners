@@ -2775,7 +2775,7 @@ var cards_menu={
 				single[uid] = players[uid].name;						
 		}
 		
-		console.table(single);
+		//console.table(single);
 		
 		//убираем не играющие состояние
 		for (let uid in p_data)
