@@ -1879,11 +1879,12 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 	},
 
 	make_weights_board2: function(move) {
-
+		
+		let r_num = Math.random()*0.8 + 0.2;
 		let p=move/60+0.5;
 		for (let y=0;y<8;y++) {
 			for (let x=0;x<8;x++) {
-				this.bad_1[y][x]=Math.pow(x*x+y*y,p)+Math.pow((1-x)*(1-x)+y*y,p);
+				this.bad_1[y][x]=r_num * Math.pow(x*x+y*y,p)+ (1 - r_num ) * Math.pow((1-x)*(1-x)+y*y,p);
 			}
 		}
 
@@ -2054,7 +2055,6 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 		var max_0=-9999999;
 		var childs0=this.get_childs(inv_brd,1,1);
 		for (let c0=0;c0<childs0.length;c0++) {
-
 
 			var min_1=9999999;
 			var childs1=this.get_childs(childs0[c0][0],2,1);
