@@ -2374,6 +2374,10 @@ var req_dialog={
 
 		firebase.database().ref("players/"+uid).once('value').then((snapshot) => {
 
+			//не показываем диалог если мы в игре
+			if (state === 'p')
+				return;
+
 			player_data=snapshot.val();
 
 			//показываем окно запроса только если получили данные с файербейс
