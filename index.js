@@ -2284,7 +2284,7 @@ var process_new_message=function(msg) {
 		return;
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
-	if (msg.message==="ACCEPT"  && pending_player===msg.sender) {
+	if (msg.message==="ACCEPT"  && pending_player===msg.sender && state !== "p") {
 		//в данном случае я мастер и хожу вторым
 		opp_data.uid=msg.sender;
 		game_id=msg.game_id;
@@ -2373,7 +2373,8 @@ var receive_move = function(move_data) {
 
 var req_dialog={
 
-
+	_opp_data : {} ,
+	
 	show(uid) {
 
 		firebase.database().ref("players/"+uid).once('value').then((snapshot) => {
@@ -2395,13 +2396,13 @@ var req_dialog={
 				anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
 
 				//Отображаем  имя и фамилию в окне приглашения
-				opp_data.name=player_data.name;
+				req_dialog._opp_data.name=player_data.name;
 				make_text(objects.req_name,player_data.name,200);
 				objects.req_rating.text=player_data.rating;
-				opp_data.rating=player_data.rating;
+				req_dialog._opp_data.rating=player_data.rating;
 
 				//throw "cut_string erroor";
-				opp_data.uid=uid;
+				req_dialog._opp_data.uid=uid;
 
 				//загружаем фото
 				this.load_photo(player_data.pic_url);
@@ -2450,8 +2451,8 @@ var req_dialog={
 
 		any_dialog_active=0;
 		
-		
-		
+		//устанавливаем окончательные данные оппонента
+		opp_data=req_dialog._opp_data;	
 
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
 
@@ -2461,7 +2462,6 @@ var req_dialog={
 
 		//заполняем карточку оппонента
 		make_text(objects.opp_card_name,opp_data.name,150);
-
 		objects.opp_card_rating.text=objects.req_rating.text;
 		objects.opp_card_avatar.texture=objects.req_avatar.texture;
 
@@ -2718,7 +2718,8 @@ var lb={
 }
 
 var cards_menu={
-
+	
+	_opp_data : {},
 	uid_pic_url_cache : {},
 	
 	cards_pos: [
@@ -3220,21 +3221,20 @@ var cards_menu={
 		anim.add_pos({obj:objects.invite_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-150,'sy'],	speed:0.04});
 
 
-		opp_data.rating=objects.mini_cards[cart_id].rating;
-		opp_data.uid=objects.mini_cards[cart_id].uid;
-		opp_data.name=objects.mini_cards[cart_id].name;
+		//копируем предварительные данные
+		cards_menu._opp_data = {uid:objects.mini_cards[cart_id].uid,name:objects.mini_cards[cart_id].name,rating:objects.mini_cards[cart_id].rating};
 
 
-		let invite_available = 	opp_data.uid!==my_data.uid;
+		let invite_available = 	cards_menu._opp_data.uid !== my_data.uid;
 		invite_available=invite_available && (objects.mini_cards[cart_id].state==="o" || objects.mini_cards[cart_id].state==="b");
-		invite_available=invite_available || opp_data.uid==="AI";
+		invite_available=invite_available || cards_menu._opp_data.uid==="AI";
 
 		//показыаем кнопку приглашения только если это допустимо
 		objects.invite_button.visible=invite_available;
 
-
+		//заполняем карточу приглашения данными
 		objects.invite_avatar.texture=objects.mini_cards[cart_id].avatar.texture;
-		make_text(objects.invite_name,opp_data.name,230);
+		make_text(objects.invite_name,cards_menu._opp_data.name,230);
 		objects.invite_rating.text=objects.mini_cards[cart_id].rating_text.text;
 
 	},
@@ -3293,32 +3293,33 @@ var cards_menu={
 			return
 		};
 
-		if (opp_data.uid==="AI")
+		if (cards_menu._opp_data.uid==="AI")
 		{
 			this.close();
+			
+			//заполняем данные бот-оппонента
+			make_text(objects.opp_card_name,cards_menu._opp_data.name,160);
+			objects.opp_card_rating.text='1400';
+			objects.opp_card_avatar.texture=objects.invite_avatar.texture;	
+			
 			bot_game.start();
 		}
 		else
 		{
 			game_res.resources.click.sound.play();
 			objects.invite_button.texture=game_res.resources.wait_response.texture;
-			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"INV",tm:Date.now()});
-			pending_player=opp_data.uid;
+			firebase.database().ref("inbox/"+cards_menu._opp_data.uid).set({sender:my_data.uid,message:"INV",tm:Date.now()});
+			pending_player=cards_menu._opp_data.uid;
 			any_dialog_active=1
 
 		}
-
-
-		//сразу заполняем карточку оппонента
-		make_text(objects.opp_card_name,opp_data.name,160);
-		objects.opp_card_rating.text=objects.invite_rating.text;
-		objects.opp_card_avatar.texture=objects.invite_avatar.texture;
 
 	},
 
 	rejected_invite: function() {
 
 		pending_player="";
+		cards_menu._opp_data={};
 		this.hide_invite_dialog();
 		big_message.show("Соперник отказался от игры",'(((');
 
@@ -3326,11 +3327,18 @@ var cards_menu={
 
 	accepted_invite: function() {
 
-
-
 		//убираем запрос на игру если он открыт
 		req_dialog.hide();
+		
+		//устанаваем окончательные данные оппонента
+		opp_data=cards_menu._opp_data;
+		
+		//сразу карточку оппонента
+		make_text(objects.opp_card_name,opp_data.name,160);
+		objects.opp_card_rating.text=opp_data.rating;
+		objects.opp_card_avatar.texture=objects.invite_avatar.texture;		
 
+		//закрываем меню и начинаем игру
 		cards_menu.close();
 		game.activate("master");
 	},
@@ -3942,7 +3950,6 @@ function main_loop() {
 
 	game_tick+=0.016666666;
 	anim.process();
-    //app.render(app.stage);
 	requestAnimationFrame(main_loop);
 }
 
