@@ -185,6 +185,11 @@
 			newRow.insertCell(3).appendChild(document.createTextNode(p[3]));
 			newRow.insertCell(4).appendChild(document.createTextNode(p[5]));
 			
+			//проверяем на валидность рейтинга
+			if (p[2] === undefined) {
+				firebase.database().ref("players/"+p[0]).remove();
+				total_removed++;
+			}
 		
 			
 			let  days_without_visit=(cur_ts-p[4])/86400000;
