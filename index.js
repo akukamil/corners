@@ -1128,7 +1128,8 @@ var finish_game = {
 			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 
 			//записываем результат в базу данных
-			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
+			let duration = ~~((Date.now() - game.start_time)*0.001);
+			firebase.database().ref("finishes").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result,'fin_type':res,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});
 
 			//увеличиваем количество игр
 			my_data.games++;
@@ -1287,6 +1288,7 @@ var game={
 
 	move_time_left: 30,
 	move_timer:0,
+	start_time:0,
 
 	activate: function(role) {
 
@@ -1305,6 +1307,9 @@ var game={
 		//если открыт лидерборд то закрываем его
 		if (objects.lb_1_cont.visible===true)
 			lb.close();
+		
+		//фиксируем время начала игры
+		game.start_time = Date.now();
 
 		//ни я ни оппонент пока не подтвердили игру
 		me_conf_play=0;
@@ -2686,9 +2691,7 @@ var lb={
 
 				//загружаем тройку лучших
 				for (let i=0;i<3;i++) {
-					let fname = cut_string(players_array[i][0],objects['lb_1_name'].fontSize,180);
-
-					objects['lb_'+(i+1)+'_name'].text=fname;
+					make_text(objects['lb_'+(i+1)+'_name'],players_array[i][0],180);					
 					objects['lb_'+(i+1)+'_rating'].text=players_array[i][1];
 					loader.add('leaders_avatar_'+i, players_array[i][2],{loadType: PIXI.loaders.Resource.LOAD_TYPE.IMAGE});
 				};
