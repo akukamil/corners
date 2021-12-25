@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+
+	<meta name="http-equiv" content="Content-type: text/html; charset=windows-1251">
+
+	<script src="https://www.gstatic.com/firebasejs/8.3.0/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.3.0/firebase-analytics.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-database.js"></script>
+
+<style>
+
+	table {
+	  font-family: arial, sans-serif;
+	  border-collapse: collapse;
+	  width: 100%;
+	  margin: 0px 0px 20px;
+	}
+
+	td, th {
+	  border: 1px solid #dddddd;
+	  text-align: left;
+	  height: 4px;
+	  width: 50px;
+	  padding: 8px;  
+	}
+
+</style>
+
+
+<table id="results_table">
+  <tr>
+	<th>player1</th>
+	<th>player2</th>
+	<th>Result</th>
+	<th>time</th>
+  </tr>
+</table>
+
+
+
+<script>
+
+	var online_array=[];
+	var online_table = document.getElementById('online_table');
+	var players_table = document.getElementById('players_table');
+	
+
+
+	function get_state_tint(s) {
+		
+		switch(s) {
+			
+			case "o":
+				return "rgb(85,153,85)";					
+			break;
+			
+			case "b":
+				return "rgb(55,111,55)";
+			break;
+			
+			case "p":
+				return "rgb(52,68,114)";
+			break;	
+			case "h":
+				return "rgb(255,255,255)";
+			break;	
+		}		
+	}
+		
+
+
+
+	var firebaseConfig = {
+		apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
+		authDomain: "m-game-27669.firebaseapp.com",
+		projectId: "m-game-27669",
+		storageBucket: "m-game-27669.appspot.com",
+		messagingSenderId: "571786945826",
+		appId: "1:571786945826:web:7e8bd49c963bbea117317b",
+		measurementId: "G-XFJD615P3L"
+	};
+	firebase.initializeApp(firebaseConfig);
+	firebase.analytics();
+	
+	
+		
+	
+	//загружаем данные результатов игр
+	firebase.database().ref("finishes").orderByChild('ts').limitToLast(100).once('value',(snapshot) => {
+	
+		results_table.innerHTML='';
+		var data=snapshot.val();
+		data = Object.keys(data).map((key) => [key, data[key].player1,  data[key].player2,   data[key].res,   data[key].duration,   data[key].fin_type,   new Date(data[key].ts).toLocaleString(),  data[key].ts]);
+				
+		data.sort(function(a, b) {	return b[7] - a[7];});
+		
+		data.forEach(p=>{
+
+			var newRow = results_table.insertRow();
+			let p_0=newRow.insertCell(0);
+			let p_1=newRow.insertCell(1);
+			p_0.appendChild(document.createTextNode(p[1]));
+			p_1.appendChild(document.createTextNode(p[2]));
+			if (p[3]===1)	p_0.style.backgroundColor = "green";
+			if (p[3]===-1)	p_1.style.backgroundColor = "green";  
+			
+			newRow.insertCell(2).appendChild(document.createTextNode(p[4]));			
+			newRow.insertCell(3).appendChild(document.createTextNode(p[5]));
+			newRow.insertCell(4).appendChild(document.createTextNode(p[6]));
+			newRow.insertCell(5).appendChild(document.createTextNode(p[0]));
+			
+		})
+		
+		
+		
+	});
+		
+</script>
+
+
+
+</html>
