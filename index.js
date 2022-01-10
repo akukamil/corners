@@ -1112,7 +1112,10 @@ var finish_game = {
 
 			//записываем результат в базу данных
 			let duration = ~~((Date.now() - game.start_time)*0.001);
-			firebase.database().ref("finishes").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result,'fin_type':res,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});
+			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
+			if (duration <40) {
+			firebase.database().ref("finishes2").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result,'fin_type':res,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});	
+			}
 
 			//увеличиваем количество игр
 			my_data.games++;
