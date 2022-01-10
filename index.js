@@ -917,17 +917,6 @@ var calc_my_new_rating=function(res)	{
 		return Math.round(my_data.rating + 16 * (0 - Ea));
 };
 
-var calc_oppnent_new_rating=function(res)	{
-
-	var Ea = 1 / (1 + Math.pow(10, ((my_data.rating-opp_data.rating)/400)));
-	if (res===1)
-		return Math.round(opp_data.rating + 16 * (1 - Ea));
-	if (res===0)
-		return Math.round(opp_data.rating + 16 * (0.5 - Ea));
-	if (res===-1)
-		return Math.round(opp_data.rating + 16 * (0 - Ea));
-};
-
 var cut_string = function(s,f_size, max_width) {
 
 	let sum_v=0;
@@ -1109,8 +1098,6 @@ var finish_game = {
 
 		}
 
-
-
 		if (game_result!==999) {
 
 			//обновляем мой рейтинг в базе и на карточке
@@ -1122,10 +1109,6 @@ var finish_game = {
 			game_result_text2="Рейтинг: "+old_rating+" > "+my_data.rating;
 			objects.my_card_rating.text=my_data.rating;
 			//console.log(old_rating,my_data.rating)
-
-			//также устанавливаем новый рейтинг оппонента так как он мог выйти из игры
-			let new_opponent_rating=calc_oppnent_new_rating(-1*game_result);
-			firebase.database().ref("players/"+[opp_data.uid]+"/rating").set(new_opponent_rating);
 
 			//записываем результат в базу данных
 			let duration = ~~((Date.now() - game.start_time)*0.001);
@@ -1337,6 +1320,13 @@ var game={
 
 		//включаем взаимодейтсвие с доской
 		objects.board.pointerdown=game.mouse_down_on_board;
+		
+		
+		//вычиcляем рейтинг при проигрыше и устанавливаем его в базу
+		let lose_rating = calc_my_new_rating(-1);
+		if (lose_rating >100 && lose_rating<9999)
+			firebase.database().ref("players/"+my_data.uid+"/rating").set(lose_rating);
+
 
 		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
 		set_state({state : 'p'});
