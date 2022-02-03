@@ -1128,6 +1128,11 @@ var finish_game = {
 				game_res.resources.lose.sound.play();
 			else
 				game_res.resources.win.sound.play();
+		} else {
+			
+			//восстанавливаем проигрышный рейтинг
+			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
+			
 		}
 
 
