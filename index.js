@@ -1212,10 +1212,16 @@ var finish_game = {
 		if (game_result===1) {
 
 			//если мы играем в рамках соц.сети то обновляем рейтинг и на карточке тоже
-			my_data.rating++;
-			game_result_text2="Рейтинг: +1";
-			objects.my_card_rating.text=my_data.rating;
-			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
+			if (my_data.rating < 2000) {
+				
+				my_data.rating++;
+				game_result_text2="Рейтинг: +1";	
+				objects.my_card_rating.text=my_data.rating;
+				firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
+				
+			} else {				
+				game_result_text2=")))";				
+			}
 
 
 			game_res.resources.win.sound.play();
