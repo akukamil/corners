@@ -1,5 +1,5 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}, state="",my_role="", game_tick=0, who_play_next=0, my_checkers=1, selected_checker=0, move=0, game_id=0;
+var app, game_res, game, objects={}, state="",my_role="", game_tick=0, my_checkers=1, selected_checker=0, move=0, game_id=0, my_turn=0;
 var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state=0, game_platform="",activity_on=1, hidden_state_start = 0;
 g_board=[];
 var players="", pending_player="",tm={};
@@ -819,7 +819,7 @@ var bot_game={
 		objects.cur_move_text.visible=true;
 
 		//очереди
-		who_play_next=1;
+		my_turn=1;
 
 		//включаем взаимодейтсвие с доской
 		objects.board.interactive=true;
@@ -890,7 +890,7 @@ var bot_game={
 			//перемещаем табло времени
 			objects.timer_cont.x=620-objects.timer_cont.x;
 
-			who_play_next=1;
+			my_turn=1;
 			let board_state=board_func.get_board_state(g_board, move);
 			//проверяем не закончена ли игра
 			if (board_state===1 || board_state===2 || board_state===3 || board_state===4 || board_state===9)  {
@@ -1296,11 +1296,11 @@ var game={
 		my_role=role;
 		if (my_role==="master") {
 			objects.timer_cont.x=610;
-			who_play_next=2;
+			my_turn=0;
 		} else {
 
 			objects.timer_cont.x=10;
-			who_play_next=1;
+			my_turn=1;
 		}
 
 		//если открыт лидерборд то закрываем его
@@ -1362,23 +1362,20 @@ var game={
 
 		this.move_time_left--;
 
-		if (this.move_time_left<0 && who_play_next===my_checkers)	{
+		if (this.move_time_left<0 && my_turn === 1)	{
 			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:14}});
 			finish_game.online(13);
 			return;
 		}
 
-
-		if (this.move_time_left<-5) {
-			if (who_play_next===(3-my_checkers))	{
-				firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
-				finish_game.online(14);
-				return;
-			}
+		if (this.move_time_left<-5 && my_turn === 0) {
+			//firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
+			finish_game.online(14);
+			return;
 		}
 
 		//подсвечиваем красным если осталость мало времени
-		if (this.move_time_left===5) {
+		if (this.move_time_left === 5) {
 			objects.timer_text.tint=0xff0000;
 			game_res.resources.clock.sound.play();
 		}
@@ -1402,7 +1399,7 @@ var game={
 			return;
 
 		//проверяем что моя очередь
-		if (who_play_next!==my_checkers) {
+		if (my_turn === 0) {
 			add_message("не твоя очередь");
 			return;
 		}
@@ -1505,21 +1502,15 @@ var game={
 			board_func.start_gentle_move(move_data,moves,function(){});
 
 			//переворачиваем данные о ходе так как оппоненту они должны попасть как ход шашками №2
-			//console.log("------отправка--------");
-			//console.log(JSON.parse(JSON.stringify(move_data)));
-			//console.log(JSON.parse(JSON.stringify(g_board)));
-
 			move_data.x1=7-move_data.x1;
 			move_data.y1=7-move_data.y1;
 			move_data.x2=7-move_data.x2;
 			move_data.y2=7-move_data.y2;
 
 			//отправляем ход сопернику
-			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",tm:Date.now(),data:{...move_data,board_state:board_state}});
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",tm:Date.now(),data:{...move_data,board_state:board_state}},
+			function(error){if(error){add_message("Ошибка при отправке хода. Сообщите админу.")}});
 		}
-
-
-
 
 		//проверяем не закончена ли игра
 		if (board_state!==0)
@@ -1542,7 +1533,7 @@ var game={
 		//перезапускаем таймер хода и кто ходит
 		this.move_time_left=30;
 		objects.timer_text.tint=0xffffff;
-		who_play_next=3-who_play_next;
+		my_turn = 0;
 
 		//перемещаем табло времени
 		objects.timer_cont.x=620-objects.timer_cont.x;
@@ -2362,7 +2353,6 @@ var receive_move = function(move_data) {
 	//считаем последовательность ходов
 	let moves=board_func.get_moves_path(move_data);
 
-
 	//плавно перемещаем шашку
 	board_func.start_gentle_move(move_data,moves,function(){});
 
@@ -2377,7 +2367,7 @@ var receive_move = function(move_data) {
 	objects.timer_text.tint=0xffffff;
 
 	//обозначаем кто ходит
-	who_play_next=3-who_play_next;
+	my_turn = 1;
 
 	//обозначаем что соперник сделал ход и следовательно подтвердил согласие на игру
 	opp_conf_play=1;
@@ -3743,6 +3733,7 @@ function init_game_env() {
 	//инициируем файербейс
 	if (firebase.apps.length===0) {
 		firebase.initializeApp({
+			
 			apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
 			authDomain: "m-game-27669.firebaseapp.com",
 			databaseURL: "https://m-game-27669-default-rtdb.firebaseio.com",
@@ -3750,7 +3741,8 @@ function init_game_env() {
 			storageBucket: "m-game-27669.appspot.com",
 			messagingSenderId: "571786945826",
 			appId: "1:571786945826:web:7e8bd49c963bbea117317b",
-			measurementId: "G-XFJD615P3L"
+			measurementId: "G-XFJD615P3L"			
+			
 		});
 	}
 
