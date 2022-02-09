@@ -1,6 +1,6 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, objects={}, state="",my_role="", game_tick=0, my_checkers=1, selected_checker=0, move=0, game_id=0, my_turn=0;
-var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state=0, game_platform="",activity_on=1, hidden_state_start = 0;
+var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state=0, game_platform="",activity_on=1, hidden_state_start = 0, room_name = 'states2';
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={opp_id : ''},opp_data={};
@@ -1602,14 +1602,14 @@ var keep_alive= function() {
 		//убираем из списка если прошло время с момента перехода в скрытое состояние		
 		let cur_ts = Date.now();	
 		let sec_passed = (cur_ts - hidden_state_start)/1000;		
-		if ( sec_passed > 100 )	firebase.database().ref("states/"+my_data.uid).remove();
+		if ( sec_passed > 100 )	firebase.database().ref(room_name+"/"+my_data.uid).remove();
 		return;		
 	}
 
 
 	firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
 	firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();
-	firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
+	firebase.database().ref(room_name+"/"+my_data.uid).onDisconnect().remove();
 
 	set_state({});
 }
@@ -2759,9 +2759,15 @@ var cards_menu={
 
 		//включаем сколько игроков онлайн
 		objects.players_online.visible=true;
-
+		
+		//номер комнаты
+		if (my_data.rating > 1450)
+			room_name= 'states2';
+		else
+			room_name= 'states';
+		
 		//подписываемся на изменения состояний пользователей
-		firebase.database().ref("states") .on('value', (snapshot) => {cards_menu.players_list_updated(snapshot.val());});
+		firebase.database().ref(room_name) .on('value', (snapshot) => {cards_menu.players_list_updated(snapshot.val());});
 
 	},
 
@@ -2840,7 +2846,8 @@ var cards_menu={
 		for (let uid in players)
 			if (players[uid].hidden===0)
 				num++
-		objects.players_online.text='Игроков онлайн: ' + num;
+			
+		objects.players_online.text='Игроков онлайн: ' + num + '   ( комната: ' +room_name +' )';
 		
 		
 		//считаем сколько одиночных игроков и сколько столов
@@ -3262,7 +3269,7 @@ var cards_menu={
 		objects.players_online.visible=false;
 
 		//подписываемся на изменения состояний пользователей
-		firebase.database().ref("states").off();
+		firebase.database().ref(room_name).off();
 
 	},
 
@@ -3706,7 +3713,7 @@ function set_state(params) {
 	if (opp_data.uid!==undefined)
 		small_opp_id=opp_data.uid.substring(0,10);
 
-	firebase.database().ref("states/"+my_data.uid).set({state:state, name:my_data.name, rating : my_data.rating, hidden:h_state, opp_id : small_opp_id});
+	firebase.database().ref(room_name+"/"+my_data.uid).set({state:state, name:my_data.name, rating : my_data.rating, hidden:h_state, opp_id : small_opp_id});
 
 }
 
@@ -3865,7 +3872,7 @@ function init_game_env() {
 
 		//отключение от игры и удаление не нужного
 		firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();
-		firebase.database().ref("states/"+my_data.uid).onDisconnect().remove();
+		firebase.database().ref(room_name+"/"+my_data.uid).onDisconnect().remove();
 
 		//это событие когда меняется видимость приложения
 		document.addEventListener("visibilitychange", vis_change);
