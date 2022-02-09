@@ -2766,6 +2766,8 @@ var cards_menu={
 		else
 			room_name= 'states';
 		
+		set_state({});
+		
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref(room_name) .on('value', (snapshot) => {cards_menu.players_list_updated(snapshot.val());});
 
