@@ -2760,7 +2760,11 @@ var cards_menu={
 		//включаем сколько игроков онлайн
 		objects.players_online.visible=true;
 		
-
+		//номер комнаты
+		if (my_data.rating > 1450)
+			room_name= 'states2';
+		else
+			room_name= 'states';
 		
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref(room_name) .on('value', (snapshot) => {cards_menu.players_list_updated(snapshot.val());});
