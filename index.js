@@ -2760,11 +2760,7 @@ var cards_menu={
 		//включаем сколько игроков онлайн
 		objects.players_online.visible=true;
 		
-		//номер комнаты
-		if (my_data.rating > 1450)
-			room_name= 'states2';
-		else
-			room_name= 'states';
+
 		
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref(room_name) .on('value', (snapshot) => {cards_menu.players_list_updated(snapshot.val());});
@@ -3851,6 +3847,12 @@ function init_game_env() {
 		data===null ?
 			my_data.games = 0 :
 			my_data.games = data.games || 0;
+			
+		//номер комнаты
+		if (my_data.rating > 1450)
+			room_name= 'states2';
+		else
+			room_name= 'states';
 
 		//устанавливаем рейтинг в попап
 		objects.id_rating.text=objects.my_card_rating.text=my_data.rating;
