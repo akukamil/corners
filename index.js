@@ -1,5 +1,5 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}, state="",my_role="", game_tick=0, my_checkers=1, selected_checker=0, move=0, game_id=0, my_turn=0;
+var app, game_res, game, objects={}, state="",my_role="", game_tick=0, my_checkers=1, selected_checker=0, move=0, game_id=0, my_turn=0, connected = 1;
 var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state=0, game_platform="",activity_on=1, hidden_state_start = 0, room_name = 'states2';
 g_board=[];
 var players="", pending_player="",tm={};
@@ -1040,7 +1040,8 @@ var finish_game = {
 			break;
 
 			case 12:
-
+				game_result_text="Пропала связь. Используйте надежное интернет соединение!"; //возможно пропала связь
+				game_result=-1;
 			break;
 
 			case 13:
@@ -1313,6 +1314,7 @@ var game={
 	move_time_left: 30,
 	move_timer:0,
 	start_time:0,
+	disconnect_time:0,
 
 	activate: function(role) {
 
@@ -1334,10 +1336,12 @@ var game={
 		
 		//фиксируем время начала игры
 		game.start_time = Date.now();
+		game.disconnect_time = 0;
 
 		//ни я ни оппонент пока не подтвердили игру
 		me_conf_play=0;
 		opp_conf_play=0;
+		
 
 		game_res.resources.note.sound.play();
 
@@ -1399,6 +1403,16 @@ var game={
 			return;
 		}
 
+
+		if (connected === 0) {
+			game.disconnect_time ++;
+			if (game.disconnect_time > 5) {
+				finish_game.online(12);
+				return;				
+			}
+		}
+		
+		
 		//подсвечиваем красным если осталость мало времени
 		if (this.move_time_left === 5) {
 			objects.timer_text.tint=0xff0000;
@@ -3921,6 +3935,17 @@ function init_game_env() {
 		alert(err.stack + " " + err);
 	});
 
+
+
+	//контроль за присутсвием
+	var connected_control = firebase.database().ref(".info/connected");
+	connected_control.on("value", (snap) => {
+	  if (snap.val() === true) {
+		connected = 1;
+	  } else {
+		connected = 0;
+	  }
+	});
 
 	//устанавливаем начальный вид шашек
 	board_func.tex_1=game_res.resources.chk_quad_1_tex.texture;
