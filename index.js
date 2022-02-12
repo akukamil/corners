@@ -1519,6 +1519,7 @@ var game={
 	process_my_move : function (move_data, moves) {
 
 		//обновляем счетчик хода
+		this.disconnect_time = 0;
 		move++;
 		objects.cur_move_text.text="Ход: "+move;
 
