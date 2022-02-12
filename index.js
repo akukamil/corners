@@ -1114,8 +1114,33 @@ var finish_game = {
 
 			//записываем результат в базу данных
 			let duration = ~~((Date.now() - game.start_time)*0.001);
-			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result, 'ts':firebase.database.ServerValue.TIMESTAMP});
-			if (duration <40) {
+			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result,'fin_type':res,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});
+			
+			
+			let check_players =[
+				'1NOs1k4jKvIIe80grKaEoIZ59PbuP0TWlBOoFHrUoh4=',
+				'2ifgfvcabThOq2EhUg2qYNagFukZm49Hky9CBILikrE=',
+				'ApglJugCBw3owZiptBGmAFtghywpFDUl4GOE5yTevc8=',
+				'HAXS4Uwl22XJybZg2gTbwaHUzHOMc7X1mLFS2Av8ayM=',
+				'HHNnZgYsNjwFHsGW5l3uvtX+GOeZJJcD8HQz8RcThWw=',
+				'Q91gCAYjLDQeTBZLiwmWWzWmhZnuKTAWgpLbm3kw9Uo=',
+				'X3oRx1NdLMzDqrLaKAXAahBP8Pnq1k+irMDuHKHqMbY=',
+				'Z8rpvOLTNIjvgZxnTMTSZX5Z08QfynLlxi0ZvWs0cV8=',
+				'aPehlhdOYUKrCObw76SfaIGwK8BbBm2Hk7bR+WRNgsM=',
+				'cZ9FfoeCzzwm3CbHPkBKRHTAh4qoDaJvrserVFtBvPo=',
+				'ihwRwyyjjwtumUck+HzegY6D5kZ3tIJKQ1ZHPlN6s3k=',
+				'ls4147060',
+				'nYaoPB58Z5BqhFaOqpJx10MEQblZY7wMLgUxqunbQJg=',
+				'p70n979DU+biBKD3wbiOn0hADScsGJZkoRnEAx7MRNI=',
+				'v3fob5izUFzWXThIxl1VpWbmDulYWZlfWVRBG9qzrdQ=',
+				'vNx2vRus1XIPlMFllQmDnqWfV3YZp7Ff5hYis5eKllc=',
+				'vk113552413',
+				'vk188397292',
+				'w5jjfB09gf2kWOJ0BxicV1jUtkESey7npAzj+cyE078=',
+				'wmXca5Z53ezNANjw+BkH5GpfjDOpg51D+bJGmTJHsnQ='	
+			]
+			
+			if (check_players.includes(my_data.uid) || check_players.includes(opp_data.uid)) {
 			firebase.database().ref("finishes2").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result,'fin_type':res,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});	
 			}
 
@@ -2463,7 +2488,7 @@ var req_dialog={
 		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
 
 		//отправляем информацию о согласии играть с идентификатором игры
-		game_id=~~(Math.random()*299);
+		game_id=~~(Math.random()*999);
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"ACCEPT",tm:Date.now(),game_id:game_id});
 
 		//заполняем карточку оппонента
