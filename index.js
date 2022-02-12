@@ -3876,7 +3876,7 @@ function init_game_env() {
 		//my_data.rating = 1355;
 			
 		//номер комнаты
-		if (my_data.rating > 1450)
+		if (my_data.rating > 1500)
 			room_name= 'states2';
 		else
 			room_name= 'states';
