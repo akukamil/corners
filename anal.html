@@ -121,8 +121,7 @@
 			</div>
 
 			<div class="button_with_text">
-				<button class="button">--</button>
-				<textarea class="textarea">--</textarea>
+				<button class="button" onclick="delete_old_players()">Удалить старых игроков и очистить ошибки</button>
 			</div>
 
 		</div>
@@ -208,6 +207,43 @@ function delete_game_results(ref) {
 }
 
 
+//удалить старых игроков
+async function delete_old_players() {	
+
+
+	document.body.innerHTML = "";
+
+	let snapshot = await firebase.database().ref("players").once("value");
+	let total_removed=0;
+	let cur_ts=Date.now();
+	var data = snapshot.val();
+	data = Object.keys(data).map((key) => [key, data[key].rating, data[key].tm]);
+	
+	data.forEach(p=>{
+	
+	
+		//проверяем на валидность рейтинга
+		if (p[1] === undefined) {
+			firebase.database().ref("players/"+p[0]).remove();
+			total_removed++;
+		}
+	
+		
+		let  days_without_visit=(cur_ts-p[2])/86400000;
+		let days_without_allowed=10+35*(Math.max(Math.min(p[1],1800),1400)-1400)/400;
+		if (days_without_visit>days_without_allowed) {
+			firebase.database().ref("players/"+p[0]).remove();
+			total_removed++;
+		}		
+		
+	})
+	alert("Удалено игроков: "+total_removed);
+
+
+}
+
+
+
 //ИГРЫ
 async function get_games(ref) {
 	
@@ -221,6 +257,12 @@ async function get_games(ref) {
 	document.body.innerHTML = "";
 	let snapshot = await firebase.database().ref(ref).orderByChild("ts").limitToFirst(max_games).once("value");
 	var data = snapshot.val();
+	
+	if (data === null) {
+	
+		alert("Нету данных");
+		return;
+	}
 	
 	//меняем дату на нормальный вид
 	Object.keys(data).forEach(k=>{data[k].ts = new Date(data[k].ts).toLocaleString()});
