@@ -46,7 +46,7 @@
 		height: 100%;
 		display: flex;
 		color:green;
-		font-size: 20px;
+		font-size: 30px;
 	}
 	
 	.textarea {
@@ -402,8 +402,10 @@ var my_table = {
 		my_table.table_element.style.width='100%';
 		my_table.table_element.style.borderCollapse='collapse';
 		
+		
 		this.data.forEach(r => {
 			var row = my_table.table_element.insertRow(-1);		
+			row.style.fontSize = '20px'
 			r.forEach((c, i) => {		
 
 				let param_name = this.header[i];
@@ -426,6 +428,7 @@ var my_table = {
 
 		
 		let top_row = my_table.table_element.insertRow(0);
+		top_row.style.fontSize = '30px'
 		
 		this.header.forEach(function(param) {	
 		
