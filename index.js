@@ -1,13 +1,12 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}, state="",my_role="", game_tick=0, my_checkers=1, selected_checker=0, move=0, game_id=0, my_turn=0, connected = 1;
-var me_conf_play=0,opp_conf_play=0, any_dialog_active=0, min_move_amount=0, h_state=0, game_platform="",activity_on=1, hidden_state_start = 0, room_name = 'states2';
+var app, game_res, game, objects={}, state="",my_role="", game_tick=0, my_checkers=1, made_moves=0, game_id=0, my_turn=0, connected = 1;
+var any_dialog_active=0, min_move_amount=0, h_state=0, game_platform="",activity_on=1, hidden_state_start = 0, room_name = 'states2';
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={opp_id : ''},opp_data={};
 var g_process=function(){};
-
-var load_list=[{class:"block",name:"rec_sticker_area",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=22;objects[obj_name].sy=objects[obj_name].y=260;objects[obj_name].width=148.235286458333;objects[obj_name].height=148.235384114583;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"board",code0:"objects[obj_name].x=190;objects[obj_name].y=10;objects[obj_name].visible=false;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){game.mouse_down_on_board()};",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"desktop",code0:"objects[obj_name].x=-10;objects[obj_name].y=-10;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"play_button",code0:"objects[obj_name].x=15;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.play_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"sprite",name:"lb_button",code0:"objects[obj_name].x=175;objects[obj_name].y=10;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.lb_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"preferences_button",code0:"objects[obj_name].x=495;objects[obj_name].y=10;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.pref_button_down()};objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"cont",name:"main_buttons_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=75;objects[obj_name].sy=objects[obj_name].y=240;",code1:"objects[obj_name].addChild(objects.play_button);objects[obj_name].addChild(objects.lb_button);objects[obj_name].addChild(objects.rules_button);objects[obj_name].addChild(objects.preferences_button);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"rules_button",code0:"objects[obj_name].x=330;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.rules_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"image",name:"lb_bcg",image_format:"png"},{class:"sprite",name:"send_sticker_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerdown=function(){stickers.show_panel()};objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"sprite",name:"giveup_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.show()};objects[obj_name].x=10;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"cont",name:"game_buttons_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].ready=true;objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=610;objects[obj_name].sy=objects[obj_name].y=310;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.send_sticker_button);objects[obj_name].addChild(objects.giveup_button);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"message_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=20;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"message_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 20,align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=150;objects[obj_name].x=100;objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",code1:""},{class:"cont",name:"message_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=220;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.message_bcg);objects[obj_name].addChild(objects.message_text);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"timer_bcg",code0:"objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"timer_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=90;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"cont",name:"timer_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].show=function(){this.childs.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.timer_bcg);objects[obj_name].addChild(objects.timer_text);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"checkers",size:"24",code0:"var num=n;objects[obj_name][num]=new PIXI.Sprite();objects[obj_name][num].visible=false;",code1:"var num=n;objects[obj_name][num].texture=game_res.resources.chk_quad_1_tex.texture;app.stage.addChild(objects[obj_name][num]);"},{class:"sprite",name:"selected_frame",code0:"objects[obj_name].visible=false;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"giveup_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"giveup_no",code0:"objects[obj_name].x=150;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.hide()};",code1:"objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"cont",name:"giveup_dialog",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=250;objects[obj_name].sy=objects[obj_name].y=270;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.giveup_bcg);objects[obj_name].addChild(objects.giveup_yes);objects[obj_name].addChild(objects.giveup_no);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"giveup_yes",code0:"objects[obj_name].x=30;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.give_up()};",code1:"objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"block",name:"cur_move_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0,0.5);objects[obj_name].x=32;objects[obj_name].y=430;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"stop_bot_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].visible=false;objects[obj_name].pointerdown=function(){bot_game.stop()};objects[obj_name].x=objects[obj_name].sx=620;objects[obj_name].y=objects[obj_name].sy=370;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"sprite",name:"stickers_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"sticker_0",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_0'].texture;",code1:""},{class:"block",name:"sticker_1",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_1'].texture;",code1:""},{class:"block",name:"sticker_2",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_2'].texture;",code1:""},{class:"block",name:"sticker_3",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_3'].texture;",code1:""},{class:"block",name:"sticker_4",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_4'].texture;",code1:""},{class:"block",name:"sticker_5",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_5'].texture;",code1:""},{class:"block",name:"sticker_6",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_6'].texture;",code1:""},{class:"block",name:"sticker_7",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_7'].texture;",code1:""},{class:"block",name:"sticker_8",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_8'].texture;",code1:""},{class:"block",name:"sticker_9",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_9'].texture;",code1:""},{class:"block",name:"sticker_10",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_10'].texture;",code1:""},{class:"block",name:"sticker_11",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_11'].texture;",code1:""},{class:"block",name:"sticker_12",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_12'].texture;",code1:""},{class:"block",name:"sticker_13",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_13'].texture;",code1:""},{class:"block",name:"sticker_14",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_14'].texture;",code1:""},{class:"block",name:"sticker_15",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_15'].texture;",code1:""},{class:"cont",name:"stickers_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=230;objects[obj_name].sy=objects[obj_name].y=60;",code1:"app.stage.addChild(objects[obj_name]);objects[obj_name].addChild(objects.stickers_bcg);objects[obj_name].addChild(objects.close_stickers);for (var z=0;z<16;z++) {objects[obj_name].addChild(objects['sticker_'+z]);objects['sticker_'+z].width=70;objects['sticker_'+z].height=70;objects['sticker_'+z].interactive=true;objects['sticker_'+z].buttonMode=true;const id=z;objects['sticker_'+id].pointerover=function(){this.tint=0xFF6666};objects['sticker_'+id].pointerout=function(){this.tint=this.base_tint};objects['sticker_'+id].pointerdown=function(){stickers.send(id)};}objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};"},{class:"sprite",name:"close_stickers",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=()=>{stickers.hide_panel()};objects[obj_name].x=270;objects[obj_name].y=21;",code1:"objects[obj_name].pointerover=function(){this.tint=0xff0000};objects[obj_name].pointerout=function(){this.tint=0xffffff};",image_format:"png"},{class:"block",name:"cards_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=10;objects[obj_name].y=40;",code1:"for (let i=0;i<objects.mini_cards.length;i++)objects[obj_name].addChild(objects.mini_cards[i]);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"mini_cards",size:"15",code0:"var num=n;objects[obj_name][num]=new player_mini_card_class(0,0,num);",code1:""},{class:"sprite",name:"back_button",code0:"objects[obj_name].x=699;objects[obj_name].y=322;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){cards_menu.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"image",name:"cards_bcg",image_format:"png"},{class:"image",name:"chk_round_1_tex",image_format:"png"},{class:"image",name:"chk_7_1_tex",image_format:"png"},{class:"image",name:"chk_7_2_tex",image_format:"png"},{class:"image",name:"chk_round_2_tex",image_format:"png"},{class:"sprite",name:"pref_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"pref_ok",code0:"objects[obj_name].x=130;objects[obj_name].y=195;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.pref_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",code1:"",image_format:"png"},{class:"cont",name:"pref_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.pref_bcg);objects[obj_name].addChild(objects.pref_ok);objects[obj_name].addChild(objects.chk_quad_block);objects[obj_name].addChild(objects.chk_7_block);objects[obj_name].addChild(objects.chk_round_block);objects[obj_name].addChild(objects.chk_opt_frame);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"chk_7_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(1)};",code1:"objects[obj_name].texture=game_res.resources.chk_7_1_tex.texture;"},{class:"block",name:"chk_round_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=280;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(2)};",code1:"objects[obj_name].texture=game_res.resources.chk_round_1_tex.texture;"},{class:"block",name:"chk_quad_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=80;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(0)};",code1:"objects[obj_name].texture=game_res.resources.chk_quad_1_tex.texture;"},{class:"sprite",name:"chk_opt_frame",code0:"objects[obj_name].x=60;objects[obj_name].y=70;",code1:"",image_format:"png"},{class:"image",name:"lb_player_card_bcg",image_format:"png"},{class:"block",name:"lb_cards_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=0;",code1:"for (let i=0;i<7;i++)objects[obj_name].addChild(objects.lb_cards[i]);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"lb_cards",size:"7",code0:"var num=n;objects[obj_name][num]=new lb_player_card_class(0,0,num+4);",code1:""},{class:"block",name:"lb_back_button",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=700;objects[obj_name].y=320;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){lb.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"objects[obj_name].texture=objects.back_button.texture;app.stage.addChild(objects[obj_name]);"},{class:"block",name:"sent_sticker_area",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=346;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].width=105;objects[obj_name].height=100;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"block",name:"lb_3_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=40;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"objects[obj_name].mask=objects.lb_3_mask;"},{class:"sprite",name:"lb_3_mask",code0:"objects[obj_name].x=40;objects[obj_name].y=50;",code1:"",image_format:"png"},{class:"block",name:"lb_3_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_3_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=156;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"cont",name:"lb_3_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=240;",code1:"objects[obj_name].addChild(objects.lb_3_avatar);objects[obj_name].addChild(objects.lb_3_mask);objects[obj_name].addChild(objects.lb_3_frame);objects[obj_name].addChild(objects.lb_3_crown);objects[obj_name].addChild(objects.lb_3_name);objects[obj_name].addChild(objects.lb_3_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"lb_3_frame",code0:"objects[obj_name].x=40;objects[obj_name].y=50;",code1:"",image_format:"png"},{class:"sprite",name:"lb_3_crown",code0:"objects[obj_name].x=11;objects[obj_name].y=22;",code1:"",image_format:"png"},{class:"block",name:"lb_1_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;",code1:"objects[obj_name].mask=objects.lb_1_mask;"},{class:"sprite",name:"lb_1_mask",code0:"objects[obj_name].x=10;objects[obj_name].y=50;",code1:"",image_format:"png"},{class:"cont",name:"lb_1_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.lb_1_mask);objects[obj_name].addChild(objects.lb_1_avatar);objects[obj_name].addChild(objects.lb_1_frame);objects[obj_name].addChild(objects.lb_1_crown);objects[obj_name].addChild(objects.lb_1_name);objects[obj_name].addChild(objects.lb_1_rating);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"lb_1_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_1_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=193;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"sprite",name:"lb_1_frame",code0:"objects[obj_name].x=10;objects[obj_name].y=50;",code1:"",image_format:"png"},{class:"sprite",name:"lb_1_crown",code0:"objects[obj_name].x=98;objects[obj_name].y=24;",code1:"",image_format:"png"},{class:"block",name:"lb_2_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=130;objects[obj_name].height=130;",code1:"objects[obj_name].mask=objects.lb_2_mask;"},{class:"sprite",name:"lb_2_mask",code0:"objects[obj_name].x=10;objects[obj_name].y=40;",code1:"",image_format:"png"},{class:"block",name:"lb_2_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=85;objects[obj_name].y=140;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_2_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=88;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"cont",name:"lb_2_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=140;objects[obj_name].sy=objects[obj_name].y=145;",code1:"objects[obj_name].addChild(objects.lb_2_avatar);objects[obj_name].addChild(objects.lb_2_mask);objects[obj_name].addChild(objects.lb_2_frame);objects[obj_name].addChild(objects.lb_2_crown);objects[obj_name].addChild(objects.lb_2_name);objects[obj_name].addChild(objects.lb_2_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"lb_2_frame",code0:"objects[obj_name].x=10;objects[obj_name].y=40;",code1:"",image_format:"png"},{class:"sprite",name:"lb_2_crown",code0:"objects[obj_name].x=87;objects[obj_name].y=17;",code1:"",image_format:"png"},{class:"image",name:"wait_response",image_format:"png"},{class:"sprite",name:"big_message_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"big_message_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=270;objects[obj_name].x=160;objects[obj_name].y=30;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",code1:""},{class:"cont",name:"big_message_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=240;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.big_message_bcg);objects[obj_name].addChild(objects.big_message_text);objects[obj_name].addChild(objects.close_big_message);objects[obj_name].addChild(objects.big_message_text2);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"close_big_message",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=99;objects[obj_name].y=147;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){big_message.close()};    ",code1:"",image_format:"png"},{class:"block",name:"big_message_text2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=270;objects[obj_name].x=159;objects[obj_name].y=123;objects[obj_name].base_tint=objects[obj_name].tint=0XFFC000;",code1:""},{class:"sprite",name:"rules_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"rules_ok_button",code0:"objects[obj_name].x=290;objects[obj_name].y=352;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.rules_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",code1:"",image_format:"png"},{class:"cont",name:"rules_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=0;",code1:"objects[obj_name].addChild(objects.rules_bcg);objects[obj_name].addChild(objects.rules_ok_button);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"players_online",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=385;objects[obj_name].y=420;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"id_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"id_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=220;objects[obj_name].y=80;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"id_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=220;objects[obj_name].y=115;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"id_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=60;objects[obj_name].width=99.99990234375;objects[obj_name].height=100;",code1:""},{class:"cont",name:"id_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=230;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.id_bcg);objects[obj_name].addChild(objects.id_avatar);objects[obj_name].addChild(objects.id_name);objects[obj_name].addChild(objects.id_rating);objects[obj_name].addChild(objects.id_loup);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"id_loup",code0:"objects[obj_name].sx=objects[obj_name].x=90;objects[obj_name].sy=objects[obj_name].y=123;objects[obj_name].anchor.set(0.5,0.5);",code1:"",image_format:"png"},{class:"image",name:"mini_player_card_table",image_format:"png"},{class:"sprite",name:"td_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].interactive=true;",code1:"",image_format:"png"},{class:"block",name:"td_name1",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=210;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"td_rating1",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=239;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"td_avatar1",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"cont",name:"td_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=190;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.td_bcg);objects[obj_name].addChild(objects.td_avatar1);objects[obj_name].addChild(objects.td_avatar2);objects[obj_name].addChild(objects.td_name1);objects[obj_name].addChild(objects.td_name2);objects[obj_name].addChild(objects.td_rating1);objects[obj_name].addChild(objects.td_rating2);objects[obj_name].addChild(objects.td_close);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"td_close",code0:"objects[obj_name].x=370;objects[obj_name].y=20;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.close_table_dialog()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"td_name2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=305;objects[obj_name].y=211;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"td_rating2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=305;objects[obj_name].y=240;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"td_avatar2",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=240;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"image",name:"rating_bcg",image_format:"png"},{class:"image",name:"pc_icon",image_format:"png"},{class:"image",name:"mini_player_card",image_format:"png"},{class:"image",name:"avatar_mask",image_format:"png"},{class:"image",name:"avatar_frame",image_format:"png"},{class:"block",name:"my_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].width=100.00009765625;objects[obj_name].height=100;",code1:"objects[obj_name].mask = objects.my_avatar_mask;"},{class:"block",name:"my_avatar_mask",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=20;",code1:"objects[obj_name].texture = gres.avatar_mask.texture;"},{class:"block",name:"my_card_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"my_card_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"block",name:"my_avatar_frame",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=20;objects[obj_name].y=10;",code1:"objects[obj_name].texture = gres.avatar_frame.texture;"},{class:"cont",name:"my_card_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=objects[obj_name].sx=20;objects[obj_name].y=objects[obj_name].sy=10;",code1:"objects[obj_name].addChild(objects.my_avatar);objects[obj_name].addChild(objects.my_avatar_mask);objects[obj_name].addChild(objects.my_avatar_frame);objects[obj_name].addChild(objects.my_card_name);objects[obj_name].addChild(objects.my_card_rating);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"opp_card_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"opp_card_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"block",name:"opp_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].width=100.00009765625;objects[obj_name].height=100;",code1:"objects[obj_name].mask = objects.opp_avatar_mask;"},{class:"block",name:"opp_avatar_mask",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=20;",code1:"objects[obj_name].texture = gres.avatar_mask.texture;"},{class:"block",name:"opp_avatar_frame",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=20;objects[obj_name].y=10;",code1:"objects[obj_name].texture = gres.avatar_frame.texture;"},{class:"cont",name:"opp_card_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=objects[obj_name].sx=625;objects[obj_name].y=objects[obj_name].sy=5;",code1:"objects[obj_name].addChild(objects.opp_avatar);objects[obj_name].addChild(objects.opp_avatar_mask);objects[obj_name].addChild(objects.opp_avatar_frame);objects[obj_name].addChild(objects.opp_card_name);objects[obj_name].addChild(objects.opp_card_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"req_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"req_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=251;objects[obj_name].y=73;objects[obj_name].base_tint=objects[obj_name].tint=0X2F5597;",code1:""},{class:"block",name:"req_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 30,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=251;objects[obj_name].y=117;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"req_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=50;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=90;objects[obj_name].height=80;",code1:""},{class:"cont",name:"req_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=210;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.req_bcg);objects[obj_name].addChild(objects.req_avatar);objects[obj_name].addChild(objects.req_name);objects[obj_name].addChild(objects.req_rating);objects[obj_name].addChild(objects.req_ok);objects[obj_name].addChild(objects.req_deny);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"req_ok",code0:"objects[obj_name].x=20;objects[obj_name].y=145;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.accept()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"req_deny",code0:"objects[obj_name].x=190;objects[obj_name].y=145;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.reject()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"invite_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"invite_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=184;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"invite_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=213;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"invite_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"cont",name:"invite_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=260;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.invite_bcg);objects[obj_name].addChild(objects.invite_avatar);objects[obj_name].addChild(objects.invite_name);objects[obj_name].addChild(objects.invite_rating);objects[obj_name].addChild(objects.invite_button);objects[obj_name].addChild(objects.invite_close);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"invite_close",code0:"objects[obj_name].x=206;objects[obj_name].y=23;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.hide_invite_dialog()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"invite_button",code0:"objects[obj_name].x=20;objects[obj_name].y=240;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.send_invite()};objects[obj_name].pointerover=function(){this.tint=0x444444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"image",name:"chk_quad_2_tex",image_format:"png"},{class:"image",name:"chk_quad_1_tex",image_format:"png"}];
-
+var WIN = 1, DRAW = 0, LOSE = -1, NOSYNC = 2;
+var load_list=[{class:"block",name:"rec_sticker_area",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=22;objects[obj_name].sy=objects[obj_name].y=260;objects[obj_name].width=148.235286458333;objects[obj_name].height=148.235384114583;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"board",code0:"objects[obj_name].x=190;objects[obj_name].y=10;objects[obj_name].visible=false;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){game.mouse_down_on_board()}.bind(game);",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"desktop",code0:"objects[obj_name].x=-10;objects[obj_name].y=-10;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"play_button",code0:"objects[obj_name].x=15;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.play_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"sprite",name:"lb_button",code0:"objects[obj_name].x=175;objects[obj_name].y=10;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.lb_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"preferences_button",code0:"objects[obj_name].x=495;objects[obj_name].y=10;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.pref_button_down()};objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"cont",name:"main_buttons_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=75;objects[obj_name].sy=objects[obj_name].y=240;",code1:"objects[obj_name].addChild(objects.play_button);objects[obj_name].addChild(objects.lb_button);objects[obj_name].addChild(objects.rules_button);objects[obj_name].addChild(objects.preferences_button);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"rules_button",code0:"objects[obj_name].x=330;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.rules_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"image",name:"lb_bcg",image_format:"png"},{class:"sprite",name:"send_sticker_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerdown=function(){stickers.show_panel()};objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"sprite",name:"giveup_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.show()};objects[obj_name].x=10;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"cont",name:"game_buttons_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].ready=true;objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=610;objects[obj_name].sy=objects[obj_name].y=310;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.send_sticker_button);objects[obj_name].addChild(objects.giveup_button);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"message_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=20;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"message_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 20,align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=150;objects[obj_name].x=100;objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",code1:""},{class:"cont",name:"message_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=220;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.message_bcg);objects[obj_name].addChild(objects.message_text);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"timer_bcg",code0:"objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"timer_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=90;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"cont",name:"timer_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].show=function(){this.childs.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.timer_bcg);objects[obj_name].addChild(objects.timer_text);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"checkers",size:"24",code0:"var num=n;objects[obj_name][num]=new PIXI.Sprite();objects[obj_name][num].visible=false;",code1:"var num=n;objects[obj_name][num].texture=game_res.resources.chk_quad_1_tex.texture;app.stage.addChild(objects[obj_name][num]);"},{class:"sprite",name:"selected_frame",code0:"objects[obj_name].visible=false;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"giveup_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"giveup_no",code0:"objects[obj_name].x=150;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.hide()};",code1:"objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"cont",name:"giveup_dialog",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=250;objects[obj_name].sy=objects[obj_name].y=270;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.giveup_bcg);objects[obj_name].addChild(objects.giveup_yes);objects[obj_name].addChild(objects.giveup_no);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"giveup_yes",code0:"objects[obj_name].x=30;objects[obj_name].y=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.give_up()};",code1:"objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"block",name:"cur_move_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0,0.5);objects[obj_name].x=32;objects[obj_name].y=430;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"stop_bot_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].visible=false;objects[obj_name].pointerdown=function(){game.stop('my_stop')};objects[obj_name].x=objects[obj_name].sx=620;objects[obj_name].y=objects[obj_name].sy=370;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"sprite",name:"stickers_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"sticker_0",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_0'].texture;",code1:""},{class:"block",name:"sticker_1",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_1'].texture;",code1:""},{class:"block",name:"sticker_2",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_2'].texture;",code1:""},{class:"block",name:"sticker_3",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_3'].texture;",code1:""},{class:"block",name:"sticker_4",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_4'].texture;",code1:""},{class:"block",name:"sticker_5",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_5'].texture;",code1:""},{class:"block",name:"sticker_6",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_6'].texture;",code1:""},{class:"block",name:"sticker_7",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_7'].texture;",code1:""},{class:"block",name:"sticker_8",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_8'].texture;",code1:""},{class:"block",name:"sticker_9",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_9'].texture;",code1:""},{class:"block",name:"sticker_10",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_10'].texture;",code1:""},{class:"block",name:"sticker_11",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_11'].texture;",code1:""},{class:"block",name:"sticker_12",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_12'].texture;",code1:""},{class:"block",name:"sticker_13",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=100;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_13'].texture;",code1:""},{class:"block",name:"sticker_14",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=170;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_14'].texture;",code1:""},{class:"block",name:"sticker_15",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=240;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_15'].texture;",code1:""},{class:"cont",name:"stickers_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=230;objects[obj_name].sy=objects[obj_name].y=60;",code1:"app.stage.addChild(objects[obj_name]);objects[obj_name].addChild(objects.stickers_bcg);objects[obj_name].addChild(objects.close_stickers);for (var z=0;z<16;z++) {objects[obj_name].addChild(objects['sticker_'+z]);objects['sticker_'+z].width=70;objects['sticker_'+z].height=70;objects['sticker_'+z].interactive=true;objects['sticker_'+z].buttonMode=true;const id=z;objects['sticker_'+id].pointerover=function(){this.tint=0xFF6666};objects['sticker_'+id].pointerout=function(){this.tint=this.base_tint};objects['sticker_'+id].pointerdown=function(){stickers.send(id)};}objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};"},{class:"sprite",name:"close_stickers",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=()=>{stickers.hide_panel()};objects[obj_name].x=270;objects[obj_name].y=21;",code1:"objects[obj_name].pointerover=function(){this.tint=0xff0000};objects[obj_name].pointerout=function(){this.tint=0xffffff};",image_format:"png"},{class:"block",name:"cards_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=10;objects[obj_name].y=40;",code1:"for (let i=0;i<objects.mini_cards.length;i++)objects[obj_name].addChild(objects.mini_cards[i]);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"mini_cards",size:"15",code0:"var num=n;objects[obj_name][num]=new player_mini_card_class(0,0,num);",code1:""},{class:"sprite",name:"back_button",code0:"objects[obj_name].x=699;objects[obj_name].y=322;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){cards_menu.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"image",name:"cards_bcg",image_format:"png"},{class:"image",name:"chk_round_1_tex",image_format:"png"},{class:"image",name:"chk_7_1_tex",image_format:"png"},{class:"image",name:"chk_7_2_tex",image_format:"png"},{class:"image",name:"chk_round_2_tex",image_format:"png"},{class:"sprite",name:"pref_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"pref_ok",code0:"objects[obj_name].x=130;objects[obj_name].y=195;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.pref_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",code1:"",image_format:"png"},{class:"cont",name:"pref_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.pref_bcg);objects[obj_name].addChild(objects.pref_ok);objects[obj_name].addChild(objects.chk_quad_block);objects[obj_name].addChild(objects.chk_7_block);objects[obj_name].addChild(objects.chk_round_block);objects[obj_name].addChild(objects.chk_opt_frame);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"chk_7_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(1)};",code1:"objects[obj_name].texture=game_res.resources.chk_7_1_tex.texture;"},{class:"block",name:"chk_round_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=280;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(2)};",code1:"objects[obj_name].texture=game_res.resources.chk_round_1_tex.texture;"},{class:"block",name:"chk_quad_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=80;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(0)};",code1:"objects[obj_name].texture=game_res.resources.chk_quad_1_tex.texture;"},{class:"sprite",name:"chk_opt_frame",code0:"objects[obj_name].x=60;objects[obj_name].y=70;",code1:"",image_format:"png"},{class:"image",name:"lb_player_card_bcg",image_format:"png"},{class:"block",name:"lb_cards_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=0;",code1:"for (let i=0;i<7;i++)objects[obj_name].addChild(objects.lb_cards[i]);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"lb_cards",size:"7",code0:"var num=n;objects[obj_name][num]=new lb_player_card_class(0,0,num+4);",code1:""},{class:"block",name:"lb_back_button",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=700;objects[obj_name].y=320;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){lb.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"objects[obj_name].texture=objects.back_button.texture;app.stage.addChild(objects[obj_name]);"},{class:"block",name:"sent_sticker_area",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=346;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].width=105;objects[obj_name].height=100;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"block",name:"lb_3_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=40;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"objects[obj_name].mask=objects.lb_3_mask;"},{class:"sprite",name:"lb_3_mask",code0:"objects[obj_name].x=40;objects[obj_name].y=50;",code1:"",image_format:"png"},{class:"block",name:"lb_3_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_3_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=156;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"cont",name:"lb_3_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=240;",code1:"objects[obj_name].addChild(objects.lb_3_avatar);objects[obj_name].addChild(objects.lb_3_mask);objects[obj_name].addChild(objects.lb_3_frame);objects[obj_name].addChild(objects.lb_3_crown);objects[obj_name].addChild(objects.lb_3_name);objects[obj_name].addChild(objects.lb_3_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"lb_3_frame",code0:"objects[obj_name].x=40;objects[obj_name].y=50;",code1:"",image_format:"png"},{class:"sprite",name:"lb_3_crown",code0:"objects[obj_name].x=11;objects[obj_name].y=22;",code1:"",image_format:"png"},{class:"block",name:"lb_1_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;",code1:"objects[obj_name].mask=objects.lb_1_mask;"},{class:"sprite",name:"lb_1_mask",code0:"objects[obj_name].x=10;objects[obj_name].y=50;",code1:"",image_format:"png"},{class:"cont",name:"lb_1_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.lb_1_mask);objects[obj_name].addChild(objects.lb_1_avatar);objects[obj_name].addChild(objects.lb_1_frame);objects[obj_name].addChild(objects.lb_1_crown);objects[obj_name].addChild(objects.lb_1_name);objects[obj_name].addChild(objects.lb_1_rating);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"lb_1_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_1_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=193;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"sprite",name:"lb_1_frame",code0:"objects[obj_name].x=10;objects[obj_name].y=50;",code1:"",image_format:"png"},{class:"sprite",name:"lb_1_crown",code0:"objects[obj_name].x=98;objects[obj_name].y=24;",code1:"",image_format:"png"},{class:"block",name:"lb_2_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=130;objects[obj_name].height=130;",code1:"objects[obj_name].mask=objects.lb_2_mask;"},{class:"sprite",name:"lb_2_mask",code0:"objects[obj_name].x=10;objects[obj_name].y=40;",code1:"",image_format:"png"},{class:"block",name:"lb_2_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=85;objects[obj_name].y=140;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_2_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=88;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"cont",name:"lb_2_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=140;objects[obj_name].sy=objects[obj_name].y=145;",code1:"objects[obj_name].addChild(objects.lb_2_avatar);objects[obj_name].addChild(objects.lb_2_mask);objects[obj_name].addChild(objects.lb_2_frame);objects[obj_name].addChild(objects.lb_2_crown);objects[obj_name].addChild(objects.lb_2_name);objects[obj_name].addChild(objects.lb_2_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"lb_2_frame",code0:"objects[obj_name].x=10;objects[obj_name].y=40;",code1:"",image_format:"png"},{class:"sprite",name:"lb_2_crown",code0:"objects[obj_name].x=87;objects[obj_name].y=17;",code1:"",image_format:"png"},{class:"image",name:"wait_response",image_format:"png"},{class:"sprite",name:"big_message_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"big_message_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=270;objects[obj_name].x=160;objects[obj_name].y=30;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",code1:""},{class:"cont",name:"big_message_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=240;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.big_message_bcg);objects[obj_name].addChild(objects.big_message_text);objects[obj_name].addChild(objects.close_big_message);objects[obj_name].addChild(objects.big_message_text2);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"close_big_message",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=99;objects[obj_name].y=147;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){big_message.close()};    ",code1:"",image_format:"png"},{class:"block",name:"big_message_text2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=270;objects[obj_name].x=159;objects[obj_name].y=123;objects[obj_name].base_tint=objects[obj_name].tint=0XFFC000;",code1:""},{class:"sprite",name:"rules_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"rules_ok_button",code0:"objects[obj_name].x=290;objects[obj_name].y=352;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.rules_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",code1:"",image_format:"png"},{class:"cont",name:"rules_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=0;",code1:"objects[obj_name].addChild(objects.rules_bcg);objects[obj_name].addChild(objects.rules_ok_button);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"players_online",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=385;objects[obj_name].y=420;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"id_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"id_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=220;objects[obj_name].y=80;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"id_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=220;objects[obj_name].y=115;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"id_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=60;objects[obj_name].width=99.99990234375;objects[obj_name].height=100;",code1:""},{class:"cont",name:"id_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=230;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.id_bcg);objects[obj_name].addChild(objects.id_avatar);objects[obj_name].addChild(objects.id_name);objects[obj_name].addChild(objects.id_rating);objects[obj_name].addChild(objects.id_loup);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"id_loup",code0:"objects[obj_name].sx=objects[obj_name].x=90;objects[obj_name].sy=objects[obj_name].y=123;objects[obj_name].anchor.set(0.5,0.5);",code1:"",image_format:"png"},{class:"image",name:"mini_player_card_table",image_format:"png"},{class:"sprite",name:"td_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].interactive=true;",code1:"",image_format:"png"},{class:"block",name:"td_name1",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=210;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"td_rating1",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=239;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"td_avatar1",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"cont",name:"td_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=190;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.td_bcg);objects[obj_name].addChild(objects.td_avatar1);objects[obj_name].addChild(objects.td_avatar2);objects[obj_name].addChild(objects.td_name1);objects[obj_name].addChild(objects.td_name2);objects[obj_name].addChild(objects.td_rating1);objects[obj_name].addChild(objects.td_rating2);objects[obj_name].addChild(objects.td_close);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"td_close",code0:"objects[obj_name].x=370;objects[obj_name].y=20;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.close_table_dialog()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"td_name2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=305;objects[obj_name].y=211;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"td_rating2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=305;objects[obj_name].y=240;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"td_avatar2",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=240;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"image",name:"rating_bcg",image_format:"png"},{class:"image",name:"pc_icon",image_format:"png"},{class:"image",name:"mini_player_card",image_format:"png"},{class:"image",name:"avatar_mask",image_format:"png"},{class:"image",name:"avatar_frame",image_format:"png"},{class:"block",name:"my_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].width=100.00009765625;objects[obj_name].height=100;",code1:"objects[obj_name].mask = objects.my_avatar_mask;"},{class:"block",name:"my_avatar_mask",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=20;",code1:"objects[obj_name].texture = gres.avatar_mask.texture;"},{class:"block",name:"my_card_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"my_card_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"block",name:"my_avatar_frame",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=20;objects[obj_name].y=10;",code1:"objects[obj_name].texture = gres.avatar_frame.texture;"},{class:"cont",name:"my_card_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=objects[obj_name].sx=20;objects[obj_name].y=objects[obj_name].sy=10;",code1:"objects[obj_name].addChild(objects.my_avatar);objects[obj_name].addChild(objects.my_avatar_mask);objects[obj_name].addChild(objects.my_avatar_frame);objects[obj_name].addChild(objects.my_card_name);objects[obj_name].addChild(objects.my_card_rating);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"opp_card_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"opp_card_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"block",name:"opp_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].width=100.00009765625;objects[obj_name].height=100;",code1:"objects[obj_name].mask = objects.opp_avatar_mask;"},{class:"block",name:"opp_avatar_mask",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=20;",code1:"objects[obj_name].texture = gres.avatar_mask.texture;"},{class:"block",name:"opp_avatar_frame",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=20;objects[obj_name].y=10;",code1:"objects[obj_name].texture = gres.avatar_frame.texture;"},{class:"cont",name:"opp_card_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=objects[obj_name].sx=625;objects[obj_name].y=objects[obj_name].sy=5;",code1:"objects[obj_name].addChild(objects.opp_avatar);objects[obj_name].addChild(objects.opp_avatar_mask);objects[obj_name].addChild(objects.opp_avatar_frame);objects[obj_name].addChild(objects.opp_card_name);objects[obj_name].addChild(objects.opp_card_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"req_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"req_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=251;objects[obj_name].y=73;objects[obj_name].base_tint=objects[obj_name].tint=0X2F5597;",code1:""},{class:"block",name:"req_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 30,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=251;objects[obj_name].y=117;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"req_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=50;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=90;objects[obj_name].height=80;",code1:""},{class:"cont",name:"req_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=210;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.req_bcg);objects[obj_name].addChild(objects.req_avatar);objects[obj_name].addChild(objects.req_name);objects[obj_name].addChild(objects.req_rating);objects[obj_name].addChild(objects.req_ok);objects[obj_name].addChild(objects.req_deny);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"req_ok",code0:"objects[obj_name].x=20;objects[obj_name].y=145;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.accept()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"req_deny",code0:"objects[obj_name].x=190;objects[obj_name].y=145;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.reject()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"invite_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"invite_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=184;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"invite_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=213;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"invite_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"cont",name:"invite_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=260;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.invite_bcg);objects[obj_name].addChild(objects.invite_avatar);objects[obj_name].addChild(objects.invite_name);objects[obj_name].addChild(objects.invite_rating);objects[obj_name].addChild(objects.invite_button);objects[obj_name].addChild(objects.invite_close);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"invite_close",code0:"objects[obj_name].x=206;objects[obj_name].y=23;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.hide_invite_dialog()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"invite_button",code0:"objects[obj_name].x=20;objects[obj_name].y=240;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.send_invite()};objects[obj_name].pointerover=function(){this.tint=0x444444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"image",name:"chk_quad_2_tex",image_format:"png"},{class:"image",name:"chk_quad_1_tex",image_format:"png"}];
 
 irnd = function(min,max) {	
     min = Math.ceil(min);
@@ -130,24 +129,32 @@ class lb_player_card_class extends PIXI.Container{
 
 }
 
-var anim={
-
+var anim2 = {
+		
 	c1: 1.70158,
 	c2: 1.70158 * 1.525,
 	c3: 1.70158 + 1,
 	c4: (2 * Math.PI) / 3,
 	c5: (2 * Math.PI) / 4.5,
-
-	anim_array: [null,null,null,null,null,null,null,null,null,null,null],
+		
+	slot: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+	
 	linear: function(x) {
-
 		return x
 	},
-	linear_and_back: function(x) {
-
-		return x < 0.2 ? x*5 : 1.25 - x * 1.25
-
+	
+	kill_anim: function(obj) {
+		
+		for (var i=0;i<this.slot.length;i++)
+			if (this.slot[i]!==null)
+				if (this.slot[i].obj===obj)
+					this.slot[i]=null;		
 	},
+	
+	easeOutBack: function(x) {
+		return 1 + this.c3 * Math.pow(x - 1, 3) + this.c1 * Math.pow(x - 1, 2);
+	},
+	
 	easeOutElastic: function(x) {
 		return x === 0
 			? 0
@@ -155,218 +162,197 @@ var anim={
 			? 1
 			: Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * this.c4) + 1;
 	},
-	easeOutBounce: function(x) {
-		const n1 = 7.5625;
-		const d1 = 2.75;
-
-		if (x < 1 / d1) {
-			return n1 * x * x;
-		} else if (x < 2 / d1) {
-			return n1 * (x -= 1.5 / d1) * x + 0.75;
-		} else if (x < 2.5 / d1) {
-			return n1 * (x -= 2.25 / d1) * x + 0.9375;
-		} else {
-			return n1 * (x -= 2.625 / d1) * x + 0.984375;
-		}
+	
+	easeOutSine: function(x) {
+		return Math.sin( x * Math.PI * 0.5);
 	},
+	
 	easeOutCubic: function(x) {
 		return 1 - Math.pow(1 - x, 3);
 	},
-	easeOutQuart: function(x) {
-		return 1 - Math.pow(1 - x, 4);
-	},
-	easeOutQuint: function(x) {
-		return 1 - Math.pow(1 - x, 5);
-	},
-	easeInCubic: function(x) {
-		return x * x * x;
-	},
-	easeInQuint: function(x) {
-		return x * x * x * x * x;
-	},
-	easeOutBack: function(x) {
-		return 1 + this.c3 * Math.pow(x - 1, 3) + this.c1 * Math.pow(x - 1, 2);
-	},
+	
 	easeInBack: function(x) {
 		return this.c3 * x * x * x - this.c1 * x * x;
 	},
-	add_pos: function(params){
-
-		if (params.callback===undefined)
-			params.callback=()=>{};
-
-
+	
+	easeInQuad: function(x) {
+		return x * x;
+	},
+	
+	easeInCubic: function(x) {
+		return x * x * x;
+	},
+	
+	ease2back : function(x) {
+		return Math.sin(x*Math.PI);
+	},
+	
+	easeInOutCubic: function(x) {
+		return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+	},
+	
+	add : function(obj, params, vis_on_end, time, func, anim3_origin) {
+				
 		//если уже идет анимация данного спрайта то отменяем ее
-		for (var i=0;i<this.anim_array.length;i++)
-			if (this.anim_array[i]!==null)
-				if (this.anim_array[i].obj===params.obj)
-					this.anim_array[i]=null;
+		anim2.kill_anim(obj);
+		/*if (anim3_origin === undefined)
+			anim3.kill_anim(obj);*/
 
+
+		let f=0;
 		//ищем свободный слот для анимации
-		for (var i=0;i<this.anim_array.length;i++)	{
+		for (var i = 0; i < this.slot.length; i++) {
 
-			if (this.anim_array[i]===null)	{
+			if (this.slot[i] === null) {
 
-				params.obj.visible=true;
-				params.obj.alpha=1;
-				params.obj.ready=false;
+				obj.visible = true;
+				obj.ready = false;
 
-				//если в параметрах обозначена строка  - предполагаем что это параметр объекта
-				if (typeof(params.val[0])==='string') params.val[0]=params.obj[params.val[0]];
-				if (typeof(params.val[1])==='string') params.val[1]=params.obj[params.val[1]];
+				//добавляем дельту к параметрам и устанавливаем начальное положение
+				for (let key in params) {
+					params[key][2]=params[key][1]-params[key][0];					
+					obj[key]=params[key][0];
+				}
+				
+				//для возвратных функцие конечное значение равно начальному
+				if (func === 'ease2back')
+					for (let key in params)
+						params[key][1]=params[key][0];					
 
-				params.obj[params.param]=params.val[0];
-				var delta=params.val[1]-params.val[0];
-				this.anim_array[i]={
-										obj:params.obj,
-										process_func: this.process_pos.bind(this),
-										param:params.param,
-										vis_on_end:params.vis_on_end,
-										delta,
-										func:this[params.func].bind(anim),
-										start_val:params.val[0],
-										speed:params.speed ,
-										progress:0,
-										callback:params.callback
-									};
-				return;
+					
+
+				this.slot[i] = {
+					obj: obj,
+					params: params,
+					vis_on_end: vis_on_end,
+					func: this[func].bind(anim2),
+					speed: 0.01818 / time,
+					progress: 0
+				};
+				f = 1;
+				break;
 			}
-
+		}
+		
+		if (f===0) {
+			console.log("Кончились слоты анимации");	
+			
+			
+			//сразу записываем конечные параметры анимации
+			for (let key in params)				
+				obj[key]=params[key][1];			
+			obj.visible=vis_on_end;
+			obj.alpha = 1;
+			obj.ready=true;
+			
+			
+			return new Promise(function(resolve, reject){					
+			  resolve();	  		  
+			});	
+		}
+		else {
+			return new Promise(function(resolve, reject){					
+			  anim2.slot[i].p_resolve = resolve;	  		  
+			});			
+			
 		}
 
-		//console.log("Нет свободных слотов для анимации");
+		
+		
 
-	},
-	add_scl: function(params){
+	},	
+	
+	process: function () {
+		
+		for (var i = 0; i < this.slot.length; i++)
+		{
+			if (this.slot[i] !== null) {
+				
+				let s=this.slot[i];
+				
+				s.progress+=s.speed;				
+				for (let key in s.params)				
+					s.obj[key]=s.params[key][0]+s.params[key][2]*s.func(s.progress);		
 
-		if (params.callback===undefined)
-			params.callback=()=>{};
+				
+				//если анимация завершилась то удаляем слот
+				if (s.progress>=0.999) {
+					for (let key in s.params)				
+						s.obj[key]=s.params[key][1];
+					
+					s.obj.visible=s.vis_on_end;
+					if (s.vis_on_end === false)
+						s.obj.alpha = 1;
+					
+					s.obj.ready=true;					
+					s.p_resolve('finished');
+					this.slot[i] = null;
+				}
+			}			
+		}
+		
+	}
+	
+}
 
-		//ищем свободный слот для анимации
-		for (var i=0;i<this.anim_array.length;i++)	{
+var message =  {
+	
+	promise_resolve :0,
+	
+	add : async function(text) {
+		
+		if (this.promise_resolve!==0)
+			this.promise_resolve("forced");
+		
+		//воспроизводим звук
+		game_res.resources.message.sound.play();
 
-			if (this.anim_array[i]===null)	{
+		objects.message_text.text=text;
 
-				params.obj.visible=true;
-				params.obj.alpha=1;
-				params.obj.ready=false;
+		await anim2.add(objects.message_cont,{x:[-200,objects.message_cont.sx]}, true, 0.5,'easeOutBack');
 
-				var delta=params.val[1]-params.val[0];
-				this.anim_array[i]={
-									obj:			params.obj,
-									process_func: 	this.process_scl.bind(this),
-									param:			params.param,
-									vis_on_end:		params.vis_on_end,
-									delta,
-									func:			this[params.func].bind(anim),
-									start_val:		params.val[0],
-									speed:			params.speed ,
-									progress:		0,
-									callback		:params.callback
-								};
-				return;
+		let res = await new Promise((resolve, reject) => {
+				message.promise_resolve = resolve;
+				setTimeout(resolve, 3000)
 			}
-
-		}
-
-		//console.log("Нет свободных слотов для анимации");
-
-	},
-	process: function()	{
-		for (var i=0;i<this.anim_array.length;i++)
-			if (this.anim_array[i]!==null)
-				this.anim_array[i].process_func(i);
-	},
-	process_pos: function(i) {
-
-		this.anim_array[i].obj[this.anim_array[i].param]=this.anim_array[i].start_val+this.anim_array[i].delta*this.anim_array[i].func(this.anim_array[i].progress);
-
-		if (this.anim_array[i].progress>=1)	{
-			this.anim_array[i].callback();
-			this.anim_array[i].obj.visible=this.anim_array[i].vis_on_end;
-			this.anim_array[i].obj.ready=true;
-			this.anim_array[i]=null;
+		);
+		
+		if (res === "forced")
 			return;
-		}
 
-		this.anim_array[i].progress+=this.anim_array[i].speed;
-	},
-	process_scl: function(i) {
-
-		this.anim_array[i].obj.scale[this.anim_array[i].param]=this.anim_array[i].start_val+this.anim_array[i].delta*this.anim_array[i].func(this.anim_array[i].progress);
-
-		if (this.anim_array[i].progress>=1)	{
-			this.anim_array[i].callback();
-			this.anim_array[i].obj.visible=this.anim_array[i].vis_on_end;
-			this.anim_array[i].obj.ready=true;
-			this.anim_array[i]=null;
-			return;
-		}
-
-		this.anim_array[i].progress+=this.anim_array[i].speed;
+		anim2.add(objects.message_cont,{x:[objects.message_cont.sx, -200]}, false, 0.5,'easeInBack');			
 	}
 
 }
 
-function add_message(text) {
-
-	//воспроизводим звук
-	game_res.resources.message.sound.play();
-
-	objects.message_text.text=text;
-
-	anim.add_pos({obj:objects.message_cont,param:'x',vis_on_end:true,func:'easeOutBack',val:[-200, 	'sx'],	speed:0.02});
-
-	if (objects.message_cont.timer_id!==undefined)	clearTimeout(objects.message_cont.timer_id);
-
-
-	//убираем сообщение через определенное время
-	objects.message_cont.timer_id=setTimeout(()=>{
-		anim.add_pos({obj:objects.message_cont,param:'x',vis_on_end:false,func:'easeInBack',val:['sx', 	-200],	speed:0.02});
-	}, 6000);
-
-}
-
-var big_message={
-
-	callback_func: function(){},
-
-	show: function(text,text2,callback) {
-
-		any_dialog_active=1;
-
-
-		if (text2!==undefined || text2!=="")
-			objects.big_message_text2.text=text2;
+var big_message = {
+	
+	p_resolve : 0,
+		
+	show: function(t1,t2) {
+				
+		if (t2!==undefined || t2!=="")
+			objects.big_message_text2.text=t2;
 		else
 			objects.big_message_text2.text='**********';
 
-		if (callback===undefined)
-			this.callback_func=()=>{};
-		else
-			this.callback_func=callback;
-
-		objects.big_message_text.text=text;
-		anim.add_pos({obj:objects.big_message_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-180, 	'sy'],	speed:0.02});
-
+		objects.big_message_text.text=t1;
+		anim2.add(objects.big_message_cont,{y:[-180,objects.big_message_cont.sy]}, true, 0.6,'easeOutBack');		
+				
+		return new Promise(function(resolve, reject){					
+			big_message.p_resolve = resolve;	  		  
+		});
 	},
 
 	close : function() {
-
-		any_dialog_active=1;
-
-		//вызываем коллбэк
-
-		this.callback_func();
-		game_res.resources.close.sound.play();
-
+		
 		if (objects.big_message_cont.ready===false)
 			return;
 
-		any_dialog_active=0;
-		anim.add_pos({obj:objects.big_message_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	450],	speed:0.05});
-
+		anim2.add(objects.big_message_cont,{y:[objects.big_message_cont.sy,450]}, false, 0.4,'easeInBack');		
+		this.p_resolve("close");			
 	}
+
 }
 
 var board_func={
@@ -406,7 +392,7 @@ var board_func={
 					objects.checkers[ind].alpha=1;
 
 					//проверка что шашка под угрозой
-					if (x>3 && x<8 && y>4 && y<8 && move>24 && move<31 && objects.checkers[ind].m_id===1)
+					if (x>3 && x<8 && y>4 && y<8 && made_moves>24 && made_moves<31 && objects.checkers[ind].m_id===1)
 						objects.checkers[ind].danger=1;
 					else
 						objects.checkers[ind].danger=0;
@@ -639,43 +625,29 @@ var board_func={
 		return g_archive;
 	},
 
-	start_gentle_move: function(move_data,moves,callback) {
+	start_gentle_move: async function(move_data, moves) {
 
-		//подготавливаем данные для перестановки
-		this.move_end_callback=callback;
-		this.checker_to_move=this.get_checker_by_pos(move_data.x1,move_data.y1);
-		this.moves=moves;
-		this.target_point=1;
-		this.set_next_cell();
-
-	},
-
-	process_checker_move: function () {
-
-		//двигаем шашки только если в игре
-		if (state!=="p" && state!=="b")
-			return;
-
-
-		//двигаем шашку
-		if (this.target_point!==0) {
-
-			this.checker_to_move.x+=this.checker_to_move.dx;
-			this.checker_to_move.y+=this.checker_to_move.dy;
-
-			var dx=this.checker_to_move.x-this.checker_to_move.tx;
-			var dy=this.checker_to_move.y-this.checker_to_move.ty;
-
-			var d=Math.sqrt(dx*dx+dy*dy);
-			if (d<1) {
-
-				//воспроизводим соответствующий звук
-				game_res.resources.move.sound.play();
-
-				this.set_next_cell();
-			}
+		
+		let chk_spr = this.get_checker_by_pos(move_data.x1, move_data.y1);		
+				
+		for (let i = 1 ; i < moves.length; i++) {
+			
+			let tar_x = moves[i][0] * 50 + objects.board.x+10;
+			let tar_y = moves[i][1] * 50 + objects.board.y+10;
+			await anim2.add(chk_spr,{x:[chk_spr.x, tar_x], y: [chk_spr.y, tar_y]}, true, 0.16,'linear');
+			game_res.resources.move.sound.play();
 		}
+		
+		
+		var [sx,sy]=moves[0];
+		var [tx,ty]=moves[moves.length-1];
 
+		//меняем старую и новую позицию шашки
+		[g_board[ty][tx],g_board[sy][sx]]=[g_board[sy][sx],g_board[ty][tx]];
+
+		//обновляем доску
+		this.update_board();
+		
 	},
 
 	set_next_cell() {
@@ -775,55 +747,287 @@ var board_func={
 		return 0;
 	},
 
-	get_board_state: function(board, cur_move) {
+	get_board_state: function(board, made_moves) {
 
 		let w1=this.finished1(board);
 		let w2=this.finished2(board);
-		let any1home=this.any1home(board)*(cur_move>=30);
-		let any2home=this.any2home(board)*(cur_move>=30);
+		if (w1 === 1 && w2 === 1)
+			return 'both_finished'
+		if (w1 === 1)
+			return 'my_finished_first'
+		if (w2 === 1)
+			return 'opp_finished_first'
+		
+		let any1home30 = this.any1home(board)*(made_moves >= 30);
+		let any2home30 = this.any2home(board)*(made_moves >= 30);
+		
+		if (any1home30 === 1 && any2home30 === 1)
+			return 'both_left_after_30'
+		if (any1home30 === 1)
+			return 'my_left_after_30'
+		if (any2home30 === 1)
+			return 'opp_left_after_30'
+			
 
 		//это случай если игра дошла до 80 хода
-		if (cur_move>=80) {
+		if (made_moves >= 80) {
 
 			let fin1=this.count_finished1(board);
 			let fin2=this.count_finished2(board);
 
-			if (fin1	>	fin2)	return 88;
-			if (fin1	<	fin2)	return 89;
-			if (fin1	===	fin2)	return 90;
+			if (fin1	>	fin2)	return 'my_more_fin_after_80';
+			if (fin1	<	fin2)	return 'opp_more_fin_after_80';
+			if (fin1	===	fin2)	return 'same_fin_after_80';
 		}
-
-		//кодируем сосотяние игры в одно значение
-		return w1*1+w2*2+any1home*4+any2home*5;
+		
+		return '';
 	}
 }
 
-var bot_game={
+var online_game = {
+	
+	name : 'online',
+	start_time : 0,
+	disconnect_time : 0,
+	me_conf_play : 0,
+	opp_conf_play : 0,
+	move_time_left : 0,
+	timer_id : 0,
+	
+	calc_new_rating : function (old_rating, game_result) {
+		
+		
+		if (game_result === NOSYNC)
+			return old_rating;
+		
+		var Ea = 1 / (1 + Math.pow(10, ((opp_data.rating-my_data.rating)/400)));
+		if (game_result === WIN)
+			return Math.round(my_data.rating + 16 * (1 - Ea));
+		if (game_result === DRAW)
+			return Math.round(my_data.rating + 16 * (0.5 - Ea));
+		if (game_result === LOSE)
+			return Math.round(my_data.rating + 16 * (0 - Ea));
+		
+	},
+	
+	activate : function () {
+		
+		//пока еще никто не подтвердил игру
+		this.me_conf_play = 0;
+		this.opp_conf_play = 0;
+		
+		//счетчик времени
+		this.move_time_left = 15;
+		this.timer_id = setTimeout(function(){online_game.timer_tick()}, 1000);
+		objects.timer_text.tint=0xffffff;
+		
+		//отображаем таймер
+		objects.timer_cont.visible = true;
+		objects.game_buttons_cont.visible = true;
+		
+		//фиксируем врему начала игры
+		this.start_time = Date.now();
+		
+		//вычиcляем рейтинг при проигрыше и устанавливаем его в базу он потом изменится
+		let lose_rating = this.calc_new_rating(LOSE);
+		if (lose_rating >100 && lose_rating<9999)
+			firebase.database().ref("players/"+my_data.uid+"/rating").set(lose_rating);
+		
+		//устанавливаем локальный и удаленный статус
+		set_state({state : 'p'});		
+		
+		//устанавливаем начальное расположение шашек
+		g_board =[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
+		board_func.update_board();
+		
+		
+	},
+	
+	timer_tick : function () {
+		
+		this.move_time_left--;
+		
+		if (this.move_time_left < 0 && my_turn === 1)	{
+			
+			if (this.me_conf_play === 1)
+				game.stop('my_timeout');
+			else
+				game.stop('my_no_sync');
+			
+			return;
+		}
 
-	start: function() {
+		if (this.move_time_left < -5 && my_turn === 0) {
+			
+			if (this.opp_conf_play === 1)
+				game.stop('opp_timeout');
+			else
+				game.stop('opp_no_sync');
+			
+			
+			return;
+		}
+
+		if (connected === 0 && my_turn === 0) {
+			this.disconnect_time ++;
+			if (this.disconnect_time > 5) {
+				game.stop('my_no_connection');
+				return;				
+			}
+		}		
+		
+		//подсвечиваем красным если осталость мало времени
+		if (this.move_time_left === 5) {
+			objects.timer_text.tint=0xff0000;
+			game_res.resources.clock.sound.play();
+		}
+
+		//обновляем текст на экране
+		objects.timer_text.text="0:"+this.move_time_left;
+		
+		//следующая секунда
+		this.timer_id = setTimeout(function(){online_game.timer_tick()}, 1000);		
+	},
+	
+	reset_timer : function() {
+		
+		//обовляем время разъединения
+		this.disconnect_time = 0;
+		
+		//перезапускаем таймер хода
+		this.move_time_left = 32;
+		objects.timer_text.text="0:"+this.move_time_left;
+		objects.timer_text.tint=0xffffff;
+		
+	},
+		
+	stop : async function (result) {
+		
+		let res_array = [
+			['my_timeout',LOSE, 'Вы проиграли!\nУ вас закончилось время'],
+			['opp_timeout',WIN , 'Вы выиграли!\nУ соперника закончилось время'],
+			['my_giveup' ,LOSE, 'Вы сдались!'],
+			['opp_giveup' ,WIN , 'Вы выиграли!\nСоперник сдался'],
+			['both_finished',DRAW, 'Ничья'],
+			['my_finished_first',WIN , 'Вы выиграли!\nБыстрее соперника перевели свои шашки.'],
+			['opp_finished_first',LOSE, 'Вы проиграли!\nСоперник оказался быстрее вас.'],
+			['both_left_after_30',DRAW, 'Ничья\nНикто не успел вывести все шашки из дома.'],
+			['my_left_after_30',LOSE, 'Вы проиграли!\nНе успели вывести свои шашки за 30 ходов.'],
+			['opp_left_after_30',WIN , 'Вы выиграли!\nСоперник не успел вывести свои шашки за 30 ходов.'],
+			['my_more_fin_after_80',WIN , 'Вы выиграли!\nПеревели больше шашек в новый дом.'],
+			['opp_more_fin_after_80',LOSE, 'Вы проиграли!\nСоперник перевел больше шашек в новый дом.'],
+			['same_fin_after_80',DRAW , 'Ничья\nОдинаковое количество шашек в новом доме'],
+			['my_no_sync',NOSYNC , 'Похоже вы не захотели начинать игру.'],
+			['opp_no_sync',NOSYNC , 'Похоже соперник не смог начать игру.'],
+			['my_no_connection',LOSE , 'Потеряна связь!\nИспользуйте надежное интернет соединение.']
+			
+		];
+		
+		clearTimeout(this.timer_id);		
+		
+		let result_row = res_array.find( p => p[0] === result);
+		let result_str = result_row[0];
+		let result_number = result_row[1];
+		let result_info = result_row[2];				
+		let old_rating = my_data.rating;
+		my_data.rating = this.calc_new_rating (my_data.rating, result_number);
+	
+		//если диалоги еще открыты
+		if (objects.stickers_cont.visible===true)
+			stickers.hide_panel();	
+		
+		//если диалоги еще открыты
+		if (objects.giveup_dialog.visible===true)
+			giveup_menu.hide();
+				
+		//убираем элементы
+		objects.timer_cont.visible = false;
+		objects.game_buttons_cont.visible = false;
+		
+		//отключаем взаимодейтсвие с доской
+		objects.board.pointerdown = function() {};
+		
+		//воспроизводим звук
+		if (result_number === DRAW || result_number === LOSE)
+			game_res.resources.lose.sound.play();
+		else
+			game_res.resources.win.sound.play();
+		
+		
+
+		//если игра результативна то записываем дополнительные данные
+		if (result_number === DRAW || result_number === LOSE || result_number === WIN) {
+			
+			//увеличиваем количество игр
+			my_data.games++;
+			firebase.database().ref("players/"+[my_data.uid]+"/games").set(my_data.games);		
+
+			//записываем результат в базу данных
+			let duration = ~~((Date.now() - this.start_time)*0.001);
+			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':result_number,'fin_type':result_str,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});
+			
+			
+			
+			let check_players =[
+				'1NOs1k4jKvIIe80grKaEoIZ59PbuP0TWlBOoFHrUoh4=',
+				'2ifgfvcabThOq2EhUg2qYNagFukZm49Hky9CBILikrE=',
+				'ApglJugCBw3owZiptBGmAFtghywpFDUl4GOE5yTevc8=',
+				'HAXS4Uwl22XJybZg2gTbwaHUzHOMc7X1mLFS2Av8ayM=',
+				'HHNnZgYsNjwFHsGW5l3uvtX+GOeZJJcD8HQz8RcThWw=',
+				'Q91gCAYjLDQeTBZLiwmWWzWmhZnuKTAWgpLbm3kw9Uo=',
+				'X3oRx1NdLMzDqrLaKAXAahBP8Pnq1k+irMDuHKHqMbY=',
+				'Z8rpvOLTNIjvgZxnTMTSZX5Z08QfynLlxi0ZvWs0cV8=',
+				'aPehlhdOYUKrCObw76SfaIGwK8BbBm2Hk7bR+WRNgsM=',
+				'cZ9FfoeCzzwm3CbHPkBKRHTAh4qoDaJvrserVFtBvPo=',
+				'ihwRwyyjjwtumUck+HzegY6D5kZ3tIJKQ1ZHPlN6s3k=',
+				'ls4147060',
+				'nYaoPB58Z5BqhFaOqpJx10MEQblZY7wMLgUxqunbQJg=',
+				'p70n979DU+biBKD3wbiOn0hADScsGJZkoRnEAx7MRNI=',
+				'v3fob5izUFzWXThIxl1VpWbmDulYWZlfWVRBG9qzrdQ=',
+				'vNx2vRus1XIPlMFllQmDnqWfV3YZp7Ff5hYis5eKllc=',
+				'vk113552413',
+				'vk188397292',
+				'w5jjfB09gf2kWOJ0BxicV1jUtkESey7npAzj+cyE078=',
+				'wmXca5Z53ezNANjw+BkH5GpfjDOpg51D+bJGmTJHsnQ='	
+			]
+			
+			if (check_players.includes(my_data.uid) || check_players.includes(opp_data.uid)) {
+			firebase.database().ref("finishes2").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':result_number,'fin_type':result_str,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});	
+			}
+			
+		}
+	
+		
+		await big_message.show(result_info, `Рейтинг: ${old_rating} > ${my_data.rating}`)
+		
+	},
+	
+	clear : function() {
+		
+		
+	}
+	
+}
+
+var bot_game = {
+
+	name :'bot',
+	me_conf_play : 0,
+	opp_conf_play : 0,
+
+	activate: function() {
 
 
 		//устанавливаем локальный и удаленный статус
 		set_state ({state : 'b'});
 
-		objects.desktop.visible=false;
-		objects.main_buttons_cont.visible=false;
-		objects.cards_cont.visible=false;
-
-		objects.board.visible=true;
-
-		objects.my_card_cont.visible=true;
-		objects.opp_card_cont.visible=true;
-		objects.timer_cont.visible=true;
-		objects.stop_bot_button.visible=true;
-		objects.cur_move_text.visible=true;
-
 		//очереди
 		my_turn=1;
-
-		//включаем взаимодейтсвие с доской
-		objects.board.interactive=true;
-		objects.board.pointerdown=game.mouse_down_on_board;
+		
+		//таймер уже не нужен
+		objects.timer_cont.visible = false;
+		objects.game_buttons_cont.visible = false;
+		objects.stop_bot_button.visible = true;
 
 		//инициируем доску в зависимости от рейтинга
 		if (my_data.rating>=0 && my_data.rating<1500 )
@@ -845,97 +1049,86 @@ var bot_game={
 		//это надо удалить
 		//g_board = [[0,0,0,0,0,0,0,0],[0,0,0,0,2,2,0,0],[0,0,2,2,2,2,0,0],[0,0,2,2,0,0,0,0],[0,2,2,0,0,0,0,0],[0,2,2,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
 		//move=35;
+		
+		//устанаваем положение таймер хоть он и не задействован
+		objects.timer_cont.x=10;
+		objects.timer_text.text="<***>";
 
 		board_func.update_board();
 
-
 	},
 
-	stop : function() {
+	stop : async function(result) {
 
-
-
-		if (any_dialog_active===1) {
-			game_res.resources.locked.sound.play();
-			return
-		};
-
-		game_res.resources.close.sound.play();
-
-		finish_game.bot(10);
-
-
+		let res_array = [
+			['both_finished',DRAW, 'Ничья'],
+			['my_finished_first',WIN , 'Вы выиграли!\nБыстрее соперника перевели свои шашки.'],
+			['opp_finished_first',LOSE, 'Вы проиграли!\nСоперник оказался быстрее вас.'],
+			['both_left_after_30',LOSE, 'Вы проиграли!\nСоперник оказался быстрее вас.'],
+			['my_left_after_30',LOSE, 'Вы проиграли!\nНе успели вывести свои шашки за 30 ходов.'],
+			['my_more_fin_after_80',WIN , 'Вы выиграли!\nПеревели больше шашек в новый дом.'],
+			['opp_more_fin_after_80',LOSE, 'Вы проиграли!\nСоперник перевел больше шашек в новый дом.'],
+			['same_fin_after_80',DRAW , 'Ничья\nОдинаковое количество шашек в новом доме'],
+			['my_stop',DRAW , 'Вы отменили игру.']			
+		];
+		
+		let result_number = res_array.find( p => p[0] === result)[1];
+		let result_info = res_array.find( p => p[0] === result)[2];				
+			
+		//выключаем элементы
+		objects.timer_cont.visible = false;
+		objects.stop_bot_button.visible = false;
+		
+		//отключаем взаимодейтсвие с доской
+		objects.board.pointerdown = function() {};
+		
+		//воспроизводим звук
+		if (result_number === DRAW || result_number === LOSE)
+			game_res.resources.lose.sound.play();
+		else
+			game_res.resources.win.sound.play();
+		
+		
+		await big_message.show(result_info, ')))')
+		
 	},
 
-	make_move: function() {
+	make_move: async function() {
 
+		//перемещаем табло времени
+		objects.timer_cont.x = 10;
+
+		await new Promise((resolve, reject) => setTimeout(resolve, 300));
 
 		let m_data={};
-		if (move<30) {
-			m_data=minimax_solver.minimax_3(g_board,move);
+		if (made_moves < 30) {
+			m_data=minimax_solver.minimax_3(g_board, made_moves);
 		} else {
 			//let f2=board_func.count_finished2(g_board);
 			//if (f2>8)
 			//	m_data=minimax_solver.minimax_4_single(g_board,move);
 			//else
-			m_data=minimax_solver.minimax_3_single(g_board,move);
+			m_data=minimax_solver.minimax_3_single(g_board, made_moves);
 		}
+		
+
+		game.receive_move(m_data);	
 
 
-		//получаем последовательность ходов
-		let moves=board_func.get_moves_path(m_data);
-
-		board_func.start_gentle_move(m_data,moves,function(){
-
-			//перемещаем табло времени
-			objects.timer_cont.x=620-objects.timer_cont.x;
-
-			my_turn=1;
-			let board_state=board_func.get_board_state(g_board, move);
-			//проверяем не закончена ли игра
-			if (board_state===1 || board_state===2 || board_state===3 || board_state===4 || board_state===9)  {
-
-				//допускаем что 2 не могут быть зажаты
-				if (board_state===9)
-					board_state=4;
-
-				finish_game.bot(board_state);
-			}
-
-		});
-
-
+	},
+	
+	reset_timer : function() {
+		
+		
+	},
+	
+	clear : function() {
+		
+		//выключаем элементы
+		objects.timer_cont.visible = false;
+		objects.stop_bot_button.visible = false;
+		
 	}
-}
-
-var calc_my_new_rating=function(res)	{
-
-	var Ea = 1 / (1 + Math.pow(10, ((opp_data.rating-my_data.rating)/400)));
-	if (res===1)
-		return Math.round(my_data.rating + 16 * (1 - Ea));
-	if (res===0)
-		return Math.round(my_data.rating + 16 * (0.5 - Ea));
-	if (res===-1)
-		return Math.round(my_data.rating + 16 * (0 - Ea));
-};
-
-var cut_string = function(s,f_size, max_width) {
-
-	let sum_v=0;
-	for (let i=0;i<s.length;i++) {
-
-		let code_id=s.charCodeAt(i);
-		let char_obj=game_res.resources.m2_font.bitmapFont.chars[code_id];
-		if (char_obj===undefined) {
-			char_obj=game_res.resources.m2_font.bitmapFont.chars[83];
-			s = s.substring(0, i) + 'S' + s.substring(i + 1);
-		}
-
-		sum_v+=char_obj.xAdvance*f_size/64;
-		if (sum_v>max_width)
-			return s.substring(0,i-1);
-	}
-	return s
 
 }
 
@@ -963,465 +1156,64 @@ var make_text = function (obj, text, max_width) {
 	obj.text =  text;
 }
 
-var finish_game = {
+var game = {
 
-	online: function(res) {
+	opponent : "",
+	selected_checker : 0,
 
-		if (!(state==='p'))	return;
+	activate: function(opponent, role) {
 
-		//удаляем счетчик оставшегося на ход времени
-		clearTimeout(game.move_timer);
-
-		var game_result=0;
-		var game_result_text="";
-		var game_result_text2="";
-
-		switch (res) {
-
-			case 1: // шашки 1 завршили игру
-				if (my_role==="master") {
-					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";
-					game_result=1;
-				} else {
-					game_result_text="Вы проиграли\nсоперник перевел шашки в новый дом";
-					game_result=-1;
-				}
-			break;
-
-			case 2:	// шашки 2 завршили игру
-				if (my_role==="master") {
-					game_result_text="Вы проиграли\nсоперник перевел шашки в новый дом";
-					game_result=-1;
-				} else {
-					game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";
-					game_result=1;
-				}
-			break;
-
-			case 3:	// оба завершили игру
-				game_result_text="НИЧЬЯ!";
-				game_result=0;
-			break;
-
-			case 4:	// шашки 1 не успели вывести из дома за 30 ходов
-				if (my_role==="master") {
-					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";
-					game_result=-1;
-				} else {
-					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";
-					game_result=1;
-				}
-			break;
-
-			case 5: // шашки 2 не успели вывести из дома за 30 ходов
-
-				if (my_role==="master") {
-					game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";
-					game_result=1;
-				} else {
-					game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";
-					game_result=-1;
-				}
-			break;
-
-			case 9:	// оба не успели вывести из дома за 30 ходов
-				game_result_text="НИЧЬЯ!\nникто не успел вывести шашки из дома за 30 ходов";
-				game_result=0;
-			break;
-
-			case 10:
-				game_result_text="Победа!\nСоперник сдался!";
-				game_result=1;
-			break;
-
-			case 11:
-				game_result_text="Вы сдались!";
-				game_result=-1;
-			break;
-
-			case 12:
-				game_result_text="Пропала связь. Используйте надежное интернет соединение!"; //возможно пропала связь
-				game_result=-1;
-			break;
-
-			case 13:
-				if (me_conf_play===1) {
-					game_result_text="Вы проиграли!\nзакончилось время на ход!";
-					game_result=-1;
-				} else {
-					game_result_text="Похоже Вы не смогли начать игру!";
-					game_result=999;
-				}
-			break;
-
-			case 14:
-				if (opp_conf_play===1) {
-					game_result_text="Победа!\nсоперник не сделал ход!"; //возможно пропала связь
-					game_result=1;
-				} else {
-					game_result_text="Похоже соперник не смог начать игру!";
-					game_result=999;
-				}
-			break;
-
-			case 15:	//я отказываюсь от игры
-				game_result_text="Вы отказались от игры!";
-				game_result=999;
-			break;
-
-			case 16:	//получение отказа от игры
-				game_result_text="Соперник отказался от игры!";
-				game_result=999;
-			break;
-
-			case 88: // шашки 1 больше завели в дом на 80 ход
-				if (my_role==="master") {
-					game_result_text="Вы выиграли\nперевели больше шашек в новый дом";
-					game_result=1;
-				} else {
-					game_result_text="Вы проиграли\nсоперник перевел больше шашек в новый дом";
-					game_result=-1;
-				}
-			break;
-
-			case 89: // шашки 2 больше завели в дом на 80 ход
-				if (my_role==="master") {
-					game_result_text="Вы проиграли\nсоперник перевел больше шашек в новый дом";
-					game_result=-1;
-				} else {
-					game_result_text="Вы выиграли\nперевели больше шашек в новый дом";
-					game_result=1;
-				}
-			break;
-
-			case 90: // одинаково шашек в новом дому
-				game_result_text="НИЧЬЯ!";
-				game_result=0;
-			break;
-
-		}
-
-		if (game_result!==999) {
-
-			//обновляем мой рейтинг в базе и на карточке
-			let old_rating=my_data.rating;
-
-			//считаем и записываем мой новый рейтинг
-			my_data.rating=calc_my_new_rating(game_result);
-			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
-			game_result_text2="Рейтинг: "+old_rating+" > "+my_data.rating;
-			objects.my_card_rating.text=my_data.rating;
-			//console.log(old_rating,my_data.rating)
-
-			//записываем результат в базу данных
-			let duration = ~~((Date.now() - game.start_time)*0.001);
-			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result,'fin_type':res,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});
-			
-			
-			let check_players =[
-				'1NOs1k4jKvIIe80grKaEoIZ59PbuP0TWlBOoFHrUoh4=',
-				'2ifgfvcabThOq2EhUg2qYNagFukZm49Hky9CBILikrE=',
-				'ApglJugCBw3owZiptBGmAFtghywpFDUl4GOE5yTevc8=',
-				'HAXS4Uwl22XJybZg2gTbwaHUzHOMc7X1mLFS2Av8ayM=',
-				'HHNnZgYsNjwFHsGW5l3uvtX+GOeZJJcD8HQz8RcThWw=',
-				'Q91gCAYjLDQeTBZLiwmWWzWmhZnuKTAWgpLbm3kw9Uo=',
-				'X3oRx1NdLMzDqrLaKAXAahBP8Pnq1k+irMDuHKHqMbY=',
-				'Z8rpvOLTNIjvgZxnTMTSZX5Z08QfynLlxi0ZvWs0cV8=',
-				'aPehlhdOYUKrCObw76SfaIGwK8BbBm2Hk7bR+WRNgsM=',
-				'cZ9FfoeCzzwm3CbHPkBKRHTAh4qoDaJvrserVFtBvPo=',
-				'ihwRwyyjjwtumUck+HzegY6D5kZ3tIJKQ1ZHPlN6s3k=',
-				'ls4147060',
-				'nYaoPB58Z5BqhFaOqpJx10MEQblZY7wMLgUxqunbQJg=',
-				'p70n979DU+biBKD3wbiOn0hADScsGJZkoRnEAx7MRNI=',
-				'v3fob5izUFzWXThIxl1VpWbmDulYWZlfWVRBG9qzrdQ=',
-				'vNx2vRus1XIPlMFllQmDnqWfV3YZp7Ff5hYis5eKllc=',
-				'vk113552413',
-				'vk188397292',
-				'w5jjfB09gf2kWOJ0BxicV1jUtkESey7npAzj+cyE078=',
-				'wmXca5Z53ezNANjw+BkH5GpfjDOpg51D+bJGmTJHsnQ='	
-			]
-			
-			if (check_players.includes(my_data.uid) || check_players.includes(opp_data.uid)) {
-			firebase.database().ref("finishes2").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':game_result,'fin_type':res,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});	
-			}
-
-			//увеличиваем количество игр
-			my_data.games++;
-			firebase.database().ref("players/"+[my_data.uid]+"/games").set(my_data.games);	
-			
-			//воспроизводим звук
-			if (game_result===-1)
-				game_res.resources.lose.sound.play();
-			else
-				game_res.resources.win.sound.play();
-		} else {
-			
-			//восстанавливаем проигрышный рейтинг
-			firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
-			
-		}
-
-
-		//показыаем сообщение с результатом игры
-		big_message.show(game_result_text,game_result_text2, function(){finish_game.show_ad()});
-
-		//если диалоги еще открыты
-		if (objects.stickers_cont.visible===true)
-			anim.add_pos({obj:objects.stickers_cont,param:'y',vis_on_end:false,func:'easeOutBack',val:['sy',-450],	speed:0.03});
-
-		objects.giveup_dialog.visible=false;
-		objects.cur_move_text.visible=false;
-		objects.timer_cont.visible=false;
-		objects.board.visible=false;
-		objects.opp_card_cont.visible=false;
-		objects.my_card_cont.visible=false;
-		objects.game_buttons_cont.visible=false;
-		objects.selected_frame.visible=false;
-		objects.checkers.forEach((c)=> {c.visible=false});
-		move=0;
-
-		//показыаем основное меню
-		main_menu.activate();
-
-		opp_data.uid="";
-
-		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
-		set_state ({state : 'o'});
-
-	},
-
-	bot: function(res) {
-
-		var game_result_text="";
-		var game_result_text2="";
-		var game_result=1;
-
-		switch (res) {
-
-			case 1: // шашки 1 завершили игру
-				game_result_text="Вы выиграли\nбыстрее оппонента перевели шашки в новый дом";
-			break;
-
-			case 2:	// шашки 2 завершили игру
-				game_result_text="Вы проиграли!\nоппонент быстрее Вас перевел шашки в новый дом";
-				game_result=0;
-			break;
-
-			case 3:	// шашки 1 и 2 завершили игру
-				game_result_text="НИЧЬЯ!";
-				game_result=0;
-			break;
-
-			case 4:	// шашки 1 не успели вывести из дома за 30 ходов
-				game_result_text="Вы проиграли!\nне успели вывести шашки из дома за 30 ходов";
-				game_result=0;
-			break;
-
-			case 5: // шашки 2 не успели вывести из дома за 30 ходов
-				game_result_text="Вы выиграли!\nоппонент не успел вывести шашки из дома за 30 ходов";
-			break;
-
-			case 9:	// шашки 1 и 2 не успели вывести из дома за 30 ходов
-				game_result_text="НИЧЬЯ!\nникто не успел вывести шашки из дома за 30 ходов";
-				game_result=0;
-			break;
-
-			case 10:	// нажали кнопку завершить
-				game_result_text="Игра завершена";
-				game_result=0;
-			break;
-
-		}
-
-
-		//воспроизводим звук
-		if (game_result===1) {
-
-			//если мы играем в рамках соц.сети то обновляем рейтинг и на карточке тоже
-			if (my_data.rating < 2000) {
-				
-				my_data.rating++;
-				game_result_text2="Рейтинг: +1";	
-				objects.my_card_rating.text=my_data.rating;
-				firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
-				
-			} else {				
-				game_result_text2=")))";				
-			}
-
-
-			game_res.resources.win.sound.play();
-		}
-		else {
-
-			game_res.resources.lose.sound.play();
-		}
-
-
-		//показыаем сообщение с результатом игры
-		big_message.show(game_result_text,game_result_text2, function(){finish_game.show_ad()});
-
-
-		//если диалоги еще открыты
-		objects.timer_cont.visible=false;
-		objects.board.visible=false;
-		objects.stickers_cont.visible=false;
-		objects.cur_move_text.visible=false;
-		objects.opp_card_cont.visible=false;
-		objects.my_card_cont.visible=false;
-		objects.game_buttons_cont.visible=false;
-		objects.selected_frame.visible=false;
-		objects.checkers.forEach((c)=>{	c.visible=false});
-		objects.stop_bot_button.visible=false;
-		move=0;
-
-		//показыаем основное меню
-		main_menu.activate();
-
-		opp_data.uid="";
-
-		//устанавливаем статус в базе данных только если досупна онлайн игра
-		set_state({state : 'o'});
-
-
-	},
-
-	show_ad: function() {
-
-		if (game_platform==="YANDEX") {
-			//показываем рекламу
-			window.ysdk.adv.showFullscreenAdv({
-			  callbacks: {
-				onClose: function() {},
-				onError: function() {}
-						}
-			})
-		}
-
-		if (game_platform==="VK") {
-
-			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
-			.then(data => console.log(data.result))
-			.catch(error => console.log(error));
-		}
-
-	}
-
-}
-
-var game={
-
-	move_time_left: 30,
-	move_timer:0,
-	start_time:0,
-	disconnect_time:0,
-
-	activate: function(role) {
-
-		console.clear();
-		//console.log(role);
-		my_role=role;
-		if (my_role==="master") {
+		if (role==="master") {
 			objects.timer_cont.x=610;
 			my_turn=0;
 		} else {
-
 			objects.timer_cont.x=10;
 			my_turn=1;
 		}
+		
+		
+		
+
+		my_role = role;
+		
+		
+		if (this.opponent !== "")
+			this.opponent.clear();
+		
+		this.opponent = opponent;
+		this.opponent.activate();
 
 		//если открыт лидерборд то закрываем его
 		if (objects.lb_1_cont.visible===true)
 			lb.close();
-		
-		//фиксируем время начала игры
-		game.start_time = Date.now();
-		game.disconnect_time = 0;
-
-		//ни я ни оппонент пока не подтвердили игру
-		me_conf_play=0;
-		opp_conf_play=0;
-		
-
+			
 		game_res.resources.note.sound.play();
 
 		//это если перешли из бот игры
-		objects.stop_bot_button.visible=false;
-		selected_checker=0;
+		this.selected_checker=0;
 		objects.selected_frame.visible=false;
 
-
+		//основные элементы игры
 		objects.board.visible=true;
-
 		objects.my_card_cont.visible=true;
 		objects.opp_card_cont.visible=true;
 		objects.timer_cont.visible=true;
-		objects.game_buttons_cont.visible=true;
+		
 		objects.cur_move_text.visible=true;
 
 		//обозначаем какой сейчас ход
-		move=0;
-		objects.cur_move_text.text="Ход: "+move;
+		made_moves=0;
+		objects.cur_move_text.text="Ход: "+made_moves;
 
 		//включаем взаимодейтсвие с доской
-		objects.board.pointerdown=game.mouse_down_on_board;
+		objects.board.pointerdown = game.mouse_down_on_board.bind(game);
 		
-		
-		//вычиcляем рейтинг при проигрыше и устанавливаем его в базу
-		let lose_rating = calc_my_new_rating(-1);
-		if (lose_rating >100 && lose_rating<9999)
-			firebase.database().ref("players/"+my_data.uid+"/rating").set(lose_rating);
-
-
-		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
-		set_state({state : 'p'});
-
-		//счетчик времени
-		this.move_time_left=35;
-		this.move_timer=setTimeout(function(){game.timer_tick()}, 1000);
-		objects.timer_text.tint=0xffffff;
-
-		//сначала скрываем все шашки
-		g_board =[[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[2,2,2,2,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1],[0,0,0,0,1,1,1,1]];
-		board_func.update_board();
 
 	},
 
 	timer_tick: function() {
 
-		this.move_time_left--;
 
-		if (this.move_time_left<0 && my_turn === 1)	{
-			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:14}});
-			finish_game.online(13);
-			return;
-		}
-
-		if (this.move_time_left<-5 && my_turn === 0) {
-			//firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:13}});
-			finish_game.online(14);
-			return;
-		}
-
-
-		if (connected === 0) {
-			game.disconnect_time ++;
-			if (game.disconnect_time > 5) {
-				finish_game.online(12);
-				return;				
-			}
-		}
-		
-		
-		//подсвечиваем красным если осталость мало времени
-		if (this.move_time_left === 5) {
-			objects.timer_text.tint=0xff0000;
-			game_res.resources.clock.sound.play();
-		}
-
-
-		objects.timer_text.text="0:"+this.move_time_left;
-		this.move_timer=setTimeout(function(){game.timer_tick()}, 1000);
 
 	},
 
@@ -1439,7 +1231,7 @@ var game={
 
 		//проверяем что моя очередь
 		if (my_turn === 0) {
-			add_message("не твоя очередь");
+			message.add("не твоя очередь");
 			return;
 		}
 
@@ -1452,15 +1244,15 @@ var game={
 		var new_y=Math.floor(8*(my-objects.board.y-10)/400);
 
 		//если выбрана новая шашка
-		if (selected_checker===0)
+		if (this.selected_checker===0)
 		{
 			//находим шашку по координатам
-			selected_checker=board_func.get_checker_by_pos(new_x,new_y);
+			this.selected_checker=board_func.get_checker_by_pos(new_x,new_y);
 
-			if (selected_checker.m_id===my_checkers)
+			if (this.selected_checker.m_id===my_checkers)
 			{
-				objects.selected_frame.x=selected_checker.x;
-				objects.selected_frame.y=selected_checker.y;
+				objects.selected_frame.x=this.selected_checker.x;
+				objects.selected_frame.y=this.selected_checker.y;
 				objects.selected_frame.visible=true;
 
 				//воспроизводим соответствующий звук
@@ -1470,28 +1262,26 @@ var game={
 			}
 			else
 			{
-				add_message("Это не ваши шашки");
-				selected_checker=0;
+				message.add("Это не ваши шашки");
+				this.selected_checker=0;
 				return;
 			}
 		}
 
-		if (selected_checker!==0)
+		if (this.selected_checker!==0)
 		{
 
 			//если нажали на выделенную шашку то отменяем выделение
-			if (new_x===selected_checker.ix && new_y===selected_checker.iy)
+			if (new_x===this.selected_checker.ix && new_y===this.selected_checker.iy)
 			{
 				game_res.resources.move.sound.play();
-				selected_checker=0;
+				this.selected_checker=0;
 				objects.selected_frame.visible=false;
 				return;
 			}
 
-
-
 			//формируем объект содержащий информацию о ходе
-			let m_data={x1:selected_checker.ix,y1:selected_checker.iy,x2:new_x, y2:new_y};
+			let m_data={x1:this.selected_checker.ix,y1:this.selected_checker.iy,x2:new_x, y2:new_y};
 
 			//пытыемся получить последовательность ходов
 			let moves=board_func.get_moves_path(m_data);
@@ -1499,48 +1289,34 @@ var game={
 
 			if (moves.length!==11)
 			{
-
+				//убираем выделение
 				objects.selected_frame.visible=false;
 
 				//отменяем выделение
-				selected_checker=0;
+				this.selected_checker=0;
 
 				//отправляем ход сопернику
-				game.process_my_move(m_data,moves);
+				game.process_my_move(m_data, moves);
 			}
 			else
 			{
-				add_message("сюда нельзя ходить");
+				message.add("Так нельзя ходить");
 			}
 		}
 
 	},
 
-	process_my_move : function (move_data, moves) {
+	process_my_move : async function (move_data, moves) {
 
-		//обновляем счетчик хода
-		this.disconnect_time = 0;
-		move++;
-		objects.cur_move_text.text="Ход: "+move;
-
-		//предварительно создаем доску для проверки завершения
-		let new_board = JSON.parse(JSON.stringify(g_board));
-		let {x1,y1,x2,y2}=move_data;
-		[new_board[y1][x1],new_board[y2][x2]]=[new_board[y2][x2],new_board[y1][x1]];
-		var board_state=0;
-		if (my_role==="master") // если я мастер
-			board_state=board_func.get_board_state(new_board, move);
+		//делаем перемещение шашки
+		await board_func.start_gentle_move(move_data, moves);	
 
 		//начинаем процесс плавного перемещения шашки
-		if (state==="b") {
-			//это игра с ботом
-			board_func.start_gentle_move(move_data,moves,function() {setTimeout(function(){bot_game.make_move()},400)});
+		if (state === "b") {					
+			bot_game.make_move();
 		}
 		else
 		{
-			//начинаем плавное перемещение шашки
-			board_func.start_gentle_move(move_data,moves,function(){});
-
 			//переворачиваем данные о ходе так как оппоненту они должны попасть как ход шашками №2
 			move_data.x1=7-move_data.x1;
 			move_data.y1=7-move_data.y1;
@@ -1548,41 +1324,147 @@ var game={
 			move_data.y2=7-move_data.y2;
 
 			//отправляем ход сопернику
-			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",tm:Date.now(),data:{...move_data,board_state:board_state}},
-			function(error){if(error){add_message("Ошибка при отправке хода. Сообщите админу.")}});
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MOVE",tm:Date.now(),data:{...move_data, board_state:0}},
+			function(error){if(error){message.add("Ошибка при отправке хода. Сообщите админу.")}});
 		}
 
-		//проверяем не закончена ли игра
-		if (board_state!==0)
-			finish_game.online(board_state);
-
-
+		
+		if (my_role === 'slave') {
+			
+			made_moves++;
+			objects.cur_move_text.text="Ход: "+made_moves;
+			
+			let result = board_func.get_board_state(g_board, made_moves);
+			if (result !== '') {
+				this.stop(result);
+				return;
+			}	
+		}
+		
+			
+		
 		//уведомление что нужно вывести шашки из дома
-		if (move>24 && move<31 ) {
-			if (board_func.any1home(new_board))
-				add_message("После 30 ходов не должно остаться шашек в доме");
+		if (made_moves>24 && made_moves<31 ) {
+			if (board_func.any1home(g_board))
+				message.add("После 30 ходов не должно остаться шашек в доме");
 		}
 
 		//уведомление что игра скоро закончиться
-		if (move>75 && move<81 ) {
-			add_message("После 80 хода выиграет тот кто перевел больше шашек в новый дом");
+		if (made_moves>75 && made_moves<81 ) {
+			message.add("После 80 хода выиграет тот кто перевел больше шашек в новый дом");
 		}
 
-
+		
 
 		//перезапускаем таймер хода и кто ходит
-		this.move_time_left=30;
-		objects.timer_text.tint=0xffffff;
 		my_turn = 0;
-
+		
 		//перемещаем табло времени
-		objects.timer_cont.x=620-objects.timer_cont.x;
+		objects.timer_cont.x = 620;
+		
+		//обновляем таймер
+		this.opponent.reset_timer();		
 
 		//обозначаем что я сделал ход и следовательно подтвердил согласие на игру
-		me_conf_play=1;
+		this.opponent.me_conf_play=1;
 
+	},
+
+	receive_move: async function(move_data) {
+		
+		//это чтобы не принимать ходы если игры нет (то есть выключен таймер)
+		if (objects.timer_cont.visible === false)
+			return;		
+
+	
+		
+		
+		//воспроизводим уведомление о том что соперник произвел ход
+		game_res.resources.receive_move.sound.play();
+
+		//считаем последовательность ходов
+		let moves = board_func.get_moves_path(move_data);
+
+		//плавно перемещаем шашку
+		await board_func.start_gentle_move(move_data, moves);
+		
+		if (my_role === 'master') {
+			made_moves++;
+			objects.cur_move_text.text="Ход: "+made_moves;
+				
+			let result = board_func.get_board_state(g_board, made_moves);
+			
+			//бота нельзя блокировать
+			if (result === 'opp_left_after_30' && this.opponent.name === 'bot')	result = '';
+			
+			if (result !== '') {
+				this.stop(result);
+			}			
+		}
+
+		//обозначаем кто ходит
+		my_turn = 1;
+
+		//обозначаем что соперник сделал ход и следовательно подтвердил согласие на игру
+		this.opponent.opp_conf_play = 1;
+		
+		//перемещаем табло времени
+		objects.timer_cont.x = 10;
+		
+		//обновляем таймер
+		this.opponent.reset_timer();		
+
+	},
+	
+	stop : async function (result) {
+				
+		await this.opponent.stop(result);
+				
+		objects.giveup_dialog.visible=false;
+		objects.cur_move_text.visible=false;
+		objects.board.visible=false;
+		objects.opp_card_cont.visible=false;
+		objects.my_card_cont.visible=false;
+		objects.selected_frame.visible=false;
+		objects.checkers.forEach((c)=> {c.visible=false});
+		
+		//рекламная пауза
+		show_ad();
+		await new Promise((resolve, reject) => setTimeout(resolve, 2000));
+		
+		//показыаем основное меню
+		main_menu.activate();
+
+		//стираем данные оппонента
+		opp_data.uid="";
+		
+		//соперника больше нет
+		this.opponent = "";
+
+		//устанавливаем статус в базе данных а если мы не видны то установливаем только скрытое состояние
+		set_state ({state : 'o'});
 	}
 
+}
+
+var	show_ad = function(){
+		
+	if (game_platform==="YANDEX") {			
+		//показываем рекламу
+		window.ysdk.adv.showFullscreenAdv({
+		  callbacks: {
+			onClose: function() {}, 
+			onError: function() {}
+					}
+		})
+	}
+	
+	if (game_platform==="VK") {
+				 
+		vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
+		.then(data => console.log(data.result))
+		.catch(error => console.log(error));	
+	}		
 }
 
 var giveup_menu={
@@ -1590,12 +1472,17 @@ var giveup_menu={
 	show: function() {
 
 
+		if (made_moves <5 ) {
+			message.add("Нельзя сдаваться в начале игры");		
+			return;
+		}
 
 
 		if (any_dialog_active===1) {
 			game_res.resources.locked.sound.play();
 			return
 		};
+		
 		any_dialog_active=1;
 
 		if (objects.giveup_dialog.ready===false)
@@ -1603,7 +1490,8 @@ var giveup_menu={
 		game_res.resources.click.sound.play();
 
 		//--------------------------
-		anim.add_pos({obj:objects.giveup_dialog,param:'y',vis_on_end:true,func:'easeOutCubic',val:[450,'sy'],	speed:0.05});
+		anim2.add(objects.giveup_dialog,{y:[450, objects.giveup_dialog.sy]}, true, 0.5,'easeOutCubic');
+
 
 	},
 
@@ -1614,11 +1502,11 @@ var giveup_menu={
 		game_res.resources.click.sound.play();
 
 		//отправляем сообщени о сдаче и завершаем игру
-		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:10}});
+		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
 
 		this.hide();
 
-		finish_game.online(11);
+		game.stop('my_giveup');
 
 	},
 
@@ -1626,12 +1514,14 @@ var giveup_menu={
 
 		if (objects.giveup_dialog.ready===false)
 			return;
+		
 		game_res.resources.close.sound.play();
 
 		any_dialog_active=0;
 
 		//--------------------------
-		anim.add_pos({obj:objects.giveup_dialog,param:'y',vis_on_end:false,func:'easeInCubic',val:['sy',450],	speed:0.05});
+		anim2.add(objects.giveup_dialog,{y:[objects.giveup_dialog.sy, 450]}, false, 0.5,'easeInCubic');
+
 	}
 }
 
@@ -1919,9 +1809,9 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 
 	},
 
-	make_weights_board: function(move) {
+	make_weights_board: function(made_moves) {
 
-		let p=move/60+0.5;
+		let p=made_moves/60+0.5;
 		for (let y=0;y<8;y++) {
 			for (let x=0;x<8;x++) {
 				this.bad_1[y][x]=Math.pow(x*x+y*y,p)+Math.pow((1-x)*(1-x)+y*y,p);
@@ -1929,17 +1819,17 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 		}
 	},
 
-	make_weights_board2: function(move) {
+	make_weights_board2: function(made_moves) {
 		
 		let r_num = Math.random()*0.8 + 0.2;
-		let p=move/60+0.5;
+		let p=made_moves/60+0.5;
 		for (let y=0;y<8;y++) {
 			for (let x=0;x<8;x++) {
 				this.bad_1[y][x]=r_num * Math.pow(x*x+y*y,p)+ (1 - r_num ) * Math.pow((1-x)*(1-x)+y*y,p);
 			}
 		}
 
-		if (move>37) {
+		if (made_moves>37) {
 
 			for (let y=5;y<8;y++) {
 				for (let x=4;x<8;x++) {
@@ -1951,7 +1841,7 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 
 	},
 
-	board_val: function(board, move) {
+	board_val: function(board, made_moves) {
 
 		var val_1=0;
 		var val_2=0;
@@ -2017,7 +1907,7 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 		}
 
 		//проверяем не закончилась ли игра
-		if (move>=30) {
+		if (made_moves>=30) {
 
 			if (board_func.any1home(board)===1)
 				val_2=999999;
@@ -2092,9 +1982,9 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 		return bad_val_1;
 	},
 
-	minimax_3: function(board,move) {
+	minimax_3: function(board,made_moves) {
 
-		this.make_weights_board(move);
+		this.make_weights_board(made_moves);
 		let inv_brd=this.invert_board(board);
 
 		var m_data2={};
@@ -2117,7 +2007,7 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 				for (let c2=0;c2<childs2.length;c2++) {
 
 
-				max_2=Math.max(this.board_val(childs2[c2][0],move+3),max_2);
+				max_2=Math.max(this.board_val(childs2[c2][0],made_moves+3),max_2);
 				if (max_2>min_1)
 					break;
 				}
@@ -2192,9 +2082,9 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 
 	},
 
-	minimax_3_single: function(board, move) {
+	minimax_3_single: function(board, made_moves) {
 
-		this.make_weights_board2(move);
+		this.make_weights_board2(made_moves);
 		min_move_amount=-3;
 
 		//this.update_weights_board();
@@ -2339,10 +2229,9 @@ var process_new_message=function(msg) {
 	}
 
 	//принимаем также отрицательный ответ от соответствующего соперника
-	if (msg.message==="REJECT"  && pending_player===msg.sender) {
+	if (msg.message==="REJECT"  && pending_player === msg.sender) {
 		cards_menu.rejected_invite();
 	}
-
 
 	//получение сообщение в состояни игры
 	if (state==="p") {
@@ -2364,56 +2253,25 @@ var process_new_message=function(msg) {
 
 			//получение сообщение с сдаче
 			if (msg.message==="END" )
-				finish_game.online(msg.data.board_state);
+				game.stop('opp_giveup');
 
 			//получение сообщение с ходом игорка
 			if (msg.message==="MOVE")
-				receive_move(msg.data);
+				game.receive_move(msg.data);
 		}
 	}
 
 	//приглашение поиграть
 	if(state==="o" || state==="b") {
-		if (msg.message==="INV") {
+		if (msg.message==="INV2") {
 			req_dialog.show(msg.sender);
 		}
 		if (msg.message==="INV_REM") {
 			//запрос игры обновляет данные оппонента поэтому отказ обрабатываем только от актуального запроса
-			if (msg.sender===opp_data.uid)
+			if (msg.sender === req_dialog._opp_data.uid)
 				req_dialog.hide(msg.sender);
 		}
 	}
-}
-
-var receive_move = function(move_data) {
-
-	//воспроизводим уведомление о том что соперник произвел ход
-	game_res.resources.receive_move.sound.play();
-
-	//считаем последовательность ходов
-	let moves=board_func.get_moves_path(move_data);
-
-	//плавно перемещаем шашку
-	board_func.start_gentle_move(move_data,moves,function(){});
-
-	//если игра завершена то переходим
-	if (move_data.board_state!==0)	{
-		finish_game.online(move_data.board_state);
-		return;
-	}
-
-	//перезапускаем таймер хода
-	game.move_time_left=30;
-	objects.timer_text.tint=0xffffff;
-
-	//обозначаем кто ходит
-	my_turn = 1;
-
-	//обозначаем что соперник сделал ход и следовательно подтвердил согласие на игру
-	opp_conf_play=1;
-
-	//перемещаем табло времени
-	objects.timer_cont.x=620-objects.timer_cont.x;
 
 }
 
@@ -2439,7 +2297,9 @@ var req_dialog={
 				//так как успешно получили данные о сопернике то показываем окно
 				any_dialog_active=1;
 				game_res.resources.receive_sticker.sound.play();
-				anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:true,func:'easeOutElastic',val:[-260, 	'sy'],	speed:0.02});
+			
+				anim2.add(objects.req_cont,{y:[-260, objects.req_cont.sy]}, true, 0.75,'easeOutElastic');
+
 
 				//Отображаем  имя и фамилию в окне приглашения
 				req_dialog._opp_data.name=player_data.name;
@@ -2486,7 +2346,8 @@ var req_dialog={
 
 		any_dialog_active=0;
 
-		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
+		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
+
 		firebase.database().ref("inbox/"+req_dialog._opp_data.uid).set({sender:my_data.uid,message:"REJECT",tm:Date.now()});
 	},
 
@@ -2499,8 +2360,9 @@ var req_dialog={
 		
 		//устанавливаем окончательные данные оппонента
 		opp_data=req_dialog._opp_data;	
+	
+		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
 
-		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
 
 		//отправляем информацию о согласии играть с идентификатором игры
 		game_id=~~(Math.random()*999);
@@ -2513,7 +2375,7 @@ var req_dialog={
 
 		main_menu.close();
 		cards_menu.close();
-		game.activate("slave");
+		game.activate(online_game, "slave");
 
 	},
 
@@ -2522,8 +2384,9 @@ var req_dialog={
 		//если диалог не открыт то ничего не делаем
 		if (objects.req_cont.ready===false || objects.req_cont.visible===false)
 			return;
+	
+		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
 
-		anim.add_pos({obj:objects.req_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy', 	-260],	speed:0.05});
 	}
 
 
@@ -2585,14 +2448,16 @@ var main_menu= {
 		any_dialog_active=1;
 
 		game_res.resources.click.sound.play();
+	
+		anim2.add(objects.rules_cont,{y:[-450, objects.rules_cont.sy]}, true, 0.5,'easeOutBack');
 
-		anim.add_pos({obj:objects.rules_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-450,'sy'],	speed:0.04});
 
 	},
 
 	rules_ok_down: function () {
 		any_dialog_active=0;
-		anim.add_pos({obj:objects.rules_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',-450],	speed:0.04});
+		anim2.add(objects.rules_cont,{y:[objects.rules_cont.sy, -450]}, false, 0.5,'easeInBack');
+
 	},
 
 	pref_button_down: function () {
@@ -2604,8 +2469,9 @@ var main_menu= {
 		any_dialog_active=1;
 
 		game_res.resources.click.sound.play();
+	
+		anim2.add(objects.pref_cont,{y:[-200, objects.pref_cont.sy]}, true, 0.5,'easeOutBack');
 
-		anim.add_pos({obj:objects.pref_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-200,'sy'],	speed:0.04});
 
 	},
 
@@ -2613,7 +2479,8 @@ var main_menu= {
 
 		any_dialog_active=0;
 		game_res.resources.close.sound.play();
-		anim.add_pos({obj:objects.pref_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',-200],	speed:0.04});
+		anim2.add(objects.pref_cont,{y:[objects.pref_cont.sy, -200]}, false, 0.5,'easeInBack');
+
 
 	},
 
@@ -2656,11 +2523,11 @@ var lb={
 		objects.desktop.visible=true;
 		objects.desktop.texture=game_res.resources.lb_bcg.texture;
 
-
-		anim.add_pos({obj:objects.lb_1_cont,param:'x',vis_on_end:true,func:'easeOutBack',val:[-150,'sx'],	speed:0.02});
-		anim.add_pos({obj:objects.lb_2_cont,param:'x',vis_on_end:true,func:'easeOutBack',val:[-150,'sx'],	speed:0.025});
-		anim.add_pos({obj:objects.lb_3_cont,param:'x',vis_on_end:true,func:'easeOutBack',val:[-150,'sx'],	speed:0.03});
-		anim.add_pos({obj:objects.lb_cards_cont,param:'x',vis_on_end:true,func:'easeOutCubic',val:[450,0],	speed:0.03});
+		anim2.add(objects.lb_1_cont,{x:[-150, objects.lb_1_cont.sx]}, true, 0.5,'easeOutBack');
+		anim2.add(objects.lb_2_cont,{x:[-150, objects.lb_2_cont.sx]}, true, 0.5,'easeOutBack');
+		anim2.add(objects.lb_3_cont,{x:[-150, objects.lb_3_cont.sx]}, true, 0.5,'easeOutBack');
+		anim2.add(objects.lb_cards_cont,{x:[450, 0]}, true, 0.5,'easeOutCubic');
+		
 
 		objects.lb_cards_cont.visible=true;
 		objects.lb_back_button.visible=true;
@@ -3223,7 +3090,7 @@ var cards_menu={
 
 		any_dialog_active=1;		
 		
-		anim.add_pos({obj:objects.td_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-150,'sy'],	speed:0.04});
+		anim2.add(objects.td_cont,{y:[-150, objects.td_cont.sy]}, true, 0.5,'easeOutBack');
 		
 		objects.td_avatar1.texture = objects.mini_cards[card_id].avatar1.texture;
 		objects.td_avatar2.texture = objects.mini_cards[card_id].avatar2.texture;
@@ -3242,7 +3109,8 @@ var cards_menu={
 		
 		game_res.resources.close.sound.play();
 		
-		anim.add_pos({obj:objects.td_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',400],	speed:0.04});
+		anim2.add(objects.td_cont,{y:[objects.td_cont.sy, 400]}, false, 0.5,'easeInBack');
+
 		
 		
 	},
@@ -3263,8 +3131,8 @@ var cards_menu={
 
 		//показыаем кнопку приглашения
 		objects.invite_button.texture=game_res.resources.invite_button.texture;
-
-		anim.add_pos({obj:objects.invite_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[-150,'sy'],	speed:0.04});
+	
+		anim2.add(objects.invite_cont,{y:[-150, objects.invite_cont.sy]}, true, 0.5,'easeOutBack');
 
 
 		//копируем предварительные данные
@@ -3324,7 +3192,8 @@ var cards_menu={
 		}
 
 
-		anim.add_pos({obj:objects.invite_cont,param:'y',vis_on_end:false,func:'easeInBack',val:['sy',400],	speed:0.04});
+		anim2.add(objects.invite_cont,{y:[objects.invite_cont.sy, 400]}, false, 0.5,'easeInBack');
+
 
 	},
 
@@ -3348,13 +3217,13 @@ var cards_menu={
 			objects.opp_card_rating.text='1400';
 			objects.opp_avatar.texture=objects.invite_avatar.texture;	
 			
-			bot_game.start();
+			game.activate(bot_game, 'master');
 		}
 		else
 		{
 			game_res.resources.click.sound.play();
 			objects.invite_button.texture=game_res.resources.wait_response.texture;
-			firebase.database().ref("inbox/"+cards_menu._opp_data.uid).set({sender:my_data.uid,message:"INV",tm:Date.now()});
+			firebase.database().ref("inbox/"+cards_menu._opp_data.uid).set({sender:my_data.uid,message:"INV2",tm:Date.now()});
 			pending_player=cards_menu._opp_data.uid;
 			any_dialog_active=1
 
@@ -3386,7 +3255,7 @@ var cards_menu={
 
 		//закрываем меню и начинаем игру
 		cards_menu.close();
-		game.activate("master");
+		game.activate(online_game, "master");
 	},
 
 	back_button_down: function() {
@@ -3406,6 +3275,9 @@ var cards_menu={
 }
 
 var stickers={
+	
+	promise_resolve_send :0,
+	promise_resolve_recive :0,
 
 	show_panel: function() {
 
@@ -3426,7 +3298,8 @@ var stickers={
 			return;
 
 		//анимационное появление панели стикеров
-		anim.add_pos({obj:objects.stickers_cont,param:'y',vis_on_end:true,func:'easeOutBack',val:[450,'sy'],	speed:0.02});
+		anim2.add(objects.stickers_cont,{y:[450, objects.stickers_cont.sy]}, true, 0.5,'easeOutBack');
+
 	},
 
 	hide_panel: function() {
@@ -3439,47 +3312,65 @@ var stickers={
 		any_dialog_active=0;
 
 		//анимационное появление панели стикеров
-		anim.add_pos({obj:objects.stickers_cont,param:'y',vis_on_end:false,func:'easeOutBack',val:['sy',-450],	speed:0.02});
+		anim2.add(objects.stickers_cont,{y:[objects.stickers_cont.sy, -450]}, false, 0.5,'easeInBack');
+
 	},
 
-	send : function(id) {
+	send : async function(id) {
 
 		if (objects.stickers_cont.ready===false)
 			return;
+		
+		if (this.promise_resolve_send!==0)
+			this.promise_resolve_send("forced");
 
 		this.hide_panel();
 
 		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"MSG",tm:Date.now(),data:id});
-		add_message("Стикер отправлен сопернику");
+		message.add("Стикер отправлен сопернику");
 
 		//показываем какой стикер мы отправили
 		objects.sent_sticker_area.texture=game_res.resources['sticker_texture_'+id].texture;
-		anim.add_pos({obj:objects.sent_sticker_area,param:'alpha',vis_on_end:true,func:'linear',val:[0, 0.5],	speed:0.02});
-		//objects.sticker_area.visible=true;
-		//убираем стикер через 5 секунд
-		if (objects.sent_sticker_area.timer_id!==undefined)
-			clearTimeout(objects.sent_sticker_area.timer_id);
+		
+		await anim2.add(objects.sent_sticker_area,{alpha:[0, 0.5]}, true, 0.5,'linear');
+		
+		let res = await new Promise((resolve, reject) => {
+				stickers.promise_resolve_send = resolve;
+				setTimeout(resolve, 2000)
+			}
+		);
+		
+		if (res === "forced")
+			return;
 
-		objects.sent_sticker_area.timer_id=setTimeout(()=>{anim.add_pos({obj:objects.sent_sticker_area,param:'alpha',vis_on_end:false,func:'linear',val:[0.5,0],	speed:0.02});}, 3000);
-
+		await anim2.add(objects.sent_sticker_area,{alpha:[0.5, 0]}, false, 0.5,'linear');
 	},
 
-	receive: function(id) {
+	receive: async function(id) {
+
+		
+		if (this.promise_resolve_recive!==0)
+			this.promise_resolve_recive("forced");
 
 		//воспроизводим соответствующий звук
 		game_res.resources.receive_sticker.sound.play();
 
 		objects.rec_sticker_area.texture=game_res.resources['sticker_texture_'+id].texture;
+	
+		await anim2.add(objects.rec_sticker_area,{x:[-150, objects.rec_sticker_area.sx]}, true, 0.5,'easeOutBack');
 
-		anim.add_pos({obj:objects.rec_sticker_area,param:'x',vis_on_end:true,func:'easeOutBack',val:[-150,'sx'],	speed:0.02});
+		let res = await new Promise((resolve, reject) => {
+				stickers.promise_resolve_recive = resolve;
+				setTimeout(resolve, 2000)
+			}
+		);
+		
+		if (res === "forced")
+			return;
 
-		//убираем стикер через 5 секунд
-		if (objects.rec_sticker_area.timer_id!==undefined)
-			clearTimeout(objects.rec_sticker_area.timer_id);
-		objects.rec_sticker_area.timer_id=setTimeout(()=>{anim.add_pos({obj:objects.rec_sticker_area,param:'x',vis_on_end:false,func:'easeInBack',val:['x',-150],	speed:0.02});}, 5000);
+		anim2.add(objects.rec_sticker_area,{x:[objects.rec_sticker_area.sx, -150]}, false, 0.5,'easeInBack');
 
 	}
-
 
 }
 
@@ -3776,6 +3667,16 @@ function init_game_env() {
 	if (firebase.apps.length===0) {
 		firebase.initializeApp({
 			
+	/*			
+			apiKey: "AIzaSyDwyhzpCq06nXWtzTfPZ86I0jI_iUedJDg",
+			authDomain: "quoridor-e5c40.firebaseapp.com",
+			databaseURL: "https://quoridor-e5c40-default-rtdb.europe-west1.firebasedatabase.app",
+			projectId: "quoridor-e5c40",
+			storageBucket: "quoridor-e5c40.appspot.com",
+			messagingSenderId: "114845860106",
+			appId: "1:114845860106:web:fa020d476b1f1c28853af3"*/
+			
+
 			apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
 			authDomain: "m-game-27669.firebaseapp.com",
 			databaseURL: "https://m-game-27669-default-rtdb.firebaseio.com",
@@ -3930,8 +3831,8 @@ function init_game_env() {
 
 	}).then(()=>{
 
-		anim.add_pos({obj: objects.id_cont,param: 'y',vis_on_end: false,func: 'easeInBack',val: ['y',-200],	speed: 0.03});
-
+		anim2.add(objects.id_cont,{y:[objects.id_cont.sy, -200]}, false, 0.5,'easeInBack');
+	
 	}).catch((err)=>{
 		alert(err.stack + " " + err);
 	});
@@ -4011,14 +3912,12 @@ function load_resources() {
 
 function main_loop() {
 
-	//обработка передвижения шашек
-	board_func.process_checker_move();
 
 	//глобальная функция
 	g_process();
 
 	game_tick+=0.016666666;
-	anim.process();
+	anim2.process();
 	requestAnimationFrame(main_loop);
 }
 
