@@ -931,6 +931,7 @@ var online_game = {
 		let result_info = result_row[2];				
 		let old_rating = my_data.rating;
 		my_data.rating = this.calc_new_rating (my_data.rating, result_number);
+		firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
 	
 		//если диалоги еще открыты
 		if (objects.stickers_cont.visible===true)
