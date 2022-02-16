@@ -409,7 +409,8 @@ var my_table = {
 		
 		this.data.forEach(r => {
 			var row = my_table.table_element.insertRow(-1);		
-			row.style.fontSize = '20px'
+			row.style.fontSize = '20px';
+			row.style.height = '40px';
 			r.forEach((c, i) => {		
 
 				let param_name = this.header[i];
@@ -418,9 +419,11 @@ var my_table = {
 					row.style.backgroundColor = get_state_tint(c);	
 				} else if (param_name ==='uid'){
 					var cell = row.insertCell();
+					cell.style.paddingLeft = '5px';
 					cell.textContent = c.substring(0, 10);	
 				} else {
 					var cell = row.insertCell();
+					cell.style.paddingLeft = '5px';
 					cell.textContent = c;			
 				}
 
@@ -433,6 +436,7 @@ var my_table = {
 		
 		let top_row = my_table.table_element.insertRow(0);
 		top_row.style.fontSize = '30px'
+		top_row.style.height = '50px';
 		
 		this.header.forEach(function(param) {	
 		
