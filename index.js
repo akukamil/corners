@@ -920,7 +920,6 @@ var online_game = {
 			['my_no_sync',NOSYNC , 'Похоже вы не захотели начинать игру.'],
 			['opp_no_sync',NOSYNC , 'Похоже соперник не смог начать игру.'],
 			['my_no_connection',LOSE , 'Потеряна связь!\nИспользуйте надежное интернет соединение.']
-			
 		];
 		
 		clearTimeout(this.timer_id);		
@@ -949,7 +948,7 @@ var online_game = {
 		objects.board.pointerdown = function() {};
 		
 		//воспроизводим звук
-		if (result_number === DRAW || result_number === LOSE)
+		if (result_number === DRAW || result_number === LOSE || result_number === NOSYNC )
 			game_res.resources.lose.sound.play();
 		else
 			game_res.resources.win.sound.play();
