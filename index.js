@@ -2382,9 +2382,10 @@ var req_dialog={
 	hide: function() {
 
 		//если диалог не открыт то ничего не делаем
-		if (objects.req_cont.ready===false || objects.req_cont.visible===false)
+		if (objects.req_cont.ready === false || objects.req_cont.visible === false)
 			return;
 	
+		any_dialog_active=0;
 		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
 
 	}
