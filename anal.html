@@ -182,19 +182,14 @@ async function player_info() {
 	let snapshot = await firebase.database().ref("players").orderByChild("name").startAt(player_name).limitToFirst(5).once("value");
 	var data = snapshot.val();
 
-
 	//меняем дату на нормальный вид
 	Object.keys(data).forEach(k=>{data[k].tm = new Date(data[k].tm).toLocaleString();delete data[k].pic_url});
-
 
 	//создаем массив для последующей работы
 	let uids = Object.keys(data);
 	let _data = [];
-	for (let i = 0 ; i < uids.length ; i++) {
-				
+	for (let i = 0 ; i < uids.length ; i++)				
 		_data.push([uids[i], data[uids[i]].name, data[uids[i]].rating, data[uids[i]].games, data[uids[i]].tm])		
-		
-	}	
 		
 		
 	//это заголовки
@@ -258,7 +253,7 @@ async function get_games(ref) {
 		max_games = document.getElementById("max_leaders_games").value * 1;
 	
 	document.body.innerHTML = "";
-	let snapshot = await firebase.database().ref(ref).orderByChild("ts").limitToFirst(max_games).once("value");
+	let snapshot = await firebase.database().ref(ref).orderByChild("ts").limitToLast(max_games).once("value");
 	var data = snapshot.val();
 	
 	if (data === null) {
