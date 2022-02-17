@@ -829,7 +829,7 @@ var online_game = {
 		this.start_time = Date.now();
 		
 		//вычиcляем рейтинг при проигрыше и устанавливаем его в базу он потом изменится
-		let lose_rating = this.calc_new_rating(LOSE);
+		let lose_rating = this.calc_new_rating(my_data.rating, LOSE);
 		if (lose_rating >100 && lose_rating<9999)
 			firebase.database().ref("players/"+my_data.uid+"/rating").set(lose_rating);
 		
