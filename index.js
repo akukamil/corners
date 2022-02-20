@@ -3669,23 +3669,23 @@ function init_game_env() {
 		firebase.initializeApp({
 			
 				
-			apiKey: "AIzaSyDwyhzpCq06nXWtzTfPZ86I0jI_iUedJDg",
+			/*apiKey: "AIzaSyDwyhzpCq06nXWtzTfPZ86I0jI_iUedJDg",
 			authDomain: "quoridor-e5c40.firebaseapp.com",
 			databaseURL: "https://quoridor-e5c40-default-rtdb.europe-west1.firebasedatabase.app",
 			projectId: "quoridor-e5c40",
 			storageBucket: "quoridor-e5c40.appspot.com",
 			messagingSenderId: "114845860106",
-			appId: "1:114845860106:web:fa020d476b1f1c28853af3"
+			appId: "1:114845860106:web:fa020d476b1f1c28853af3"*/
 			
 
-			/*apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
+			apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
 			authDomain: "m-game-27669.firebaseapp.com",
 			databaseURL: "https://m-game-27669-default-rtdb.firebaseio.com",
 			projectId: "m-game-27669",
 			storageBucket: "m-game-27669.appspot.com",
 			messagingSenderId: "571786945826",
 			appId: "1:571786945826:web:7e8bd49c963bbea117317b",
-			measurementId: "G-XFJD615P3L"			*/
+			measurementId: "G-XFJD615P3L"			
 			
 		});
 	}
