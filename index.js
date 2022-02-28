@@ -914,6 +914,10 @@ var online_game = {
 		let old_rating = my_data.rating;
 		my_data.rating = this.calc_new_rating (my_data.rating, result_number);
 		firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
+		
+		//обновляем даные на карточке
+		objects.my_card_rating.text=my_data.rating;
+	
 	
 		//если диалоги еще открыты
 		if (objects.stickers_cont.visible===true)
@@ -974,7 +978,8 @@ var online_game = {
 				'wmXca5Z53ezNANjw+BkH5GpfjDOpg51D+bJGmTJHsnQ='	
 			]
 			
-			if (check_players.includes(my_data.uid) || check_players.includes(opp_data.uid)) {
+			if (check_players.includes(my_data.uid) || check_players.includes(opp_data.uid))
+			{
 			firebase.database().ref("finishes2").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':result_number,'fin_type':result_str,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});	
 			}
 			
@@ -3668,14 +3673,14 @@ function init_game_env() {
 	if (firebase.apps.length===0) {
 		firebase.initializeApp({
 			
-				
-			/*apiKey: "AIzaSyDwyhzpCq06nXWtzTfPZ86I0jI_iUedJDg",
+			/*	
+			apiKey: "AIzaSyDwyhzpCq06nXWtzTfPZ86I0jI_iUedJDg",
 			authDomain: "quoridor-e5c40.firebaseapp.com",
 			databaseURL: "https://quoridor-e5c40-default-rtdb.europe-west1.firebasedatabase.app",
 			projectId: "quoridor-e5c40",
 			storageBucket: "quoridor-e5c40.appspot.com",
 			messagingSenderId: "114845860106",
-			appId: "1:114845860106:web:fa020d476b1f1c28853af3"*/
+			appId: "1:114845860106:web:fa020d476b1f1c28853af3"*/	
 			
 
 			apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
@@ -3685,7 +3690,7 @@ function init_game_env() {
 			storageBucket: "m-game-27669.appspot.com",
 			messagingSenderId: "571786945826",
 			appId: "1:571786945826:web:7e8bd49c963bbea117317b",
-			measurementId: "G-XFJD615P3L"			
+			measurementId: "G-XFJD615P3L"		
 			
 		});
 	}
