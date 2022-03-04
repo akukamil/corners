@@ -1162,6 +1162,7 @@ var game = {
 
 	opponent : "",
 	selected_checker : 0,
+	checker_is_moving : 0,
 
 	activate: function(opponent, role) {
 
@@ -1239,7 +1240,7 @@ var game = {
 			return;
 
 		//проверяем что моя очередь
-		if (my_turn === 0) {
+		if (my_turn === 0 || this.checker_is_moving === 1) {
 			message.add("не твоя очередь");
 			return;
 		}
@@ -1388,11 +1389,23 @@ var game = {
 		//воспроизводим уведомление о том что соперник произвел ход
 		game_res.resources.receive_move.sound.play();
 
+		//обозначаем кто ходит
+		my_turn = 1;	
+
+		//обозначаем что соперник сделал ход и следовательно подтвердил согласие на игру
+		this.opponent.opp_conf_play = 1;	
+		
+		//обновляем таймер
+		this.opponent.reset_timer();			
+
 		//считаем последовательность ходов
 		let moves = board_func.get_moves_path(move_data);
 
 		//плавно перемещаем шашку
+		this.checker_is_moving = 1;
 		await board_func.start_gentle_move(move_data, moves);
+		this.checker_is_moving = 0;
+		
 		
 		if (my_role === 'master') {
 			made_moves++;
@@ -1407,18 +1420,10 @@ var game = {
 				this.stop(result);
 			}			
 		}
-
-		//обозначаем кто ходит
-		my_turn = 1;
-
-		//обозначаем что соперник сделал ход и следовательно подтвердил согласие на игру
-		this.opponent.opp_conf_play = 1;
 		
 		//перемещаем табло времени
-		objects.timer_cont.x = 10;
-		
-		//обновляем таймер
-		this.opponent.reset_timer();		
+		objects.timer_cont.x = 10;	
+	
 
 	},
 	
@@ -3673,7 +3678,7 @@ function init_game_env() {
 	if (firebase.apps.length===0) {
 		firebase.initializeApp({
 			
-			/*	
+		/*		
 			apiKey: "AIzaSyDwyhzpCq06nXWtzTfPZ86I0jI_iUedJDg",
 			authDomain: "quoridor-e5c40.firebaseapp.com",
 			databaseURL: "https://quoridor-e5c40-default-rtdb.europe-west1.firebasedatabase.app",
