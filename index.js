@@ -1476,6 +1476,10 @@ var	show_ad = function(){
 		.then(data => console.log(data.result))
 		.catch(error => console.log(error));	
 	}		
+
+
+
+
 }
 
 var giveup_menu={
