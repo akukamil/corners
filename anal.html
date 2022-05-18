@@ -171,9 +171,6 @@ async function update_room_quick_stat() {
 	firebase.database().ref('states2').once('value').then((snapshot) => {
 		document.getElementById("but_ref2").textContent = Object.keys(snapshot.val()).length;
 	})
-	
-
-
 }
 
 
@@ -260,7 +257,7 @@ async function delete_old_players() {
 	
 		
 		let  days_without_visit=(cur_ts-p[2])/86400000;
-		let days_without_allowed=10+35*(Math.max(Math.min(p[1],1800),1400)-1400)/400;
+		let days_without_allowed=10+25*(Math.max(Math.min(p[1],1800),1400)-1400)/400;
 		if (days_without_visit>days_without_allowed) {
 			firebase.database().ref("players/"+p[0]).remove();
 			total_removed++;
