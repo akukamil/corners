@@ -976,25 +976,26 @@ var online_game = {
 			
 			let check_players =[
 				'1NOs1k4jKvIIe80grKaEoIZ59PbuP0TWlBOoFHrUoh4=',
-				'2ifgfvcabThOq2EhUg2qYNagFukZm49Hky9CBILikrE=',
-				'ApglJugCBw3owZiptBGmAFtghywpFDUl4GOE5yTevc8=',
 				'HAXS4Uwl22XJybZg2gTbwaHUzHOMc7X1mLFS2Av8ayM=',
+				'JQLfWZUohlfV+xo1mbr55E1yqhDx65iOplh3zrJNAbA=',
 				'HHNnZgYsNjwFHsGW5l3uvtX+GOeZJJcD8HQz8RcThWw=',
-				'Q91gCAYjLDQeTBZLiwmWWzWmhZnuKTAWgpLbm3kw9Uo=',
-				'X3oRx1NdLMzDqrLaKAXAahBP8Pnq1k+irMDuHKHqMbY=',
 				'Z8rpvOLTNIjvgZxnTMTSZX5Z08QfynLlxi0ZvWs0cV8=',
-				'aPehlhdOYUKrCObw76SfaIGwK8BbBm2Hk7bR+WRNgsM=',
-				'cZ9FfoeCzzwm3CbHPkBKRHTAh4qoDaJvrserVFtBvPo=',
-				'ihwRwyyjjwtumUck+HzegY6D5kZ3tIJKQ1ZHPlN6s3k=',
-				'ls4147060',
-				'nYaoPB58Z5BqhFaOqpJx10MEQblZY7wMLgUxqunbQJg=',
-				'p70n979DU+biBKD3wbiOn0hADScsGJZkoRnEAx7MRNI=',
-				'v3fob5izUFzWXThIxl1VpWbmDulYWZlfWVRBG9qzrdQ=',
-				'vNx2vRus1XIPlMFllQmDnqWfV3YZp7Ff5hYis5eKllc=',
-				'vk113552413',
-				'vk188397292',
 				'w5jjfB09gf2kWOJ0BxicV1jUtkESey7npAzj+cyE078=',
-				'wmXca5Z53ezNANjw+BkH5GpfjDOpg51D+bJGmTJHsnQ='	
+				'nYaoPB58Z5BqhFaOqpJx10MEQblZY7wMLgUxqunbQJg=',
+				'X3oRx1NdLMzDqrLaKAXAahBP8Pnq1k+irMDuHKHqMbY=',
+				'vk113552413',
+				'ZUCRKkTFE07ztjK1Pht6WKjMcZk4ZBz1G5BMokzOVsg=',
+				'vk188397292',
+				'UHo0nOw9SNkrRd2SOwZKGwcJjXKqFy7ePZw+moJrUGw=',
+				'ihwRwyyjjwtumUck+HzegY6D5kZ3tIJKQ1ZHPlN6s3k=',
+				'vk651786817',
+				'z41rApQa+dtJEED5fD3obsAAgdoPyL8JYlGw0orCItQ=',
+				'GwAJkw0eiVu8yWxoUsBwCQBoOU48AHB9cRlhamqNtcM=',
+				'N2mKTRhaWkGUgCk6baYVxZsZiyjZRiJl8WOopFSBj3A=',
+				'Q91gCAYjLDQeTBZLiwmWWzWmhZnuKTAWgpLbm3kw9Uo=',
+				'Rlv31Fj5kzkNkkOKJ5BreenNDfMUecDq7EGwS4eKTVw=',
+				'wmXca5Z53ezNANjw+BkH5GpfjDOpg51D+bJGmTJHsnQ=',
+				'p70n979DU+biBKD3wbiOn0hADScsGJZkoRnEAx7MRNI='
 			]
 			
 			if (check_players.includes(my_data.uid) || check_players.includes(opp_data.uid))
