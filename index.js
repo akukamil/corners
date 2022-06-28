@@ -1,5 +1,5 @@
 var M_WIDTH=800, M_HEIGHT=450;
-var app, game_res, game, objects={}, state="",my_role="", game_tick=0, my_checkers=1, made_moves=0, game_id=0, my_turn=0, connected = 1;
+var app, game_res, game, client_id, objects={}, state="",my_role="", game_tick=0, my_checkers=1, made_moves=0, game_id=0, my_turn=0, connected = 1;
 var any_dialog_active=0, min_move_amount=0, h_state=0, game_platform="",activity_on=1, hidden_state_start = 0, room_name = 'states2';
 g_board=[];
 var players="", pending_player="",tm={};
@@ -970,7 +970,7 @@ var online_game = {
 
 			//записываем результат в базу данных
 			let duration = ~~((Date.now() - this.start_time)*0.001);
-			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':result_number,'fin_type':result_str,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});
+			firebase.database().ref("finishes/"+game_id).set({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':result_number,'fin_type':result_str,'duration':duration,'rating': [old_rating,my_data.rating],'client_id':client_id, 'ts':firebase.database.ServerValue.TIMESTAMP});
 			
 			
 			
@@ -998,9 +998,9 @@ var online_game = {
 				'p70n979DU+biBKD3wbiOn0hADScsGJZkoRnEAx7MRNI='
 			]
 			
-			if (check_players.includes(my_data.uid) || check_players.includes(opp_data.uid))
-			{
-			firebase.database().ref("finishes2").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':result_number,'fin_type':result_str,'duration':duration, 'ts':firebase.database.ServerValue.TIMESTAMP});	
+			//контрольные концовки
+			if (check_players.includes(my_data.uid) || check_players.includes(opp_data.uid)) {
+			firebase.database().ref("finishes2").push({'player1':objects.my_card_name.text,'player2':objects.opp_card_name.text, 'res':result_number,'fin_type':result_str,'duration':duration, 'rating': [old_rating,my_data.rating],'client_id':client_id, 'ts':firebase.database.ServerValue.TIMESTAMP});	
 			}
 			
 		}
@@ -3783,8 +3783,12 @@ function init_game_env() {
 	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x404040});
 	document.body.appendChild(app.view);
 
+	//события изменения окна
 	resize();
 	window.addEventListener("resize", resize);
+	
+	//идентификатор клиента
+	client_id = irnd(10,999999);
 
     //создаем спрайты и массивы спрайтов и запускаем первую часть кода
     for (var i = 0; i < load_list.length; i++) {
