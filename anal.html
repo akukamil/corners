@@ -201,8 +201,6 @@ function all_players() {
 	})
 }
 
-
-
 //КОНКРЕТНЫЙ ИГРОК
 async function player_info() {
 	
@@ -227,12 +225,10 @@ async function player_info() {
 	my_table.create(_data, header, 'none', 'list');	
 }
 
-
 //удалить историю игр
 function delete_game_results(ref) {	
 	firebase.database().ref(ref).remove();
 }
-
 
 //удалить старых игроков
 async function delete_old_players() {	
@@ -270,7 +266,6 @@ async function delete_old_players() {
 }
 
 
-
 //ИГРЫ
 async function get_games(ref) {
 	
@@ -299,12 +294,12 @@ async function get_games(ref) {
 	let _data = [];
 	for (let i = 0 ; i < uids.length ; i++) {
 				
-		_data.push([data[uids[i]].player1, data[uids[i]].player2, data[uids[i]].fin_type,data[uids[i]].res, data[uids[i]].duration,data[uids[i]].ts ])		
+		_data.push([data[uids[i]].player1, data[uids[i]].player2, data[uids[i]].fin_type,data[uids[i]].res, data[uids[i]].duration,data[uids[i]].client_id, data[uids[i]].rating, data[uids[i]].ts ])		
 		
 	}	
 	
 	//это заголовки
-	let header = ['player1','player2','fin_type','res','duration','ts'];
+	let header = ['player1','player2','fin_type','res','duration','client_id','rating','ts'];
 	
 	my_table.create(_data, header, 'none', 'list');	
 		
@@ -444,7 +439,7 @@ var my_table = {
 				} else if (param_name ==='uid'){
 					var cell = row.insertCell();
 					cell.style.paddingLeft = '5px';
-					cell.textContent = c.substring(0, 10);	
+					cell.textContent = c;//.substring(0, 10);	
 				} else {
 					var cell = row.insertCell();
 					cell.style.paddingLeft = '5px';
