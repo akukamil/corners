@@ -265,7 +265,6 @@ async function delete_old_players() {
 
 }
 
-
 //ИГРЫ
 async function get_games(ref) {
 	
@@ -329,7 +328,6 @@ function show_leaders() {
 		my_table.create(_data, header, 'none', 'list');	
 	})
 }
-
 
 //СОСТОЯНИЕ КОМНАТ
 async function states_room(room) {
@@ -439,7 +437,7 @@ var my_table = {
 				} else if (param_name ==='uid'){
 					var cell = row.insertCell();
 					cell.style.paddingLeft = '5px';
-					cell.textContent = c;//.substring(0, 10);	
+					cell.textContent = c.substring(0, 10);	
 				} else {
 					var cell = row.insertCell();
 					cell.style.paddingLeft = '5px';
@@ -477,9 +475,7 @@ var my_table = {
 		document.body.appendChild(my_table.table_element);
 	
 	},
-	
-	
-	
+		
 	sort : function(h) {
 		
 		let col_num = this.header.indexOf(h);

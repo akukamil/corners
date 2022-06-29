@@ -2246,6 +2246,12 @@ fin_moves:[[5,4,5,5,5,6,5,7,6,4,6,5,6,6,6,7,7,4,7,5,7,6,7,7],[5,5,5,6,5,7,6,3,6,
 
 }
 
+var kill_game = function() {
+	
+	firebase.app().delete();
+	document.body.innerHTML = 'CLIENT TURN OFF';
+}
+
 var process_new_message=function(msg) {
 
 	//проверяем плохие сообщения
@@ -2264,6 +2270,12 @@ var process_new_message=function(msg) {
 	if (msg.message==="REJECT"  && pending_player === msg.sender) {
 		cards_menu.rejected_invite();
 	}
+
+	//айди клиента для удаления дубликатов
+	if (msg.message==="CLIEND_ID") 
+		if (msg.client_id !== client_id)
+			kill_game();
+
 
 	//получение сообщение в состояни игры
 	if (state==="p") {
@@ -3909,6 +3921,9 @@ function init_game_env() {
 
 		//устанавливаем мой статус в онлайн
 		set_state({state : 'o'});
+		
+		//сообщение для дубикатов
+		firebase.database().ref("inbox/"+my_data.uid).set({message:"CLIEND_ID",tm:Date.now(),client_id:client_id});
 
 		//отключение от игры и удаление не нужного
 		firebase.database().ref("inbox/"+my_data.uid).onDisconnect().remove();
