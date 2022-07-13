@@ -2399,7 +2399,7 @@ var req_dialog={
 
 	accept: function() {
 
-		if (objects.req_cont.ready===false || objects.req_cont.visible===false)
+		if (objects.req_cont.ready===false || objects.req_cont.visible===false || objects.big_message_cont.visible === true)
 			return;
 
 		any_dialog_active=0;
