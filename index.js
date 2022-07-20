@@ -3372,7 +3372,10 @@ var cards_menu = {
 		//получаем фидбэки
 		let _fb = await firebase.database().ref("fb/" + uid).once('value');
 		let fb_obj =_fb.val();
-		if (fb_obj === null) return;
+		if (fb_obj === null) {
+			objects.invite_feedback.text = '***нет отзывов***'
+			return;
+		}
 		var fb = Object.keys(fb_obj).map((key) => [fb_obj[key][0],fb_obj[key][1]]);
 		
 		//выбираем последние отзывы
