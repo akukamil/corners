@@ -1590,7 +1590,7 @@ var feedback = {
 		
 		if (key === 'ОТПРАВИТЬ') {
 			let fb_id = irnd(0,15);
-			firebase.database().ref("fb/"+opp_data.uid+"/"+fb_id).set([objects.feedback_msg.text, firebase.database.ServerValue.TIMESTAMP]);
+			firebase.database().ref("fb/"+opp_data.uid+"/"+fb_id).set([objects.feedback_msg.text, firebase.database.ServerValue.TIMESTAMP, my_data.name]);
 			this.close();
 			this.p_resolve("sent");	
 			key ='';
