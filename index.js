@@ -2729,6 +2729,7 @@ var lb = {
 		anim2.add(objects.lb_cards_cont,{x:[450, 0]}, true, 0.5,'easeOutCubic');
 		
 
+		
 		objects.lb_cards_cont.visible=true;
 		objects.lb_back_button.visible=true;
 
@@ -2771,42 +2772,50 @@ var lb = {
 
 	update: function () {
 
-		firebase.database().ref("players").orderByChild('rating').limitToLast(25).once('value').then((snapshot) => {
+		firebase.database().ref("players").orderByChild('rating').limitToLast(20).once('value').then((snapshot) => {
 
-			if (snapshot.val()===null) {
+
+			raw_leaders_data = snapshot.val();
+			if (raw_leaders_data===null) {
 			  //console.log("Что-то не получилось получить данные о рейтингах");
 			}
 			else {
 
-				var players_array = [];
-				snapshot.forEach(players_data=> {
-					if (players_data.val().name!=="" && players_data.val().name!=='')
-						players_array.push([players_data.val().name, players_data.val().rating, players_data.val().pic_url]);
+				var leaders = [];
+				Object.keys(raw_leaders_data).forEach(uid => {
+					
+					if (raw_leaders_data[uid].name!=="" && raw_leaders_data[uid].name!=='')
+						leaders.push([raw_leaders_data[uid].name, raw_leaders_data[uid].rating, raw_leaders_data[uid].pic_url, uid]);
 				});
 
 
-				players_array.sort(function(a, b) {	return b[1] - a[1];});
+				leaders.sort(function(a, b) {	return b[1] - a[1];});
 
 				//создаем загрузчик топа
 				var loader = new PIXI.Loader();
 
-				var len=Math.min(10,players_array.length);
+				var len=Math.min(10,leaders.length);
 
 				//загружаем тройку лучших
 				for (let i=0;i<3;i++) {
-					make_text(objects['lb_'+(i+1)+'_name'],players_array[i][0],180);					
-					objects['lb_'+(i+1)+'_rating'].text=players_array[i][1];
-					loader.add('leaders_avatar_'+i, players_array[i][2],{loadType: PIXI.LoaderResource.LOAD_TYPE.IMAGE});
+					make_text(objects['lb_'+(i+1)+'_name'], leaders[i][0],180);					
+					objects['lb_'+(i+1)+'_rating'].text = leaders[i][1];
+					loader.add('leaders_avatar_'+i, leaders[i][2],{loadType: PIXI.LoaderResource.LOAD_TYPE.IMAGE});
+					
+					objects['lb_'+(i+1)+'_cont'].interactive = true;
+					objects['lb_'+(i+1)+'_cont'].pointerdown = function(){cards_menu.show_invite_dialog_from_lb(leaders[i][0],leaders[i][1],leaders[i][3])};
 				};
 
 				//загружаем остальных
 				for (let i=3;i<10;i++) {
-					let fname=players_array[i][0];
+					let fname=leaders[i][0];
 
 					make_text(objects.lb_cards[i-3].name,fname,180);
 
-					objects.lb_cards[i-3].rating.text=players_array[i][1];
-					loader.add('leaders_avatar_'+i, players_array[i][2],{loadType: PIXI.LoaderResource.LOAD_TYPE.IMAGE});
+					objects.lb_cards[i-3].rating.text=leaders[i][1];
+					objects.lb_cards[i-3].interactive = true;
+					objects.lb_cards[i-3].pointerdown = function(){cards_menu.show_invite_dialog_from_lb(leaders[i][0],leaders[i][1],leaders[i][3])};
+					loader.add('leaders_avatar_'+i, leaders[i][2],{loadType: PIXI.LoaderResource.LOAD_TYPE.IMAGE});
 				};
 
 				loader.load();
@@ -3365,6 +3374,36 @@ var cards_menu = {
 		objects.invite_avatar.texture=objects.mini_cards[cart_id].avatar.texture;
 		make_text(objects.invite_name,cards_menu._opp_data.name,230);
 		objects.invite_rating.text=objects.mini_cards[cart_id].rating_text.text;
+
+	},
+	
+	show_invite_dialog_from_lb: function(name, rating, uid) {
+
+		if (any_dialog_active>0) {
+			sound.play('locked');
+			return
+		};
+
+
+		any_dialog_active=3;
+
+		pending_player="";
+
+		sound.play('click');
+		
+		objects.invite_feedback.text = '';
+	
+		anim2.add(objects.invite_cont,{y:[-150, objects.invite_cont.sy]}, true, 0.5,'easeOutBack');
+		
+		this.show_feedbacks(uid);
+
+		//показыаем кнопку приглашения только если это допустимо
+		objects.invite_button.visible=objects.invite_button_title.visible = false;
+		objects.invite_button_title.text = ['Пригласить','Invite'][LANG];
+
+		//заполняем карточу приглашения данными
+		make_text(objects.invite_name, name,230);
+		objects.invite_rating.text = rating;
 
 	},
 	
