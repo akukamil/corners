@@ -1062,20 +1062,6 @@ var online_game = {
 			
 		}
 		
-		//проверяем выход в мелкую комнату
-		if (old_rating >= 1500 &&  my_data.rating <1500) {
-			firebase.database().ref(room_name+"/"+my_data.uid).remove();
-			room_name = 'states';
-			message.add('Вы перешли в комнату для слабых игроков (((')
-		}
-		
-		//проверяем выход в большую комнату
-		if (my_data.rating >= 1500 &&  old_rating <1500) {
-			firebase.database().ref(room_name+"/"+my_data.uid).remove();
-			room_name = 'states2';
-			message.add('Добро пожаловать в комнату для сильных игроков )))')
-		}
-	
 		
 		await big_message.show(result_info, `Рейтинг: ${old_rating} > ${my_data.rating}`,1)
 		
@@ -4105,13 +4091,13 @@ function init_game_env() {
 		//my_data.rating = 1355;
 			
 		//номер комнаты
-		if (my_data.rating >= 1500)
-			room_name= 'states2';			
-		else
+		let rooms_ranges = [0,1450,1600,99999]
+		if (my_data.rating > rooms_ranges[0] || my_data.rating <= rooms_ranges[1])
 			room_name= 'states';			
-		
-		
-		//room_name= 'states3';	
+		if (my_data.rating > rooms_ranges[1] || my_data.rating <= rooms_ranges[2])
+			room_name= 'states2';					
+		if (my_data.rating > rooms_ranges[2] || my_data.rating <= rooms_ranges[3])
+			room_name= 'states3';			
 
 
 		//устанавливаем рейтинг в попап
