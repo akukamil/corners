@@ -3425,7 +3425,7 @@ var cards_menu = {
 		
 		let fb_cnt = fb.length;
 		
-		fb_cnt = Math.min(fb_cnt, 6);
+		fb_cnt = Math.min(fb_cnt, 7);
 				
 		for (let i = 0 ; i < fb_cnt;i++) {
 			let sender_name =  fb[i][2] || 'Неизв.';
