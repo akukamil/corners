@@ -4092,11 +4092,11 @@ function init_game_env() {
 			
 		//номер комнаты
 		let rooms_ranges = [0,1450,1600,99999]
-		if (my_data.rating > rooms_ranges[0] || my_data.rating <= rooms_ranges[1])
+		if (my_data.rating > rooms_ranges[0] && my_data.rating <= rooms_ranges[1])
 			room_name= 'states';			
-		if (my_data.rating > rooms_ranges[1] || my_data.rating <= rooms_ranges[2])
+		if (my_data.rating > rooms_ranges[1] && my_data.rating <= rooms_ranges[2])
 			room_name= 'states2';					
-		if (my_data.rating > rooms_ranges[2] || my_data.rating <= rooms_ranges[3])
+		if (my_data.rating > rooms_ranges[2] && my_data.rating <= rooms_ranges[3])
 			room_name= 'states3';			
 
 
