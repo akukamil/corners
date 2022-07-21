@@ -3389,7 +3389,7 @@ var cards_menu = {
 		fb_cnt = Math.min(fb_cnt, 6);
 				
 		for (let i = 0 ; i < fb_cnt;i++) {
-			let sender_name =  fb[i][2].toString();
+			let sender_name =  fb[i][2] || 'Неизв.';
 			if (sender_name.length > 10) sender_name = sender_name.substring(0, 10);			
 			objects.invite_feedback.text +=(sender_name + ': ');
 			objects.invite_feedback.text +=fb[i][0];
