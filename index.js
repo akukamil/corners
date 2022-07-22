@@ -393,6 +393,7 @@ var big_message = {
 		else
 			objects.big_message_text2.text='**********';
 
+		objects.feedback_button.visible = feedback_on;
 		objects.big_message_text.text=t1;
 		anim2.add(objects.big_message_cont,{y:[-180,objects.big_message_cont.sy]}, true, 0.6,'easeOutBack');		
 				
@@ -403,7 +404,7 @@ var big_message = {
 
 	feedback_down : async function () {
 		
-		if (objects.big_message_cont.ready===false || this.feedback_on === 0) {
+		if (objects.big_message_cont.ready===false) {
 			sound.play('locked');
 			return;			
 		}
@@ -1063,7 +1064,7 @@ var online_game = {
 		}
 		
 		
-		await big_message.show(result_info, `Рейтинг: ${old_rating} > ${my_data.rating}`,1)
+		await big_message.show(result_info, `Рейтинг: ${old_rating} > ${my_data.rating}`,true)
 		
 	},
 	
@@ -1148,7 +1149,7 @@ var bot_game = {
 			sound.play('win');
 		
 		
-		await big_message.show(result_info, ')))',1)
+		await big_message.show(result_info, ')))',true)
 		
 	},
 
@@ -1492,8 +1493,7 @@ var game = {
 }
 
 var feedback = {
-	
-	
+		
 	keys_data : [[50,180,80,218.33,'1'],[90,180,120,218.33,'2'],[130,180,160,218.33,'3'],[170,180,200,218.33,'4'],[210,180,240,218.33,'5'],[250,180,280,218.33,'6'],[290,180,320,218.33,'7'],[330,180,360,218.33,'8'],[370,180,400,218.33,'9'],[410,180,440,218.33,'0'],[450,180,550,218.33,'<'],[70,227.9,100,266.23,'Й'],[110,227.9,140,266.23,'Ц'],[150,227.9,180,266.23,'У'],[190,227.9,220,266.23,'К'],[230,227.9,260,266.23,'Е'],[270,227.9,300,266.23,'Н'],[310,227.9,340,266.23,'Г'],[350,227.9,380,266.23,'Ш'],[390,227.9,420,266.23,'Щ'],[430,227.9,460,266.23,'З'],[470,227.9,500,266.23,'Х'],[510,227.9,540,266.23,'Ъ'],[90,275.8,120,314.13,'Ф'],[130,275.8,160,314.13,'Ы'],[170,275.8,200,314.13,'В'],[210,275.8,240,314.13,'А'],[250,275.8,280,314.13,'П'],[290,275.8,320,314.13,'Р'],[330,275.8,360,314.13,'О'],[370,275.8,400,314.13,'Л'],[410,275.8,440,314.13,'Д'],[450,275.8,480,314.13,'Ж'],[490,275.8,520,314.13,'Э'],[70,323.8,100,362.13,'!'],[110,323.8,140,362.13,'Я'],[150,323.8,180,362.13,'Ч'],[190,323.8,220,362.13,'С'],[230,323.8,260,362.13,'М'],[270,323.8,300,362.13,'И'],[310,323.8,340,362.13,'Т'],[350,323.8,380,362.13,'Ь'],[390,323.8,420,362.13,'Б'],[430,323.8,460,362.13,'Ю'],[470,323.8,500,362.13,')'],[510,323.8,540,362.13,'?'],[30,371.7,180,410.03,'ЗАКРЫТЬ'],[190,371.7,420,410.03,'_'],[430,371.7,570,410.03,'ОТПРАВИТЬ']],
 	p_resolve : 0,
 	MAX_SYMBOLS : 50,
@@ -1548,8 +1548,7 @@ var feedback = {
 		objects.hl_key.y = key_y - 10;		
 		objects.hl_key.texture = this.get_texture_for_key(key);
 		anim2.add(objects.hl_key,{alpha:[1, 0]}, false, 0.5,'linear');
-				
-		
+						
 		if (key === '<') {
 			objects.feedback_msg.text=objects.feedback_msg.text.slice(0, -1);
 			key ='';
@@ -3507,7 +3506,7 @@ var cards_menu = {
 		pending_player="";
 		cards_menu._opp_data={};
 		this.hide_invite_dialog();
-		big_message.show("Соперник отказался от игры",'(((',0);
+		big_message.show("Соперник отказался от игры",'(((',false);
 
 	},
 
@@ -4091,7 +4090,7 @@ function init_game_env() {
 		//my_data.rating = 1355;
 			
 		//номер комнаты
-		let rooms_ranges = [0,1450,1600,99999]
+		let rooms_ranges = [0,1440,1550,99999]
 		if (my_data.rating > rooms_ranges[0] && my_data.rating <= rooms_ranges[1])
 			room_name= 'states';			
 		if (my_data.rating > rooms_ranges[1] && my_data.rating <= rooms_ranges[2])
