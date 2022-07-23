@@ -4112,11 +4112,11 @@ function init_game_env() {
 		firebase.database().ref("inbox/"+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
 
 		//обновляем данные в файербейс так как могли поменяться имя или фото
-		firebase.database().ref("players/"+my_data.uid+"name").set(my_data.name);
-		firebase.database().ref("players/"+my_data.uid+"pic_url").set( my_data.pic_url);
-		firebase.database().ref("players/"+my_data.uid+"rating").set(my_data.rating);
-		firebase.database().ref("players/"+my_data.uid+"games").set(my_data.games);
-		firebase.database().ref("players/"+my_data.uid+"tm").set(firebase.database.ServerValue.TIMESTAMP);
+		firebase.database().ref("players/"+my_data.uid+"/name").set(my_data.name);
+		firebase.database().ref("players/"+my_data.uid+"/pic_url").set( my_data.pic_url);
+		firebase.database().ref("players/"+my_data.uid+"/rating").set(my_data.rating);
+		firebase.database().ref("players/"+my_data.uid+"/games").set(my_data.games);
+		firebase.database().ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
 		
 		
 		//устанавливаем мой статус в онлайн
