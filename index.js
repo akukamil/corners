@@ -1618,30 +1618,37 @@ var	ad = {
 	show2 : async function() {
 		
 		
-			if (game_platform ==="YANDEX") {
-				
-				let res = await new Promise(function(resolve, reject){				
-					window.ysdk.adv.showRewardedVideo({
-							callbacks: {
-							  onOpen: () => {},
-							  onRewarded: () => {resolve('ok')},
-							  onClose: () => {resolve('err')}, 
-							  onError: (e) => {resolve('err')}
-						}
-					})
-				
+		if (game_platform ==="YANDEX") {
+			
+			let res = await new Promise(function(resolve, reject){				
+				window.ysdk.adv.showRewardedVideo({
+						callbacks: {
+						  onOpen: () => {},
+						  onRewarded: () => {resolve('ok')},
+						  onClose: () => {resolve('err')}, 
+						  onError: (e) => {resolve('err')}
+					}
 				})
-				return res;
+			
+			})
+			return res;
+		}
+		
+		if (game_platform === "VK") {	
+
+			let res = '';
+			try {
+				res = await vkBridge.send("VKWebAppShowNativeAds", { ad_format: "reward" })
+			}
+			catch(error) {
+				res ='err';
 			}
 			
-			if (game_platform === "VK") {				
-				let res = await vkBridge.send("VKWebAppShowNativeAds", {ad_format:"reward"});
-				return res;				
-				
-			}	
+			return res;				
 			
-			return 'err';
-	
+		}	
+		
+		return 'err';
 		
 	}
 	
@@ -3516,8 +3523,18 @@ var cards_menu = {
 
 	},
 
-	remove_my_feedbacks : function() {
+	remove_my_feedbacks : async function() {
 		
+		
+		let res = await ad.show2();
+		console.log(res);
+		if (res !== 'err') {
+			
+			firebase.database().ref("fb/" + my_data.ud).remove();
+			objects.invite_feedback.text = '***нет отзывов***'
+			
+		}
+
 		
 		
 	},
