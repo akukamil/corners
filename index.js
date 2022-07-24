@@ -3528,14 +3528,11 @@ var cards_menu = {
 		
 		let res = await ad.show2();
 		console.log(res);
-		if (res !== 'err') {
-			
+		if (res !== 'err') {			
 			firebase.database().ref("fb/" + my_data.uid).remove();
-			objects.invite_feedback.text = '***нет отзывов***'
-			
+			objects.invite_feedback.text = '***нет отзывов***'			
 		}
-
-		
+		objects.invite_button.pointerdown = function(){};	
 		
 	},
 
@@ -3570,6 +3567,7 @@ var cards_menu = {
 			any_dialog_active=1
 
 		}
+		objects.invite_button.pointerdown = function(){};	
 
 	},
 
