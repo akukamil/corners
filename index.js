@@ -3530,7 +3530,7 @@ var cards_menu = {
 		console.log(res);
 		if (res !== 'err') {
 			
-			firebase.database().ref("fb/" + my_data.ud).remove();
+			firebase.database().ref("fb/" + my_data.uid).remove();
 			objects.invite_feedback.text = '***нет отзывов***'
 			
 		}
