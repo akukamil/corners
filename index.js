@@ -3385,17 +3385,17 @@ var cards_menu = {
 		let is_it_my_card = cards_menu._opp_data.uid === my_data.uid;
 		let invite_available = !is_it_my_card;
 		invite_available=invite_available && (objects.mini_cards[cart_id].state==="o" || objects.mini_cards[cart_id].state==="b");
-		invite_available=invite_available || cards_menu._opp_data.uid==="BOT";
+		invite_available = invite_available || cards_menu._opp_data.uid==="BOT";
 
 		//показыаем кнопку приглашения только если это допустимо		
 		if (invite_available === true) {			
 			objects.invite_button_title.text = ['Пригласить','Invite'][LANG];			
-			objects.invite_button.pointerdown = this.send_invite;				
+			objects.invite_button.pointerdown = this.send_invite.bind(this);				
 			
 		} else {
 			
 			if (is_it_my_card === true) {
-				objects.invite_button.pointerdown = this.remove_my_feedbacks;			
+				objects.invite_button.pointerdown = this.remove_my_feedbacks.bind(this);	
 				objects.invite_button_title.text = ['Удалить отзывы','Delete feedbacks'][LANG];
 			} else {
 				objects.invite_button.pointerdown = function(){};			
