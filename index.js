@@ -1473,7 +1473,7 @@ var game = {
 		objects.checkers.forEach((c)=> {c.visible=false});
 		
 		//рекламная пауза
-		show_ad();
+		ad.show();
 		await new Promise((resolve, reject) => setTimeout(resolve, 2000));
 		
 		this.state = 'off';
@@ -1591,24 +1591,60 @@ var feedback = {
 	
 }
 
-var	show_ad = function(){
+var	ad = {
 		
-	if (game_platform==="YANDEX") {			
-		//показываем рекламу
-		window.ysdk.adv.showFullscreenAdv({
-		  callbacks: {
-			onClose: function() {}, 
-			onError: function() {}
-					}
-		})
+		
+	show : function() {
+		
+		if (game_platform==="YANDEX") {			
+			//показываем рекламу
+			window.ysdk.adv.showFullscreenAdv({
+			  callbacks: {
+				onClose: function() {}, 
+				onError: function() {}
+						}
+			})
+		}
+		
+		if (game_platform==="VK") {
+					 
+			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
+			.then(data => console.log(data.result))
+			.catch(error => console.log(error));	
+		}			
+		
+	},
+	
+	show2 : async function() {
+		
+		
+			if (game_platform ==="YANDEX") {
+				
+				let res = await new Promise(function(resolve, reject){				
+					window.ysdk.adv.showRewardedVideo({
+							callbacks: {
+							  onOpen: () => {},
+							  onRewarded: () => {resolve('ok')},
+							  onClose: () => {resolve('err')}, 
+							  onError: (e) => {resolve('err')}
+						}
+					})
+				
+				})
+				return res;
+			}
+			
+			if (game_platform === "VK") {				
+				let res = await vkBridge.send("VKWebAppShowNativeAds", {ad_format:"reward"});
+				return res;				
+				
+			}	
+			
+			return 'err';
+	
+		
 	}
 	
-	if (game_platform==="VK") {
-				 
-		vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
-		.then(data => console.log(data.result))
-		.catch(error => console.log(error));	
-	}		
 
 
 
@@ -3346,15 +3382,28 @@ var cards_menu = {
 		
 		this.show_feedbacks(cards_menu._opp_data.uid);
 
-
-		let invite_available = 	cards_menu._opp_data.uid !== my_data.uid;
+		let is_it_my_card = cards_menu._opp_data.uid === my_data.uid;
+		let invite_available = !is_it_my_card;
 		invite_available=invite_available && (objects.mini_cards[cart_id].state==="o" || objects.mini_cards[cart_id].state==="b");
 		invite_available=invite_available || cards_menu._opp_data.uid==="BOT";
 
-		//показыаем кнопку приглашения только если это допустимо
-		objects.invite_button.visible=objects.invite_button_title.visible = invite_available;
-		objects.invite_button_title.text = ['Пригласить','Invite'][LANG];
-
+		//показыаем кнопку приглашения только если это допустимо		
+		if (invite_available === true) {			
+			objects.invite_button_title.text = ['Пригласить','Invite'][LANG];			
+			objects.invite_button.pointerdown = this.send_invite;				
+			
+		} else {
+			
+			if (is_it_my_card === true) {
+				objects.invite_button.pointerdown = this.send_invite;			
+				objects.invite_button_title.text = ['Удалить отзывы (реклама)','Delete feedbacks'][LANG];
+			} else {
+				objects.invite_button.pointerdown = function(){};			
+				objects.invite_button_title.text = ['(((','((('][LANG];
+			}		
+		}	
+		
+		
 		//заполняем карточу приглашения данными
 		objects.invite_avatar.texture=objects.mini_cards[cart_id].avatar.texture;
 		make_text(objects.invite_name,cards_menu._opp_data.name,230);
@@ -3465,6 +3514,12 @@ var cards_menu = {
 		anim2.add(objects.invite_cont,{y:[objects.invite_cont.sy, 400]}, false, 0.5,'easeInBack');
 
 
+	},
+
+	remove_my_feedbacks : function() {
+		
+		
+		
 	},
 
 	send_invite: function() {
