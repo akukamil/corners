@@ -3395,7 +3395,7 @@ var cards_menu = {
 		} else {
 			
 			if (is_it_my_card === true) {
-				objects.invite_button.pointerdown = this.send_invite;			
+				objects.invite_button.pointerdown = this.remove_my_feedbacks;			
 				objects.invite_button_title.text = ['Удалить отзывы','Delete feedbacks'][LANG];
 			} else {
 				objects.invite_button.pointerdown = function(){};			
