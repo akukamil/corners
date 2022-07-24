@@ -3396,7 +3396,7 @@ var cards_menu = {
 			
 			if (is_it_my_card === true) {
 				objects.invite_button.pointerdown = this.send_invite;			
-				objects.invite_button_title.text = ['Удалить отзывы (реклама)','Delete feedbacks'][LANG];
+				objects.invite_button_title.text = ['Удалить отзывы','Delete feedbacks'][LANG];
 			} else {
 				objects.invite_button.pointerdown = function(){};			
 				objects.invite_button_title.text = ['(((','((('][LANG];
