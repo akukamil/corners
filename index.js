@@ -1420,6 +1420,9 @@ var game = {
 		if (game.state !== 'on')
 			return;		
 		
+		//защита от двойных ходов
+		if (my_turn === 1) return;
+		
 		//воспроизводим уведомление о том что соперник произвел ход
 		sound.play('receive_move');
 
@@ -4299,4 +4302,3 @@ function main_loop() {
 	anim2.process();
 	requestAnimationFrame(main_loop);
 }
-
