@@ -3416,7 +3416,7 @@ var cards_menu = {
 		
 		//заполняем карточу приглашения данными
 		objects.invite_avatar.texture=objects.mini_cards[cart_id].avatar.texture;
-		make_text(objects.invite_name,cards_menu._opp_data.name,230);
+		make_text(objects.invite_name,cards_menu._opp_data.name,170);
 		objects.invite_rating.text=objects.mini_cards[cart_id].rating_text.text;
 
 	},
