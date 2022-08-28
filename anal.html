@@ -502,7 +502,7 @@ var my_table = {
 		
 	},
 	
-	delete_row : function(i) {
+	delete_row : async function(i) {
 		
 		if (my_table.type !== 'states')
 			return;
@@ -515,9 +515,9 @@ var my_table = {
 		//получаем фидбэки
 		let _fb = await firebase.database().ref("fb/" + uid).once('value');
 		let fb_obj =_fb.val();
-		if (fb_obj === null) console.log('Нету отзывов');
+		if (fb_obj === null) {console.log('Нету отзывов');return};
 		var fb = Object.keys(fb_obj).map((key) => [fb_obj[key][0],fb_obj[key][1],fb_obj[key][2]]);
-		console.log(fb);
+		console.table(fb);
 
 		
 	},
