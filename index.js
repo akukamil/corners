@@ -1,13 +1,13 @@
 var M_WIDTH=800, M_HEIGHT=450;
 var app, game_res, game, client_id, objects={}, state="",my_role="", game_tick=0, my_checkers=1, made_moves=0, game_id=0, my_turn=0, connected = 1, LANG = 0;
-var any_dialog_active=0, min_move_amount=0, h_state=0, game_platform="",activity_on=1, hidden_state_start = 0, room_name = 'states2';
+var min_move_amount=0, h_state=0, game_platform="",activity_on=1, hidden_state_start = 0, room_name = 'states2';
 g_board=[];
 var players="", pending_player="",tm={};
 var my_data={opp_id : ''},opp_data={};
 var g_process=function(){};
 var WIN = 1, DRAW = 0, LOSE = -1, NOSYNC = 2;
 
-var load_list=[{class:"sprite",name:"desktop",code0:"objects[obj_name].x=-10;objects[obj_name].y=-10;objects[obj_name].width=820;objects[obj_name].height=470;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"block",name:"title0",code0:"objects[obj_name]=new PIXI.BitmapText(['Играть','Play'][LANG], {fontName: 'mfont',fontSize: 32.04,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=85;objects[obj_name].y=168;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"block",name:"title1",code0:"objects[obj_name]=new PIXI.BitmapText(['Лидеры','Leaders'][LANG], {fontName: 'mfont',fontSize: 32.04,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=245;objects[obj_name].y=168;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"block",name:"title2",code0:"objects[obj_name]=new PIXI.BitmapText(['Инфо','Info'][LANG], {fontName: 'mfont',fontSize: 32.04,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=405;objects[obj_name].y=168;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"block",name:"title3",code0:"objects[obj_name]=new PIXI.BitmapText(['Настройки','Pref'][LANG], {fontName: 'mfont',fontSize: 32.04,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=565;objects[obj_name].y=168;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"sprite",name:"preferences_button",code0:"objects[obj_name].x=495;objects[obj_name].y=30;objects[obj_name].width=139.999576822917;objects[obj_name].height=130.00009765625;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.pref_button_down()};objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"cont",name:"main_buttons_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=75;objects[obj_name].sy=objects[obj_name].y=240;",code1:"objects[obj_name].addChild(objects.play_button);objects[obj_name].addChild(objects.lb_button);objects[obj_name].addChild(objects.rules_button);objects[obj_name].addChild(objects.preferences_button);objects[obj_name].addChild(objects.title0);objects[obj_name].addChild(objects.title1);objects[obj_name].addChild(objects.title2);objects[obj_name].addChild(objects.title3);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"rules_button",code0:"objects[obj_name].x=335;objects[obj_name].y=30;objects[obj_name].width=140.00009765625;objects[obj_name].height=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.rules_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"sprite",name:"play_button",code0:"objects[obj_name].x=15;objects[obj_name].y=30;objects[obj_name].width=140;objects[obj_name].height=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.play_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"sprite",name:"lb_button",code0:"objects[obj_name].x=175;objects[obj_name].y=30;objects[obj_name].width=140;objects[obj_name].height=130.00009765625;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.lb_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"common_code",code0:"document.body.style.backgroundColor = 'rgb(70, 70, 70)';app.renderer.backgroundColor = 0X3B3838;",code1:""},{class:"block",name:"rec_sticker_area",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=22;objects[obj_name].sy=objects[obj_name].y=260;objects[obj_name].width=148.235286458333;objects[obj_name].height=148.235384114583;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"board",code0:"objects[obj_name].x=190;objects[obj_name].y=10;objects[obj_name].width=430;objects[obj_name].height=430;objects[obj_name].visible=false;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){game.mouse_down_on_board()}.bind(game);",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"image",name:"lb_bcg",image_format:"png"},{class:"sprite",name:"message_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=20;objects[obj_name].width=180;objects[obj_name].height=170;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"message_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 20,align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=150;objects[obj_name].x=100;objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",code1:""},{class:"cont",name:"message_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=220;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.message_bcg);objects[obj_name].addChild(objects.message_text);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"timer_bcg",code0:"objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=10;objects[obj_name].width=120.00009765625;objects[obj_name].height=60.1134887695313;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"timer_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"cont",name:"timer_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].show=function(){this.childs.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.timer_bcg);objects[obj_name].addChild(objects.timer_text);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"checkers",size:"24",code0:"var num=n;objects[obj_name][num]=new PIXI.Sprite();objects[obj_name][num].visible=false;objects[obj_name][num].width=50;objects[obj_name][num].height=50;",code1:"var num=n;objects[obj_name][num].texture=game_res.resources.chk_quad_1.texture;app.stage.addChild(objects[obj_name][num]);"},{class:"sprite",name:"selected_frame",code0:"objects[obj_name].visible=false;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"block",name:"cur_move_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0,0.5);objects[obj_name].x=32;objects[obj_name].y=430;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"block",name:"cards_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=10;objects[obj_name].y=40;",code1:"for (let i=0;i<objects.mini_cards.length;i++)objects[obj_name].addChild(objects.mini_cards[i]);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"mini_cards",size:"15",code0:"var num=n;objects[obj_name][num]=new player_mini_card_class(0,0,num);",code1:""},{class:"image",name:"cards_bcg",image_format:"png"},{class:"image",name:"chk_round_1",image_format:"png"},{class:"image",name:"chk_star_1",image_format:"png"},{class:"image",name:"chk_star_2",image_format:"png"},{class:"image",name:"chk_round_2",image_format:"png"},{class:"sprite",name:"pref_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=420.0001953125;objects[obj_name].height=319.99990234375;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"pref_ok",code0:"objects[obj_name].x=130;objects[obj_name].y=235;objects[obj_name].width=180;objects[obj_name].height=75;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.pref_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",code1:"",image_format:"png"},{class:"cont",name:"pref_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.pref_bcg);objects[obj_name].addChild(objects.pref_ok);objects[obj_name].addChild(objects.chk_quad_block);objects[obj_name].addChild(objects.chk_star_block);objects[obj_name].addChild(objects.chk_round_block);objects[obj_name].addChild(objects.chk_opt_frame);objects[obj_name].addChild(objects.pref_sound_switch);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"pref_sound_switch",code0:"objects[obj_name].x=237;objects[obj_name].y=178;objects[obj_name].width=50;objects[obj_name].height=50;objects[obj_name].interactive = true;objects[obj_name].buttonMode = true;objects[obj_name].pointerdown = function(){main_menu.pref_sound_switched()};    ",code1:"",image_format:"png"},{class:"block",name:"chk_star_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(1)};",code1:"objects[obj_name].texture=game_res.resources.chk_star_1.texture;"},{class:"block",name:"chk_round_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=280;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(2)};",code1:"objects[obj_name].texture=game_res.resources.chk_round_1.texture;"},{class:"block",name:"chk_quad_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=80;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(0)};",code1:"objects[obj_name].texture=game_res.resources.chk_quad_1.texture;"},{class:"sprite",name:"chk_opt_frame",code0:"objects[obj_name].x=60;objects[obj_name].y=70;objects[obj_name].width=110;objects[obj_name].height=110;",code1:"",image_format:"png"},{class:"image",name:"lb_player_card_bcg",image_format:"png"},{class:"block",name:"lb_cards_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=0;",code1:"for (let i=0;i<7;i++)objects[obj_name].addChild(objects.lb_cards[i]);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"lb_cards",size:"7",code0:"var num=n;objects[obj_name][num]=new lb_player_card_class(0,0,num+4);",code1:""},{class:"block",name:"lb_back_button",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=690;objects[obj_name].y=320;objects[obj_name].width=100;objects[obj_name].height=100;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){lb.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"objects[obj_name].texture=objects.back_button.texture;app.stage.addChild(objects[obj_name]);"},{class:"block",name:"sent_sticker_area",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=449;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].width=105;objects[obj_name].height=100;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"block",name:"lb_3_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=40;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"objects[obj_name].mask=objects.lb_3_mask;"},{class:"sprite",name:"lb_3_mask",code0:"objects[obj_name].x=40;objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"",image_format:"png"},{class:"block",name:"lb_3_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_3_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=156;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"cont",name:"lb_3_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=240;",code1:"objects[obj_name].addChild(objects.lb_3_avatar);objects[obj_name].addChild(objects.lb_3_mask);objects[obj_name].addChild(objects.lb_3_frame);objects[obj_name].addChild(objects.lb_3_crown);objects[obj_name].addChild(objects.lb_3_name);objects[obj_name].addChild(objects.lb_3_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"lb_3_frame",code0:"objects[obj_name].x=40;objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"",image_format:"png"},{class:"sprite",name:"lb_3_crown",code0:"objects[obj_name].x=11;objects[obj_name].y=22;objects[obj_name].width=100;objects[obj_name].height=90;",code1:"",image_format:"png"},{class:"block",name:"lb_1_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;",code1:"objects[obj_name].mask=objects.lb_1_mask;"},{class:"sprite",name:"lb_1_mask",code0:"objects[obj_name].x=10;objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;",code1:"",image_format:"png"},{class:"cont",name:"lb_1_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.lb_1_mask);objects[obj_name].addChild(objects.lb_1_avatar);objects[obj_name].addChild(objects.lb_1_frame);objects[obj_name].addChild(objects.lb_1_crown);objects[obj_name].addChild(objects.lb_1_name);objects[obj_name].addChild(objects.lb_1_rating);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"lb_1_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_1_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=193;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"sprite",name:"lb_1_frame",code0:"objects[obj_name].x=10;objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;",code1:"",image_format:"png"},{class:"sprite",name:"lb_1_crown",code0:"objects[obj_name].x=98;objects[obj_name].y=24;objects[obj_name].width=100;objects[obj_name].height=90;",code1:"",image_format:"png"},{class:"block",name:"lb_2_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=130;objects[obj_name].height=130;",code1:"objects[obj_name].mask=objects.lb_2_mask;"},{class:"sprite",name:"lb_2_mask",code0:"objects[obj_name].x=10;objects[obj_name].y=40;objects[obj_name].width=150;objects[obj_name].height=150;",code1:"",image_format:"png"},{class:"block",name:"lb_2_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=85;objects[obj_name].y=140;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_2_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=88;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"cont",name:"lb_2_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=140;objects[obj_name].sy=objects[obj_name].y=145;",code1:"objects[obj_name].addChild(objects.lb_2_avatar);objects[obj_name].addChild(objects.lb_2_mask);objects[obj_name].addChild(objects.lb_2_frame);objects[obj_name].addChild(objects.lb_2_crown);objects[obj_name].addChild(objects.lb_2_name);objects[obj_name].addChild(objects.lb_2_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"lb_2_frame",code0:"objects[obj_name].x=10;objects[obj_name].y=40;objects[obj_name].width=150;objects[obj_name].height=150;",code1:"",image_format:"png"},{class:"sprite",name:"lb_2_crown",code0:"objects[obj_name].x=87;objects[obj_name].y=17;objects[obj_name].width=100;objects[obj_name].height=90;",code1:"",image_format:"png"},{class:"block",name:"cards_menu_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Здесь можно сыграть с другими игроками онлайн','Here you can play online'][LANG], {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=objects[obj_name].sx=400;objects[obj_name].y=objects[obj_name].sy=20;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;objects[obj_name].visible=false;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"block",name:"players_online",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=objects[obj_name].sx=400;objects[obj_name].y=objects[obj_name].sy=430;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"rules_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=740;objects[obj_name].height=429.999869791667;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"rules_ok_button",code0:"objects[obj_name].x=290;objects[obj_name].y=352;objects[obj_name].width=180;objects[obj_name].height=75;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.rules_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",code1:"",image_format:"png"},{class:"cont",name:"rules_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=0;",code1:"objects[obj_name].addChild(objects.rules_bcg);objects[obj_name].addChild(objects.rules_ok_button);app.stage.addChild(objects[obj_name]);"},{class:"image",name:"mini_player_card_table",image_format:"png"},{class:"image",name:"rating_bcg",image_format:"png"},{class:"image",name:"pc_icon",image_format:"png"},{class:"image",name:"mini_player_card",image_format:"png"},{class:"image",name:"avatar_mask",image_format:"png"},{class:"image",name:"avatar_frame",image_format:"png"},{class:"block",name:"my_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].width=100.00009765625;objects[obj_name].height=100;",code1:"objects[obj_name].mask = objects.my_avatar_mask;"},{class:"block",name:"my_avatar_mask",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=20;",code1:"objects[obj_name].texture = gres.avatar_mask.texture;"},{class:"block",name:"my_card_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"my_card_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"block",name:"my_avatar_frame",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=20;objects[obj_name].y=10;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"objects[obj_name].texture = gres.avatar_frame.texture;"},{class:"cont",name:"my_card_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=objects[obj_name].sx=20;objects[obj_name].y=objects[obj_name].sy=10;",code1:"objects[obj_name].addChild(objects.my_avatar);objects[obj_name].addChild(objects.my_avatar_mask);objects[obj_name].addChild(objects.my_avatar_frame);objects[obj_name].addChild(objects.my_card_name);objects[obj_name].addChild(objects.my_card_rating);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"opp_card_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"opp_card_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"block",name:"opp_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].width=100.00009765625;objects[obj_name].height=100;",code1:"objects[obj_name].mask = objects.opp_avatar_mask;"},{class:"block",name:"opp_avatar_mask",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=20;",code1:"objects[obj_name].texture = gres.avatar_mask.texture;"},{class:"block",name:"opp_avatar_frame",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=20;objects[obj_name].y=10;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"objects[obj_name].texture = gres.avatar_frame.texture;"},{class:"cont",name:"opp_card_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=objects[obj_name].sx=620;objects[obj_name].y=objects[obj_name].sy=10;",code1:"objects[obj_name].addChild(objects.opp_avatar);objects[obj_name].addChild(objects.opp_avatar_mask);objects[obj_name].addChild(objects.opp_avatar_frame);objects[obj_name].addChild(objects.opp_card_name);objects[obj_name].addChild(objects.opp_card_rating);app.stage.addChild(objects[obj_name]);"},{class:"image",name:"chk_quad_2",image_format:"png"},{class:"image",name:"chk_quad_1",image_format:"png"},{class:"block",name:"giveup_button",code0:"objects[obj_name]=new PIXI.Sprite(gres.send_sticker_button.texture);objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.show()};objects[obj_name].x=10;objects[obj_name].y=70;objects[obj_name].width=170;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"},{class:"sprite",name:"send_sticker_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=170;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerdown=function(){stickers.show_panel()};objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"cont",name:"game_buttons_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].ready=true;objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=610;objects[obj_name].sy=objects[obj_name].y=310;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.send_sticker_button);objects[obj_name].addChild(objects.giveup_button);objects[obj_name].addChild(objects.stickers_button_title);objects[obj_name].addChild(objects.giveup_button_title);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"stickers_button_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Стикеры','Stickes'][LANG], {fontName: 'mfont',fontSize: 28.48,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=95;objects[obj_name].y=45;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"giveup_button_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Сдаться','Giveup'][LANG], {fontName: 'mfont',fontSize: 28.48,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=95;objects[obj_name].y=105;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"sprite",name:"stickers_bcg",code0:"objects[obj_name].x=9;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].width=320;objects[obj_name].height=350;",code1:"",image_format:"png"},{class:"block",name:"sticker_0",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=29;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_0'].texture;",code1:""},{class:"block",name:"sticker_1",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=99;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_1'].texture;",code1:""},{class:"block",name:"sticker_2",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=169;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_2'].texture;",code1:""},{class:"block",name:"sticker_3",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=239;objects[obj_name].y=60;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_3'].texture;",code1:""},{class:"block",name:"sticker_4",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=29;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_4'].texture;",code1:""},{class:"block",name:"sticker_5",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=99;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_5'].texture;",code1:""},{class:"block",name:"sticker_6",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=169;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_6'].texture;",code1:""},{class:"block",name:"sticker_7",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=239;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_7'].texture;",code1:""},{class:"block",name:"sticker_8",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=29;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_8'].texture;",code1:""},{class:"block",name:"sticker_9",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=99;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_9'].texture;",code1:""},{class:"block",name:"sticker_10",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=169;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_10'].texture;",code1:""},{class:"block",name:"sticker_11",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=239;objects[obj_name].y=200;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_11'].texture;",code1:""},{class:"block",name:"sticker_12",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=29;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_12'].texture;",code1:""},{class:"block",name:"sticker_13",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=99;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_13'].texture;",code1:""},{class:"block",name:"sticker_14",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=169;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_14'].texture;",code1:""},{class:"block",name:"sticker_15",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=239;objects[obj_name].y=270;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_15'].texture;",code1:""},{class:"cont",name:"stickers_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=234;objects[obj_name].sy=objects[obj_name].y=10;",code1:"app.stage.addChild(objects[obj_name]);objects[obj_name].addChild(objects.stickers_bcg);objects[obj_name].addChild(objects.close_stickers);objects[obj_name].addChild(objects.stickers_title);for (var z=0;z<16;z++) {objects[obj_name].addChild(objects['sticker_'+z]);objects['sticker_'+z].width=70;objects['sticker_'+z].height=70;objects['sticker_'+z].interactive=true;objects['sticker_'+z].buttonMode=true;const id=z;objects['sticker_'+id].pointerover=function(){this.tint=0xFF6666};objects['sticker_'+id].pointerout=function(){this.tint=this.base_tint};objects['sticker_'+id].pointerdown=function(){stickers.send(id)};}objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};"},{class:"sprite",name:"close_stickers",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=()=>{stickers.hide_panel()};objects[obj_name].x=269;objects[obj_name].y=21;objects[obj_name].width=40;objects[obj_name].height=40;",code1:"objects[obj_name].pointerover=function(){this.tint=0xff0000};objects[obj_name].pointerout=function(){this.tint=0xffffff};",image_format:"png"},{class:"block",name:"stickers_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Отправить стикер','Send sticker'][LANG], {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=144;objects[obj_name].y=39;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"stop_bot_button_bcg",code0:"objects[obj_name]=new PIXI.Sprite(gres.send_sticker_button.texture);objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){game.stop('my_stop')};objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=170;objects[obj_name].height=69.9998942057292;objects[obj_name].base_tint=objects[obj_name].tint;",code1:""},{class:"cont",name:"stop_bot_button",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].x=610;objects[obj_name].y=360;objects[obj_name].visible=false;",code1:"objects[obj_name].addChild(objects.stop_bot_button_bcg);objects[obj_name].addChild(objects.stop_bot_button_title);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"stop_bot_button_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Завершить','Стоп'][LANG], {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=96;objects[obj_name].y=45;objects[obj_name].base_tint=objects[obj_name].tint=0XDEEBF7;",code1:""},{class:"sprite",name:"back_button",code0:"objects[obj_name].x=690;objects[obj_name].y=340;objects[obj_name].width=100;objects[obj_name].height=100;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){cards_menu.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"giveup_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=361;objects[obj_name].height=160;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"giveup_no",code0:"objects[obj_name].x=201;objects[obj_name].y=80;objects[obj_name].width=150;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.hide()};",code1:"objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"cont",name:"giveup_dialog",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=210;objects[obj_name].sy=objects[obj_name].y=280;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.giveup_bcg);objects[obj_name].addChild(objects.giveup_yes);objects[obj_name].addChild(objects.giveup_no);objects[obj_name].addChild(objects.giveup_title);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"giveup_yes",code0:"objects[obj_name].x=30;objects[obj_name].y=80;objects[obj_name].width=151;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){giveup_menu.give_up()};",code1:"objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"block",name:"giveup_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Уверены?','Sure?'][LANG], {fontName: 'mfont',fontSize: 35.6,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=189;objects[obj_name].y=50;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"sprite",name:"big_message_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=380;objects[obj_name].height=260;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"big_message_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].maxWidth=320;objects[obj_name].x=200;objects[obj_name].y=30;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"cont",name:"big_message_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=201;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.big_message_bcg);objects[obj_name].addChild(objects.big_message_text);objects[obj_name].addChild(objects.close_big_message);objects[obj_name].addChild(objects.big_message_text2);objects[obj_name].addChild(objects.feedback_button);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"close_big_message",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=200;objects[obj_name].y=180;objects[obj_name].width=160;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){big_message.close()};    ",code1:"",image_format:"png"},{class:"sprite",name:"feedback_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=40;objects[obj_name].y=180;objects[obj_name].width=160;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){big_message.feedback_down()};    ",code1:"",image_format:"png"},{class:"block",name:"big_message_text2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].maxWidth=318;objects[obj_name].x=199;objects[obj_name].y=147;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"image",name:"hl_key0",image_format:"png"},{class:"image",name:"hl_key1",image_format:"png"},{class:"image",name:"hl_key2",image_format:"png"},{class:"image",name:"hl_key3",image_format:"png"},{class:"sprite",name:"feedback_bcg",code0:"objects[obj_name].x=9;objects[obj_name].y=10;objects[obj_name].width=581.000130208333;objects[obj_name].height=419.999869791667;objects[obj_name].interactive=true;objects[obj_name].pointerdown = feedback.pointerdown.bind(feedback);",code1:"",image_format:"png"},{class:"block",name:"feedback_msg",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 28.48});objects[obj_name].anchor.set(0,0);objects[obj_name].x=39;objects[obj_name].y=58;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;objects[obj_name].maxWidth=521;",code1:""},{class:"block",name:"feedback_control",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 19.58});objects[obj_name].anchor.set(1,1);objects[obj_name].x=560;objects[obj_name].y=160;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"cont",name:"feedback_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=101;objects[obj_name].sy=objects[obj_name].y=10;",code1:"objects[obj_name].addChild(objects.feedback_bcg);objects[obj_name].addChild(objects.feedback_msg);objects[obj_name].addChild(objects.feedback_control);objects[obj_name].addChild(objects.hl_key);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"hl_key",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;",code1:""},{class:"sprite",name:"invite_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=560;objects[obj_name].height=360;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].interactive=true;",code1:"",image_format:"png"},{class:"block",name:"invite_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=115;objects[obj_name].y=221;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"invite_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=115;objects[obj_name].y=249;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"invite_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=40;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].width=150;objects[obj_name].height=150;",code1:""},{class:"cont",name:"invite_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=141;objects[obj_name].sy=objects[obj_name].y=20;",code1:"objects[obj_name].addChild(objects.invite_bcg);objects[obj_name].addChild(objects.invite_avatar);objects[obj_name].addChild(objects.invite_name);objects[obj_name].addChild(objects.invite_rating);objects[obj_name].addChild(objects.invite_button);objects[obj_name].addChild(objects.invite_close);objects[obj_name].addChild(objects.invite_button_title);objects[obj_name].addChild(objects.invite_feedback);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"invite_button",code0:"objects[obj_name].x=60;objects[obj_name].y=280;objects[obj_name].width=390;objects[obj_name].height=80;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.send_invite()};objects[obj_name].pointerover=function(){this.tint=0x444444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"invite_button_title",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 42.72});objects[obj_name].anchor.set(0.5,0.6);objects[obj_name].x=255;objects[obj_name].y=324;objects[obj_name].base_tint=objects[obj_name].tint=0X324D1F;",code1:""},{class:"block",name:"invite_feedback",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 16.02});objects[obj_name].x=210;objects[obj_name].y=50;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;objects[obj_name].maxWidth = 259.99990234375;",code1:""},{class:"sprite",name:"invite_close",code0:"objects[obj_name].x=480;objects[obj_name].y=10;objects[obj_name].width=90.00009765625;objects[obj_name].height=90;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.hide_invite_dialog()};objects[obj_name].pointerover=function(){this.tint=0x447444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"td_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=419.999869791667;objects[obj_name].height=280.00009765625;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].interactive=true;",code1:"",image_format:"png"},{class:"block",name:"td_name1",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=210;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"td_rating1",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=239;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"td_avatar1",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"cont",name:"td_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=190;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.td_bcg);objects[obj_name].addChild(objects.td_avatar1);objects[obj_name].addChild(objects.td_avatar2);objects[obj_name].addChild(objects.td_name1);objects[obj_name].addChild(objects.td_name2);objects[obj_name].addChild(objects.td_rating1);objects[obj_name].addChild(objects.td_rating2);objects[obj_name].addChild(objects.td_close);objects[obj_name].addChild(objects.td_title);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"td_name2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=305;objects[obj_name].y=211;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"td_rating2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=305;objects[obj_name].y=240;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"td_avatar2",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=240;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"block",name:"td_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Идет игра...','Game is on...'][LANG], {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=218;objects[obj_name].y=45;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"sprite",name:"td_close",code0:"objects[obj_name].x=361;objects[obj_name].y=17;objects[obj_name].width=59;objects[obj_name].height=60;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.close_table_dialog()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"req_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].width=360;objects[obj_name].height=219.99990234375;objects[obj_name].interactive=true;",code1:"",image_format:"png"},{class:"block",name:"req_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=251;objects[obj_name].y=84;objects[obj_name].base_tint=objects[obj_name].tint=0X2F5597;",code1:""},{class:"block",name:"req_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 30,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=251;objects[obj_name].y=122;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"req_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=50;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=90;objects[obj_name].height=80;",code1:""},{class:"cont",name:"req_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=210;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.req_bcg);objects[obj_name].addChild(objects.req_avatar);objects[obj_name].addChild(objects.req_name);objects[obj_name].addChild(objects.req_rating);objects[obj_name].addChild(objects.req_ok);objects[obj_name].addChild(objects.req_deny);objects[obj_name].addChild(objects.req_title);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"req_ok",code0:"objects[obj_name].x=20;objects[obj_name].y=145;objects[obj_name].width=170;objects[obj_name].height=75;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.accept()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"req_deny",code0:"objects[obj_name].x=190;objects[obj_name].y=145;objects[obj_name].width=170.00009765625;objects[obj_name].height=75;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.reject()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"req_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Приглашение','Invite'][LANG], {fontName: 'mfont',fontSize: 28.48,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=191;objects[obj_name].y=29;objects[obj_name].base_tint=objects[obj_name].tint=0X2F5597;",code1:""},{class:"sprite",name:"id_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=320;objects[obj_name].height=180;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"id_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=220;objects[obj_name].y=80;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"id_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=220;objects[obj_name].y=115;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"id_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=60;objects[obj_name].width=99.99990234375;objects[obj_name].height=100;",code1:""},{class:"cont",name:"id_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=230;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.id_bcg);objects[obj_name].addChild(objects.id_avatar);objects[obj_name].addChild(objects.id_name);objects[obj_name].addChild(objects.id_rating);objects[obj_name].addChild(objects.id_loup);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"id_loup",code0:"objects[obj_name].sx=objects[obj_name].x=90;objects[obj_name].sy=objects[obj_name].y=123;objects[obj_name].anchor.set(0.5,0.5);",code1:"",image_format:"png"}];
+var load_list=[{class:"sprite",name:"desktop",code0:"objects[obj_name].x=-10;objects[obj_name].y=-10;objects[obj_name].width=820;objects[obj_name].height=470;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"sprite",name:"game_title",code0:"objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=10;objects[obj_name].width=780;objects[obj_name].height=235;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"image",name:"cards_bcg",image_format:"png"},{class:"block",name:"title0",code0:"objects[obj_name]=new PIXI.BitmapText(['Играть','Play'][LANG], {fontName: 'mfont',fontSize: 32.04,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=85;objects[obj_name].y=168;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"block",name:"title1",code0:"objects[obj_name]=new PIXI.BitmapText(['Лидеры','Leaders'][LANG], {fontName: 'mfont',fontSize: 32.04,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=245;objects[obj_name].y=168;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"block",name:"title2",code0:"objects[obj_name]=new PIXI.BitmapText(['Инфо','Info'][LANG], {fontName: 'mfont',fontSize: 32.04,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=405;objects[obj_name].y=168;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"block",name:"title3",code0:"objects[obj_name]=new PIXI.BitmapText(['Настройки','Pref'][LANG], {fontName: 'mfont',fontSize: 32.04,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=565;objects[obj_name].y=168;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"sprite",name:"preferences_button",code0:"objects[obj_name].x=495;objects[obj_name].y=30;objects[obj_name].width=139.999576822917;objects[obj_name].height=130.00009765625;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.pref_button_down()};objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"cont",name:"main_buttons_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=75;objects[obj_name].sy=objects[obj_name].y=240;",code1:"objects[obj_name].addChild(objects.play_button);objects[obj_name].addChild(objects.lb_button);objects[obj_name].addChild(objects.rules_button);objects[obj_name].addChild(objects.preferences_button);objects[obj_name].addChild(objects.title0);objects[obj_name].addChild(objects.title1);objects[obj_name].addChild(objects.title2);objects[obj_name].addChild(objects.title3);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"rules_button",code0:"objects[obj_name].x=335;objects[obj_name].y=30;objects[obj_name].width=140.00009765625;objects[obj_name].height=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.rules_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"sprite",name:"play_button",code0:"objects[obj_name].x=15;objects[obj_name].y=30;objects[obj_name].width=140;objects[obj_name].height=130;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.play_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"",image_format:"png"},{class:"sprite",name:"lb_button",code0:"objects[obj_name].x=175;objects[obj_name].y=30;objects[obj_name].width=140;objects[obj_name].height=130.00009765625;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){main_menu.lb_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"common_code",code0:"document.body.style.backgroundColor = 'rgb(70, 70, 70)';app.renderer.backgroundColor = 0X595959;",code1:""},{class:"block",name:"rec_sticker_area",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=22;objects[obj_name].sy=objects[obj_name].y=260;objects[obj_name].width=148.235286458333;objects[obj_name].height=148.235384114583;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"image",name:"lb_bcg",image_format:"png"},{class:"sprite",name:"message_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=20;objects[obj_name].width=180;objects[obj_name].height=170;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"message_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 20,align: 'center'});objects[obj_name].anchor.set(0.5,0,5);objects[obj_name].maxWidth=150;objects[obj_name].x=100;objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XF2F2F2;",code1:""},{class:"cont",name:"message_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=220;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.message_bcg);objects[obj_name].addChild(objects.message_text);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"timer_bcg",code0:"objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=10;objects[obj_name].width=120.00009765625;objects[obj_name].height=60.1134887695313;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"timer_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=40;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:""},{class:"cont",name:"timer_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].show=function(){this.childs.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.timer_bcg);objects[obj_name].addChild(objects.timer_text);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"cur_move_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0,0.5);objects[obj_name].x=32;objects[obj_name].y=430;objects[obj_name].base_tint=objects[obj_name].tint=0XD9D9D9;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"block",name:"cards_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=10;objects[obj_name].y=40;",code1:"for (let i=0;i<objects.mini_cards.length;i++)objects[obj_name].addChild(objects.mini_cards[i]);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"mini_cards",size:"15",code0:"var num=n;objects[obj_name][num]=new player_mini_card_class(0,0,num);",code1:""},{class:"image",name:"chk_round_1",image_format:"png"},{class:"image",name:"chk_star_1",image_format:"png"},{class:"image",name:"chk_star_2",image_format:"png"},{class:"image",name:"chk_round_2",image_format:"png"},{class:"sprite",name:"pref_bcg",code0:"objects[obj_name].x=11;objects[obj_name].y=10;objects[obj_name].width=420.0001953125;objects[obj_name].height=319.99990234375;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"pref_ok",code0:"objects[obj_name].x=130;objects[obj_name].y=235;objects[obj_name].width=180;objects[obj_name].height=75;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.pref_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",code1:"",image_format:"png"},{class:"cont",name:"pref_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.pref_bcg);objects[obj_name].addChild(objects.pref_ok);objects[obj_name].addChild(objects.chk_quad_block);objects[obj_name].addChild(objects.chk_star_block);objects[obj_name].addChild(objects.chk_round_block);objects[obj_name].addChild(objects.chk_opt_frame);objects[obj_name].addChild(objects.pref_sound_switch);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"pref_sound_switch",code0:"objects[obj_name].x=237;objects[obj_name].y=178;objects[obj_name].width=50;objects[obj_name].height=50;objects[obj_name].interactive = true;objects[obj_name].buttonMode = true;objects[obj_name].pointerdown = function(){main_menu.pref_sound_switched()};    ",code1:"",image_format:"png"},{class:"block",name:"chk_star_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=180;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(1)};",code1:"objects[obj_name].texture=game_res.resources.chk_star_1.texture;"},{class:"block",name:"chk_round_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=280;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(2)};",code1:"objects[obj_name].texture=game_res.resources.chk_round_1.texture;"},{class:"block",name:"chk_quad_block",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=80;objects[obj_name].sy=objects[obj_name].y=90;objects[obj_name].width=70;objects[obj_name].height=70;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){main_menu.chk_type_sel(0)};",code1:"objects[obj_name].texture=game_res.resources.chk_quad_1.texture;"},{class:"sprite",name:"chk_opt_frame",code0:"objects[obj_name].x=60;objects[obj_name].y=70;objects[obj_name].width=110;objects[obj_name].height=110;",code1:"",image_format:"png"},{class:"image",name:"lb_player_card_bcg",image_format:"png"},{class:"block",name:"lb_cards_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=0;",code1:"for (let i=0;i<7;i++)objects[obj_name].addChild(objects.lb_cards[i]);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"lb_cards",size:"7",code0:"var num=n;objects[obj_name][num]=new lb_player_card_class(0,0,num+4);",code1:""},{class:"block",name:"lb_back_button",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=690;objects[obj_name].y=320;objects[obj_name].width=100;objects[obj_name].height=100;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){lb.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"objects[obj_name].texture=objects.back_button.texture;app.stage.addChild(objects[obj_name]);"},{class:"block",name:"lb_3_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=40;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"objects[obj_name].mask=objects.lb_3_mask;"},{class:"sprite",name:"lb_3_mask",code0:"objects[obj_name].x=40;objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"",image_format:"png"},{class:"block",name:"lb_3_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_3_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=100;objects[obj_name].y=156;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"cont",name:"lb_3_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=0;objects[obj_name].sy=objects[obj_name].y=240;",code1:"objects[obj_name].addChild(objects.lb_3_avatar);objects[obj_name].addChild(objects.lb_3_mask);objects[obj_name].addChild(objects.lb_3_frame);objects[obj_name].addChild(objects.lb_3_crown);objects[obj_name].addChild(objects.lb_3_name);objects[obj_name].addChild(objects.lb_3_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"lb_3_frame",code0:"objects[obj_name].x=40;objects[obj_name].y=50;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"",image_format:"png"},{class:"sprite",name:"lb_3_crown",code0:"objects[obj_name].x=11;objects[obj_name].y=22;objects[obj_name].width=100;objects[obj_name].height=90;",code1:"",image_format:"png"},{class:"block",name:"lb_1_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=10;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;",code1:"objects[obj_name].mask=objects.lb_1_mask;"},{class:"sprite",name:"lb_1_mask",code0:"objects[obj_name].x=10;objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;",code1:"",image_format:"png"},{class:"cont",name:"lb_1_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.lb_1_mask);objects[obj_name].addChild(objects.lb_1_avatar);objects[obj_name].addChild(objects.lb_1_frame);objects[obj_name].addChild(objects.lb_1_crown);objects[obj_name].addChild(objects.lb_1_name);objects[obj_name].addChild(objects.lb_1_rating);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"lb_1_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_1_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=95;objects[obj_name].y=193;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"sprite",name:"lb_1_frame",code0:"objects[obj_name].x=10;objects[obj_name].y=50;objects[obj_name].width=170;objects[obj_name].height=170;",code1:"",image_format:"png"},{class:"sprite",name:"lb_1_crown",code0:"objects[obj_name].x=98;objects[obj_name].y=24;objects[obj_name].width=100;objects[obj_name].height=90;",code1:"",image_format:"png"},{class:"block",name:"lb_2_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=20;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=130;objects[obj_name].height=130;",code1:"objects[obj_name].mask=objects.lb_2_mask;"},{class:"sprite",name:"lb_2_mask",code0:"objects[obj_name].x=10;objects[obj_name].y=40;objects[obj_name].width=150;objects[obj_name].height=150;",code1:"",image_format:"png"},{class:"block",name:"lb_2_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=85;objects[obj_name].y=140;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"lb_2_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=88;objects[obj_name].y=166;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"cont",name:"lb_2_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=140;objects[obj_name].sy=objects[obj_name].y=145;",code1:"objects[obj_name].addChild(objects.lb_2_avatar);objects[obj_name].addChild(objects.lb_2_mask);objects[obj_name].addChild(objects.lb_2_frame);objects[obj_name].addChild(objects.lb_2_crown);objects[obj_name].addChild(objects.lb_2_name);objects[obj_name].addChild(objects.lb_2_rating);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"lb_2_frame",code0:"objects[obj_name].x=10;objects[obj_name].y=40;objects[obj_name].width=150;objects[obj_name].height=150;",code1:"",image_format:"png"},{class:"sprite",name:"lb_2_crown",code0:"objects[obj_name].x=87;objects[obj_name].y=17;objects[obj_name].width=100;objects[obj_name].height=90;",code1:"",image_format:"png"},{class:"block",name:"cards_menu_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Здесь можно сыграть с другими игроками онлайн','Here you can play online'][LANG], {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=objects[obj_name].sx=400;objects[obj_name].y=objects[obj_name].sy=20;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;objects[obj_name].visible=false;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"block",name:"players_online",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=objects[obj_name].sx=400;objects[obj_name].y=objects[obj_name].sy=430;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"rules_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=740;objects[obj_name].height=429.999869791667;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"rules_ok_button",code0:"objects[obj_name].x=290;objects[obj_name].y=352;objects[obj_name].width=180;objects[obj_name].height=75;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=function(){main_menu.rules_ok_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};    ",code1:"",image_format:"png"},{class:"cont",name:"rules_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=0;",code1:"objects[obj_name].addChild(objects.rules_bcg);objects[obj_name].addChild(objects.rules_ok_button);app.stage.addChild(objects[obj_name]);"},{class:"image",name:"mini_player_card_table",image_format:"png"},{class:"image",name:"rating_bcg",image_format:"png"},{class:"image",name:"pc_icon",image_format:"png"},{class:"image",name:"mini_player_card",image_format:"png"},{class:"image",name:"avatar_mask",image_format:"png"},{class:"image",name:"avatar_frame",image_format:"png"},{class:"sprite",name:"board",code0:"objects[obj_name].x=190;objects[obj_name].y=10;objects[obj_name].width=430;objects[obj_name].height=430;objects[obj_name].visible=false;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){game.mouse_down_on_board()}.bind(game);",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"block",name:"my_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].width=100.00009765625;objects[obj_name].height=100;",code1:"objects[obj_name].mask = objects.my_avatar_mask;"},{class:"block",name:"my_avatar_mask",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=20;",code1:"objects[obj_name].texture = gres.avatar_mask.texture;"},{class:"block",name:"my_card_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"my_card_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"block",name:"my_avatar_frame",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=20;objects[obj_name].y=10;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"objects[obj_name].texture = gres.avatar_frame.texture;"},{class:"cont",name:"my_card_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=objects[obj_name].sx=20;objects[obj_name].y=objects[obj_name].sy=10;",code1:"objects[obj_name].addChild(objects.my_avatar);objects[obj_name].addChild(objects.my_avatar_mask);objects[obj_name].addChild(objects.my_avatar_frame);objects[obj_name].addChild(objects.my_card_name);objects[obj_name].addChild(objects.my_card_rating);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"opp_card_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"opp_card_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=80;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint=0XBDD7EE;",code1:""},{class:"block",name:"opp_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].width=100.00009765625;objects[obj_name].height=100;",code1:"objects[obj_name].mask = objects.opp_avatar_mask;"},{class:"block",name:"opp_avatar_mask",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=30;objects[obj_name].y=20;",code1:"objects[obj_name].texture = gres.avatar_mask.texture;"},{class:"block",name:"opp_avatar_frame",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=20;objects[obj_name].y=10;objects[obj_name].width=120;objects[obj_name].height=120;",code1:"objects[obj_name].texture = gres.avatar_frame.texture;"},{class:"cont",name:"opp_card_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].x=objects[obj_name].sx=620;objects[obj_name].y=objects[obj_name].sy=10;",code1:"objects[obj_name].addChild(objects.opp_avatar);objects[obj_name].addChild(objects.opp_avatar_mask);objects[obj_name].addChild(objects.opp_avatar_frame);objects[obj_name].addChild(objects.opp_card_name);objects[obj_name].addChild(objects.opp_card_rating);app.stage.addChild(objects[obj_name]);"},{class:"array",name:"checkers",size:"24",code0:"var num=n;objects[obj_name][num]=new PIXI.Sprite();objects[obj_name][num].visible=false;objects[obj_name][num].width=50;objects[obj_name][num].height=50;",code1:"var num=n;objects[obj_name][num].texture=game_res.resources.chk_quad_1.texture;app.stage.addChild(objects[obj_name][num]);"},{class:"sprite",name:"td_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=419.999869791667;objects[obj_name].height=280.00009765625;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].interactive=true;",code1:"",image_format:"png"},{class:"block",name:"td_name1",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=210;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"td_rating1",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=135;objects[obj_name].y=239;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"td_avatar1",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=70;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"cont",name:"td_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=190;objects[obj_name].sy=objects[obj_name].y=50;",code1:"objects[obj_name].addChild(objects.td_bcg);objects[obj_name].addChild(objects.td_avatar1);objects[obj_name].addChild(objects.td_avatar2);objects[obj_name].addChild(objects.td_name1);objects[obj_name].addChild(objects.td_name2);objects[obj_name].addChild(objects.td_rating1);objects[obj_name].addChild(objects.td_rating2);objects[obj_name].addChild(objects.td_close);objects[obj_name].addChild(objects.td_title);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"td_name2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=305;objects[obj_name].y=211;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"td_rating2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=305;objects[obj_name].y=240;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"td_avatar2",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=240;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=130;objects[obj_name].height=130;",code1:""},{class:"block",name:"td_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Идет игра...','Game is on...'][LANG], {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=218;objects[obj_name].y=45;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"sprite",name:"td_close",code0:"objects[obj_name].x=361;objects[obj_name].y=17;objects[obj_name].width=59;objects[obj_name].height=60;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.close_table_dialog()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"stop_bot_button_bcg",code0:"objects[obj_name]=new PIXI.Sprite(gres.send_sticker_button.texture);objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){game.stop('my_stop')};objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=170;objects[obj_name].height=69.9998942057292;objects[obj_name].base_tint=objects[obj_name].tint;",code1:""},{class:"cont",name:"stop_bot_button",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].x=609;objects[obj_name].y=360;objects[obj_name].visible=false;",code1:"objects[obj_name].addChild(objects.stop_bot_button_bcg);objects[obj_name].addChild(objects.stop_bot_button_title);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"stop_bot_button_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Завершить','Стоп'][LANG], {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=96;objects[obj_name].y=45;objects[obj_name].base_tint=objects[obj_name].tint=0XDEEBF7;",code1:""},{class:"sprite",name:"back_button",code0:"objects[obj_name].x=690;objects[obj_name].y=340;objects[obj_name].width=100;objects[obj_name].height=100;objects[obj_name].visible=false;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){cards_menu.back_button_down()};objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"},{class:"block",name:"black_bcg",code0:"objects[obj_name]=new PIXI.Sprite(PIXI.Texture.WHITE);objects[obj_name].sx=objects[obj_name].x=135;objects[obj_name].sy=objects[obj_name].y=190;objects[obj_name].width=325;objects[obj_name].height=229.99990234375;objects[obj_name].tint=0X000000;;",code1:""},{class:"sprite",name:"invite_bcg",code0:"objects[obj_name].x=30;objects[obj_name].y=20;objects[obj_name].width=449.999869791667;objects[obj_name].height=490;objects[obj_name].interactive=true;objects[obj_name].pointerover = function(){cards_menu.pover=1};objects[obj_name].pointerout = function(){cards_menu.pover=0};objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].interactive=true;",code1:"",image_format:"png"},{class:"block",name:"invite_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=365;objects[obj_name].y=90;objects[obj_name].base_tint=objects[obj_name].tint=0XFFE699;",code1:""},{class:"block",name:"invite_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=365;objects[obj_name].y=130;objects[obj_name].base_tint=objects[obj_name].tint=0XE2F0D9;",code1:""},{class:"block",name:"invite_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=140;objects[obj_name].sy=objects[obj_name].y=50;objects[obj_name].width=140;objects[obj_name].height=139.99990234375;",code1:""},{class:"cont",name:"invite_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=341;objects[obj_name].sy=objects[obj_name].y=-40;",code1:"objects[obj_name].addChild(objects.black_bcg);objects[obj_name].addChild(objects.invite_feedback);objects[obj_name].addChild(objects.invite_bcg);objects[obj_name].addChild(objects.invite_avatar);objects[obj_name].addChild(objects.invite_name);objects[obj_name].addChild(objects.invite_rating);objects[obj_name].addChild(objects.invite_button);objects[obj_name].addChild(objects.invite_close);objects[obj_name].addChild(objects.invite_button_title);objects[obj_name].addChild(objects.fb_up);objects[obj_name].addChild(objects.fb_down);objects[obj_name].addChild(objects.fb_my);objects[obj_name].addChild(objects.fb_delete);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"invite_button",code0:"objects[obj_name].x=130;objects[obj_name].y=410;objects[obj_name].width=250;objects[obj_name].height=80;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.send_invite()};objects[obj_name].pointerover=function(){this.tint=0x444444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"invite_button_title",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 42.72});objects[obj_name].anchor.set(0.5,0.6);objects[obj_name].x=255;objects[obj_name].y=454;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"invite_feedback",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 17.8,align: 'left'});objects[obj_name].anchor.set(0,1);objects[obj_name].x=objects[obj_name].sx=149;objects[obj_name].y=objects[obj_name].sy=400;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;objects[obj_name].maxWidth = 290.99990234375;",code1:""},{class:"sprite",name:"fb_up",code0:"objects[obj_name].x=375;objects[obj_name].y=195;objects[obj_name].width=79.9998942057292;objects[obj_name].height=80;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.fb_up_down()};objects[obj_name].pointerover=function(){this.tint=0x117444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"fb_down",code0:"objects[obj_name].x=375;objects[obj_name].y=335;objects[obj_name].width=79.9998942057292;objects[obj_name].height=80;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.fb_down_down()};objects[obj_name].pointerover=function(){this.tint=0x117444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"fb_my",code0:"objects[obj_name].x=380;objects[obj_name].y=410;objects[obj_name].width=79.9998942057292;objects[obj_name].height=80;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.fb_my_down()};objects[obj_name].pointerover=function(){this.tint=0x117444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"invite_close",code0:"objects[obj_name].x=40;objects[obj_name].y=230;objects[obj_name].width=90;objects[obj_name].height=90;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.hide_invite_dialog()};objects[obj_name].pointerover=function(){this.tint=0x117444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"fb_delete",code0:"objects[obj_name].x=130;objects[obj_name].y=410;objects[obj_name].width=79.9998942057292;objects[obj_name].height=80;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){cards_menu.fb_delete_down()};objects[obj_name].pointerover=function(){this.tint=0x117444};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"big_message_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=380;objects[obj_name].height=260;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"big_message_text",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].maxWidth=320;objects[obj_name].x=200;objects[obj_name].y=30;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"cont",name:"big_message_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=201;objects[obj_name].sy=objects[obj_name].y=20;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.big_message_bcg);objects[obj_name].addChild(objects.big_message_text);objects[obj_name].addChild(objects.close_big_message);objects[obj_name].addChild(objects.big_message_text2);objects[obj_name].addChild(objects.feedback_button);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"close_big_message",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=200;objects[obj_name].y=180;objects[obj_name].width=160;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){big_message.close()};    ",code1:"",image_format:"png"},{class:"sprite",name:"feedback_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=40;objects[obj_name].y=180;objects[obj_name].width=160;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerover=function(){this.tint=0x55ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};objects[obj_name].pointerdown=function(){big_message.feedback_down()};    ",code1:"",image_format:"png"},{class:"block",name:"big_message_text2",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].maxWidth=318;objects[obj_name].x=199;objects[obj_name].y=147;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"sprite",name:"req_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].width=360;objects[obj_name].height=219.99990234375;objects[obj_name].interactive=true;",code1:"",image_format:"png"},{class:"block",name:"req_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24.92,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=251;objects[obj_name].y=84;objects[obj_name].base_tint=objects[obj_name].tint=0X2F5597;",code1:""},{class:"block",name:"req_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 30,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=251;objects[obj_name].y=122;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"req_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=50;objects[obj_name].sy=objects[obj_name].y=70;objects[obj_name].width=90;objects[obj_name].height=80;",code1:""},{class:"cont",name:"req_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=210;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.req_bcg);objects[obj_name].addChild(objects.req_avatar);objects[obj_name].addChild(objects.req_name);objects[obj_name].addChild(objects.req_rating);objects[obj_name].addChild(objects.req_ok);objects[obj_name].addChild(objects.req_deny);objects[obj_name].addChild(objects.req_title);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"req_ok",code0:"objects[obj_name].x=20;objects[obj_name].y=145;objects[obj_name].width=170;objects[obj_name].height=75;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.accept()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"req_deny",code0:"objects[obj_name].x=190;objects[obj_name].y=145;objects[obj_name].width=170.00009765625;objects[obj_name].height=75;objects[obj_name].interactive=true;objects[obj_name].buttonMode=true;objects[obj_name].pointerdown=function(){req_dialog.reject()};objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"req_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Приглашение','Invite'][LANG], {fontName: 'mfont',fontSize: 28.48,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=191;objects[obj_name].y=29;objects[obj_name].base_tint=objects[obj_name].tint=0X2F5597;",code1:""},{class:"image",name:"chk_quad_2",image_format:"png"},{class:"image",name:"chk_quad_1",image_format:"png"},{class:"block",name:"giveup_button",code0:"objects[obj_name]=new PIXI.Sprite(gres.send_sticker_button.texture);objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){game.give_up_down()};objects[obj_name].x=10;objects[obj_name].y=70;objects[obj_name].width=170;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};"},{class:"sprite",name:"send_sticker_button",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=170;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;app.stage.addChild(objects[obj_name]);",code1:"objects[obj_name].pointerdown=function(){stickers.show_panel()};objects[obj_name].pointerover=function(){this.tint=0x66ffff};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"cont",name:"game_buttons_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].ready=true;objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=610;objects[obj_name].sy=objects[obj_name].y=310;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.send_sticker_button);objects[obj_name].addChild(objects.giveup_button);objects[obj_name].addChild(objects.stickers_button_title);objects[obj_name].addChild(objects.giveup_button_title);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"stickers_button_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Стикеры','Stickes'][LANG], {fontName: 'mfont',fontSize: 28.48,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=95;objects[obj_name].y=45;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"giveup_button_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Сдаться','Giveup'][LANG], {fontName: 'mfont',fontSize: 28.48,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=95;objects[obj_name].y=105;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"sprite",name:"confirm_bcg",code0:"objects[obj_name].x=15;objects[obj_name].y=10;objects[obj_name].width=421.000520833333;objects[obj_name].height=170;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"sprite",name:"confirm_no",code0:"objects[obj_name].x=266;objects[obj_name].y=90;objects[obj_name].width=150;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){confirm_dialog.button_down('no')};",code1:"objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"cont",name:"confirm_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=175;objects[obj_name].sy=objects[obj_name].y=270;objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};",code1:"objects[obj_name].addChild(objects.confirm_bcg);objects[obj_name].addChild(objects.confirm_yes);objects[obj_name].addChild(objects.confirm_no);objects[obj_name].addChild(objects.confirm_msg);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"confirm_yes",code0:"objects[obj_name].x=35;objects[obj_name].y=89;objects[obj_name].width=151;objects[obj_name].height=70;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].pointerdown=function(){confirm_dialog.button_down('yes')};",code1:"objects[obj_name].pointerover=function(){this.tint=0xff9999};objects[obj_name].pointerout=function(){this.tint=this.base_tint};",image_format:"png"},{class:"block",name:"confirm_msg",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 32.04,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=224;objects[obj_name].y=60;objects[obj_name].maxWidth = 364;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"sprite",name:"id_bcg",code0:"objects[obj_name].x=10;objects[obj_name].y=10;objects[obj_name].width=320;objects[obj_name].height=180;objects[obj_name].base_tint=objects[obj_name].tint;",code1:"",image_format:"png"},{class:"block",name:"id_name",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=220;objects[obj_name].y=80;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"block",name:"id_rating",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0);objects[obj_name].x=220;objects[obj_name].y=115;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFF00;",code1:""},{class:"block",name:"id_avatar",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].sx=objects[obj_name].x=30;objects[obj_name].sy=objects[obj_name].y=60;objects[obj_name].width=99.99990234375;objects[obj_name].height=100;",code1:""},{class:"cont",name:"id_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=true;objects[obj_name].sx=objects[obj_name].x=230;objects[obj_name].sy=objects[obj_name].y=-10;",code1:"objects[obj_name].addChild(objects.id_bcg);objects[obj_name].addChild(objects.id_avatar);objects[obj_name].addChild(objects.id_name);objects[obj_name].addChild(objects.id_rating);objects[obj_name].addChild(objects.id_loup);app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"id_loup",code0:"objects[obj_name].sx=objects[obj_name].x=90;objects[obj_name].sy=objects[obj_name].y=123;objects[obj_name].anchor.set(0.5,0.5);",code1:"",image_format:"png"},{class:"image",name:"hl_key0",image_format:"png"},{class:"image",name:"hl_key1",image_format:"png"},{class:"image",name:"hl_key2",image_format:"png"},{class:"image",name:"hl_key3",image_format:"png"},{class:"sprite",name:"feedback_bcg",code0:"objects[obj_name].x=9;objects[obj_name].y=10;objects[obj_name].width=581.000130208333;objects[obj_name].height=419.999869791667;objects[obj_name].interactive=true;objects[obj_name].pointerdown = feedback.pointerdown.bind(feedback);",code1:"",image_format:"png"},{class:"block",name:"feedback_msg",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 28.48});objects[obj_name].anchor.set(0,0);objects[obj_name].x=39;objects[obj_name].y=58;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;objects[obj_name].maxWidth=521;",code1:""},{class:"block",name:"feedback_control",code0:"objects[obj_name]=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 19.58});objects[obj_name].anchor.set(1,1);objects[obj_name].x=560;objects[obj_name].y=160;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"cont",name:"feedback_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=101;objects[obj_name].sy=objects[obj_name].y=10;",code1:"objects[obj_name].addChild(objects.feedback_bcg);objects[obj_name].addChild(objects.feedback_msg);objects[obj_name].addChild(objects.feedback_control);objects[obj_name].addChild(objects.hl_key);app.stage.addChild(objects[obj_name]);"},{class:"block",name:"hl_key",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;",code1:""},{class:"block",name:"sent_sticker_area",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].visible=false;objects[obj_name].sx=objects[obj_name].x=310;objects[obj_name].sy=objects[obj_name].y=170;objects[obj_name].width=105;objects[obj_name].height=100;",code1:"app.stage.addChild(objects[obj_name]);"},{class:"sprite",name:"stickers_bcg",code0:"objects[obj_name].x=9;objects[obj_name].y=10;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].width=320;objects[obj_name].height=370;",code1:"",image_format:"png"},{class:"block",name:"sticker_0",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=29;objects[obj_name].y=80;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_0'].texture;",code1:""},{class:"block",name:"sticker_1",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=99;objects[obj_name].y=80;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_1'].texture;",code1:""},{class:"block",name:"sticker_2",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=169;objects[obj_name].y=80;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_2'].texture;",code1:""},{class:"block",name:"sticker_3",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=239;objects[obj_name].y=80;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_3'].texture;",code1:""},{class:"block",name:"sticker_4",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=29;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_4'].texture;",code1:""},{class:"block",name:"sticker_5",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=99;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_5'].texture;",code1:""},{class:"block",name:"sticker_6",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=169;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_6'].texture;",code1:""},{class:"block",name:"sticker_7",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=239;objects[obj_name].y=150;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_7'].texture;",code1:""},{class:"block",name:"sticker_8",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=29;objects[obj_name].y=220;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_8'].texture;",code1:""},{class:"block",name:"sticker_9",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=99;objects[obj_name].y=220;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_9'].texture;",code1:""},{class:"block",name:"sticker_10",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=169;objects[obj_name].y=220;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_10'].texture;",code1:""},{class:"block",name:"sticker_11",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=239;objects[obj_name].y=220;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_11'].texture;",code1:""},{class:"block",name:"sticker_12",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=29;objects[obj_name].y=290;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_12'].texture;",code1:""},{class:"block",name:"sticker_13",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=99;objects[obj_name].y=290;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_13'].texture;",code1:""},{class:"block",name:"sticker_14",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=169;objects[obj_name].y=290;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_14'].texture;",code1:""},{class:"block",name:"sticker_15",code0:"objects[obj_name]=new PIXI.Sprite();objects[obj_name].x=239;objects[obj_name].y=290;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].texture=game_res.resources['sticker_texture_15'].texture;",code1:""},{class:"cont",name:"stickers_cont",code0:"objects[obj_name]=new PIXI.Container();objects[obj_name].visible=false;objects[obj_name].ready=true;objects[obj_name].sx=objects[obj_name].x=232;objects[obj_name].sy=objects[obj_name].y=10;",code1:"app.stage.addChild(objects[obj_name]);objects[obj_name].addChild(objects.stickers_bcg);objects[obj_name].addChild(objects.close_stickers);objects[obj_name].addChild(objects.stickers_title);for (var z=0;z<16;z++) {objects[obj_name].addChild(objects['sticker_'+z]);objects['sticker_'+z].width=70;objects['sticker_'+z].height=70;objects['sticker_'+z].interactive=true;objects['sticker_'+z].buttonMode=true;const id=z;objects['sticker_'+id].pointerover=function(){this.tint=0xFF6666};objects['sticker_'+id].pointerout=function(){this.tint=this.base_tint};objects['sticker_'+id].pointerdown=function(){stickers.send(id)};}objects[obj_name].show=function(){this.children.forEach(c=>{c.alpha=1;c.tint=c.base_tint})};"},{class:"block",name:"stickers_title",code0:"objects[obj_name]=new PIXI.BitmapText(['Отправить стикер','Send sticker'][LANG], {fontName: 'mfont',fontSize: 25,align: 'center'});objects[obj_name].anchor.set(0.5,0.5);objects[obj_name].x=134;objects[obj_name].y=50;objects[obj_name].base_tint=objects[obj_name].tint=0XFFFFFF;",code1:""},{class:"sprite",name:"close_stickers",code0:"objects[obj_name].buttonMode=true;objects[obj_name].interactive=true;objects[obj_name].base_tint=objects[obj_name].tint;objects[obj_name].pointerdown=()=>{stickers.hide_panel()};objects[obj_name].x=247;objects[obj_name].y=19;objects[obj_name].width=62;objects[obj_name].height=62;",code1:"objects[obj_name].pointerover=function(){this.tint=0xff0000};objects[obj_name].pointerout=function(){this.tint=0xffffff};",image_format:"png"},{class:"block",name:"state_tint_b",code0:"cards_menu.state_tint.b=0X43682A;",code1:""},{class:"block",name:"state_tint_o",code0:"cards_menu.state_tint.o=0X548235;",code1:""},{class:"block",name:"state_tint_p",code0:"cards_menu.state_tint.p=0X1C5B6E;",code1:""},{class:"block",name:"state_tint_p",code0:"cards_menu.state_tint.bot=0X5E896F;",code1:""},{class:"sprite",name:"selected_frame",code0:"objects[obj_name].visible=false;objects[obj_name].width=50;objects[obj_name].height=50;",code1:"app.stage.addChild(objects[obj_name]);",image_format:"png"}];
 
 irnd = function(min,max) {	
     min = Math.ceil(min);
@@ -46,6 +46,7 @@ class player_mini_card_class extends PIXI.Container {
 
 		this.name="";
 		this.name_text=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 20,align: 'center'});
+		this.name_text.tint=0xffffff;
 		this.name_text.anchor.set(0.5,0.5);
 		this.name_text.x=135;
 		this.name_text.y=35;
@@ -362,7 +363,7 @@ var message =  {
 
 		objects.message_text.text=text;
 
-		await anim2.add(objects.message_cont,{x:[-200,objects.message_cont.sx]}, true, 0.5,'easeOutBack');
+		await anim2.add(objects.message_cont,{x:[-200,objects.message_cont.sx]}, true, 0.25,'easeOutBack');
 
 		let res = await new Promise((resolve, reject) => {
 				message.promise_resolve = resolve;
@@ -373,7 +374,7 @@ var message =  {
 		if (res === "forced")
 			return;
 
-		anim2.add(objects.message_cont,{x:[objects.message_cont.sx, -200]}, false, 0.5,'easeInBack');			
+		anim2.add(objects.message_cont,{x:[objects.message_cont.sx, -200]}, false, 0.25,'easeInBack');			
 	}
 
 }
@@ -412,7 +413,7 @@ var big_message = {
 
 		anim2.add(objects.big_message_cont,{y:[objects.big_message_cont.sy,450]}, false, 0.4,'easeInBack');	
 		
-		await feedback.show();
+		await feedback.show(opp_data.uid);
 		
 		this.p_resolve("close");
 				
@@ -999,11 +1000,7 @@ var online_game = {
 		//если диалоги еще открыты
 		if (objects.stickers_cont.visible===true)
 			stickers.hide_panel();	
-		
-		//если диалоги еще открыты
-		if (objects.giveup_dialog.visible===true)
-			giveup_menu.hide();
-				
+						
 		//убираем элементы
 		objects.timer_cont.visible = false;
 		objects.game_buttons_cont.visible = false;
@@ -1216,6 +1213,9 @@ var game = {
 
 		my_role = role;
 		
+		objects.desktop.texture=gres.desktop.texture;
+		anim2.add(objects.desktop,{alpha:[0,1]}, true, 0.5,'linear');	
+		
 		this.state = 'on';
 
 		if (role==="master") {
@@ -1272,15 +1272,42 @@ var game = {
 
 	},
 
+	give_up_down : async function() {
+		
+		if (anim2.any_on()===true) {
+			sound.play('locked');
+			return
+		};
+		
+		if (made_moves <5 ) {
+			message.add("Нельзя сдаваться в начале игры");		
+			return;
+		}
+		
+		
+		let res = await confirm_dialog.show('Сдаетесь?');
+		
+		if (res === 'yes') {
+			
+			//отправляем сообщени о сдаче и завершаем игру
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
+
+			game.stop('my_giveup');
+			
+		}
+		
+		
+	},
+	
 	mouse_down_on_board : function(e) {
 
-		if (any_dialog_active===1 || this.checker_is_moving === 1) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
 
 		//проверяем что моя очередь
-		if (my_turn === 0 || this.checker_is_moving === 1) {
+		if (my_turn === 0) {
 			message.add("не твоя очередь");
 			return;
 		}
@@ -1467,7 +1494,6 @@ var game = {
 				
 		await this.opponent.stop(result);
 				
-		objects.giveup_dialog.visible=false;
 		objects.cur_move_text.visible=false;
 		objects.board.visible=false;
 		objects.opp_card_cont.visible=false;
@@ -1495,14 +1521,16 @@ var game = {
 
 }
 
-var feedback = {
+feedback = {
 		
 	keys_data : [[50,180,80,218.33,'1'],[90,180,120,218.33,'2'],[130,180,160,218.33,'3'],[170,180,200,218.33,'4'],[210,180,240,218.33,'5'],[250,180,280,218.33,'6'],[290,180,320,218.33,'7'],[330,180,360,218.33,'8'],[370,180,400,218.33,'9'],[410,180,440,218.33,'0'],[450,180,550,218.33,'<'],[70,227.9,100,266.23,'Й'],[110,227.9,140,266.23,'Ц'],[150,227.9,180,266.23,'У'],[190,227.9,220,266.23,'К'],[230,227.9,260,266.23,'Е'],[270,227.9,300,266.23,'Н'],[310,227.9,340,266.23,'Г'],[350,227.9,380,266.23,'Ш'],[390,227.9,420,266.23,'Щ'],[430,227.9,460,266.23,'З'],[470,227.9,500,266.23,'Х'],[510,227.9,540,266.23,'Ъ'],[90,275.8,120,314.13,'Ф'],[130,275.8,160,314.13,'Ы'],[170,275.8,200,314.13,'В'],[210,275.8,240,314.13,'А'],[250,275.8,280,314.13,'П'],[290,275.8,320,314.13,'Р'],[330,275.8,360,314.13,'О'],[370,275.8,400,314.13,'Л'],[410,275.8,440,314.13,'Д'],[450,275.8,480,314.13,'Ж'],[490,275.8,520,314.13,'Э'],[70,323.8,100,362.13,'!'],[110,323.8,140,362.13,'Я'],[150,323.8,180,362.13,'Ч'],[190,323.8,220,362.13,'С'],[230,323.8,260,362.13,'М'],[270,323.8,300,362.13,'И'],[310,323.8,340,362.13,'Т'],[350,323.8,380,362.13,'Ь'],[390,323.8,420,362.13,'Б'],[430,323.8,460,362.13,'Ю'],[470,323.8,500,362.13,')'],[510,323.8,540,362.13,'?'],[30,371.7,180,410.03,'ЗАКРЫТЬ'],[190,371.7,420,410.03,'_'],[430,371.7,570,410.03,'ОТПРАВИТЬ']],
 	p_resolve : 0,
 	MAX_SYMBOLS : 50,
+	uid:0,
 	
-	show : function() {
+	show : function(uid) {
 		
+		this.uid = uid;
 		objects.feedback_msg.text ='';
 		objects.feedback_control.text = `0/${this.MAX_SYMBOLS}`
 				
@@ -1534,8 +1562,9 @@ var feedback = {
 		let key = -1;
 		let key_x = 0;
 		let key_y = 0;
+		let margin = 5;
 		for (let k of this.keys_data) {			
-			if (mx > k[0] && mx <k[2] && my > k[1] && my < k[3]) {
+			if (mx > k[0] - margin && mx <k[2] + margin  && my > k[1] - margin && my < k[3] + margin) {
 				key = k[4];
 				key_x = k[0];
 				key_y = k[1];
@@ -1569,7 +1598,7 @@ var feedback = {
 		
 		if (key === 'ЗАКРЫТЬ') {
 			this.close();
-			this.p_resolve("close");	
+			this.p_resolve(['close','']);	
 			key ='';
 		}	
 		
@@ -1577,10 +1606,20 @@ var feedback = {
 			
 			if (objects.feedback_msg.text === '') return;
 			
-			let fb_id = irnd(0,15);
-			firebase.database().ref("fb/"+opp_data.uid+"/"+fb_id).set([objects.feedback_msg.text, firebase.database.ServerValue.TIMESTAMP, my_data.name]);
+			//если нашли ненормативную лексику то закрываем
+			let mats = /[её]б[ауиёелн]|у[её]б|п[иёе]зд|пзд|сук[аи]|сучк|ху[йяиеё]|г[ао]нд|сос[ауиёе]|пид[ор]|педер|педр|шлю[чш]|письк|хули|чурк|жоп[ауе]|манд|бля[дт]|г[ао]вн|др[ао]ч|жоп|лох|минет|мудак|мудил|залуп|мудо|[оау]срал|шалав/i;
+			if (objects.feedback_msg.text.match(mats)) {
+				this.close();
+				this.p_resolve(['close','']);	
+				key ='';
+				return;
+			}
+			
+			
+			let fb_id = irnd(0,50);			
+			firebase.database().ref("fb/"+this.uid+"/"+fb_id).set([objects.feedback_msg.text, firebase.database.ServerValue.TIMESTAMP, my_data.name]);
 			this.close();
-			this.p_resolve("sent");	
+			this.p_resolve(['sent',objects.feedback_msg.text]);	
 			key ='';
 		}	
 		
@@ -1661,62 +1700,48 @@ var	ad = {
 
 }
 
-var giveup_menu = {
-
-	show: function() {
-
-
-		if (made_moves <5 ) {
-			message.add("Нельзя сдаваться в начале игры");		
-			return;
-		}
-
-
-		if (any_dialog_active===1) {
+var confirm_dialog = {
+	
+	p_resolve : 0,
+		
+	show: function(msg) {
+								
+		if (objects.confirm_cont.visible === true) {
+			sound.play('locked')
+			return;			
+		}		
+		
+		sound.play("confirm_dialog");
+				
+		objects.confirm_msg.text=msg;
+		
+		anim2.add(objects.confirm_cont,{y:[450,objects.confirm_cont.sy]}, true, 0.6,'easeOutBack');		
+				
+		return new Promise(function(resolve, reject){					
+			confirm_dialog.p_resolve = resolve;	  		  
+		});
+	},
+	
+	button_down : function(res) {
+		
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
-		};
+		};	
 		
-		any_dialog_active=1;
+		sound.play('click')
 
-		if (objects.giveup_dialog.ready===false)
-			return;
-		sound.play('click');
-
-		//--------------------------
-		anim2.add(objects.giveup_dialog,{y:[450, objects.giveup_dialog.sy]}, true, 0.5,'easeOutCubic');
-
-
-	},
-
-	give_up: function() {
-
-		if (objects.giveup_dialog.ready===false)
-			return;
-		sound.play('click');
-
-		//отправляем сообщени о сдаче и завершаем игру
-		firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"END",tm:Date.now(),data:{x1:0,y1:0,x2:0,y2:0,board_state:0}});
-
-		this.hide();
-
-		game.stop('my_giveup');
-
-	},
-
-	hide : function() {
-
-		if (objects.giveup_dialog.ready===false)
-			return;
+		this.close();
+		this.p_resolve(res);	
 		
-		sound.play('close');
-
-		any_dialog_active=0;
-
-		//--------------------------
-		anim2.add(objects.giveup_dialog,{y:[objects.giveup_dialog.sy, 450]}, false, 0.5,'easeInCubic');
-
+	},
+	
+	close : function() {
+		
+		anim2.add(objects.confirm_cont,{y:[objects.confirm_cont.sy,450]}, false, 0.4,'easeInBack');		
+		
 	}
+
 }
 
 var keep_alive = function() {
@@ -2501,7 +2526,6 @@ var req_dialog = {
 			}	else	{
 
 				//так как успешно получили данные о сопернике то показываем окно
-				any_dialog_active=1;
 				sound.play('receive_sticker');
 			
 				anim2.add(objects.req_cont,{y:[-260, objects.req_cont.sy]}, true, 0.75,'easeOutElastic');
@@ -2552,7 +2576,6 @@ var req_dialog = {
 		
 		sound.play('close');
 
-		any_dialog_active=0;
 
 		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
 
@@ -2567,7 +2590,7 @@ var req_dialog = {
 		}
 
 
-		any_dialog_active=0;
+
 		
 		//устанавливаем окончательные данные оппонента
 		opp_data = req_dialog._opp_data;	
@@ -2595,8 +2618,7 @@ var req_dialog = {
 		//если диалог не открыт то ничего не делаем
 		if (objects.req_cont.ready === false || objects.req_cont.visible === false)
 			return;
-	
-		any_dialog_active=0;
+
 		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
 
 	}
@@ -2605,78 +2627,90 @@ var req_dialog = {
 
 var main_menu = {
 
-	activate: function() {
+	activate: async function() {
+		
+		//игровой титл
+		anim2.add(objects.game_title,{y:[-100,objects.game_title.sy],alpha:[0,1]}, true, 0.75,'linear');	
+		
+		objects.desktop.texture=gres.desktop.texture;
+		anim2.add(objects.desktop,{alpha:[0,1]}, true, 0.5,'linear');	
 
-		//просто добавляем контейнер с кнопками
-		objects.main_buttons_cont.visible=true;
-		objects.desktop.visible=true;
-		objects.desktop.texture=game_res.resources.desktop.texture;
+		//кнопки
+		await anim2.add(objects.main_buttons_cont,{y:[450,objects.main_buttons_cont.sy],alpha:[0,1]}, true, 0.75,'linear');	
+
+
+		
 
 	},
 
-	close : function() {
+	close : async function() {
+		
+		//игровой титл
+		anim2.add(objects.game_title,{y:[objects.game_title.y,-100],alpha:[1,0]}, false, 0.5,'linear');	
+		
+		anim2.add(objects.desktop,{alpha:[1,0]}, false, 0.5,'linear');	
+		
+		//кнопки
+		await anim2.add(objects.main_buttons_cont,{y:[objects.main_buttons_cont.y, 450],alpha:[1,0]}, false, 0.5,'linear');	
+		
 
-		objects.main_buttons_cont.visible=false;
-		objects.desktop.visible=false;
 
 	},
 
-	play_button_down: function () {
+	play_button_down: async function () {
 
-		if (any_dialog_active===1 || activity_on===1) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
 
 		sound.play('click');
 
-		this.close();
+		await this.close();
 		cards_menu.activate();
 
 	},
 
-	lb_button_down: function () {
+	lb_button_down: async function () {
 
-		if (any_dialog_active===1) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
 
 		sound.play('click');
 
-		this.close();
+		await this.close();
 		lb.show();
 
 	},
 
 	rules_button_down: function () {
 
-		if (any_dialog_active===1) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
-		any_dialog_active=1;
 
 		sound.play('click');
 	
 		anim2.add(objects.rules_cont,{y:[-450, objects.rules_cont.sy]}, true, 0.5,'easeOutBack');
 
-
 	},
 
 	rules_ok_down: function () {
-		any_dialog_active=0;
+
 		anim2.add(objects.rules_cont,{y:[objects.rules_cont.sy, -450]}, false, 0.5,'easeInBack');
 
 	},
 
 	pref_button_down: function () {
 
-		if (any_dialog_active===1) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
-		any_dialog_active=1;
+
 
 		sound.play('click');
 	
@@ -2687,10 +2721,8 @@ var main_menu = {
 
 	pref_ok_down: function() {
 
-		any_dialog_active=0;
 		sound.play('close');
 		anim2.add(objects.pref_cont,{y:[objects.pref_cont.sy, -200]}, false, 0.5,'easeInBack');
-
 
 	},
 
@@ -2751,8 +2783,9 @@ var lb = {
 
 	show: function() {
 
-		objects.desktop.visible=true;
 		objects.desktop.texture=game_res.resources.lb_bcg.texture;
+		anim2.add(objects.desktop,{alpha:[0,1]}, true, 0.5,'linear');	
+		
 
 		anim2.add(objects.lb_1_cont,{x:[-150, objects.lb_1_cont.sx]}, true, 0.5,'easeOutBack');
 		anim2.add(objects.lb_2_cont,{x:[-150, objects.lb_2_cont.sx]}, true, 0.5,'easeOutBack');
@@ -2789,7 +2822,7 @@ var lb = {
 
 	back_button_down: function() {
 
-		if (any_dialog_active===1 || objects.lb_1_cont.ready===false) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -2871,6 +2904,7 @@ var lb = {
 var cards_menu = {
 	
 	_opp_data : {},
+	state_tint :{},
 	uid_pic_url_cache : {},
 	
 	cards_pos: [
@@ -2883,11 +2917,15 @@ var cards_menu = {
 
 	activate: function () {
 
+
 		objects.cards_cont.visible=true;
+		objects.cards_cont.alpha = 1;
 		objects.back_button.visible=true;
 
-		objects.desktop.visible=true;
 		objects.desktop.texture=game_res.resources.cards_bcg.texture;
+		anim2.add(objects.desktop,{alpha:[0,1]}, true, 0.5,'linear');	
+		anim2.add(objects.cards_cont,{alpha:[0,1]}, true, 0.5,'linear');	
+
 
 		//расставляем по соответствующим координатам
 		for(let i=0;i<15;i++) {
@@ -2905,8 +2943,8 @@ var cards_menu = {
 		this.add_cart_ai();
 
 		//включаем сколько игроков онлайн
-		anim2.add(objects.players_online,{y:[500,objects.players_online.sy]}, true, 0.6,'linear');		
-		anim2.add(objects.cards_menu_title,{y:[-50,objects.cards_menu_title.sy]}, true, 0.6,'linear');	
+		anim2.add(objects.players_online,{y:[500,objects.players_online.sy],x:[0,objects.players_online.sx]}, true, 0.6,'linear');		
+		anim2.add(objects.cards_menu_title,{y:[-50,objects.cards_menu_title.sy],x:[0,objects.cards_menu_title.sx]}, true, 0.6,'linear');	
 				
 		//подписываемся на изменения состояний пользователей
 		firebase.database().ref(room_name).on('value', (snapshot) => {cards_menu.players_list_updated(snapshot.val());});
@@ -3095,19 +3133,19 @@ var cards_menu = {
 		switch(s) {
 
 			case "o":
-				return 0x559955;
+				return this.state_tint.o;
 			break;
 
 			case "b":
-				return 0x376f37;
+				return this.state_tint.b;
 			break;
 
 			case "p":
-				return 0x344472;
+				return this.state_tint.p;
 			break;
-
-			case "w":
-				return 0x990000;
+			
+			case "bot":
+				return this.state_tint.bot;
 			break;
 		}
 	},
@@ -3309,7 +3347,7 @@ var cards_menu = {
 		objects.mini_cards[0].avatar2.visible = false;
 		objects.mini_cards[0].rating_bcg.visible = false;
 
-		objects.mini_cards[0].bcg.tint=0x777777;
+		objects.mini_cards[0].bcg.tint=this.state_tint.bot;
 		objects.mini_cards[0].visible=true;
 		objects.mini_cards[0].uid="BOT";
 		objects.mini_cards[0].name="Бот";
@@ -3331,15 +3369,14 @@ var cards_menu = {
 	
 	show_table_dialog : function (card_id) {
 		
-		if (any_dialog_active>0) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
 
 
 		sound.play('click');
-		
-		any_dialog_active=1;		
+
 		
 		anim2.add(objects.td_cont,{y:[-150, objects.td_cont.sy]}, true, 0.5,'easeOutBack');
 		
@@ -3356,7 +3393,6 @@ var cards_menu = {
 	
 	close_table_dialog : function () {
 		
-		any_dialog_active=0;	
 		
 		sound.play('close');
 		
@@ -3366,92 +3402,76 @@ var cards_menu = {
 		
 	},
 
-	show_invite_dialog: function(cart_id) {
+	show_invite_dialog: function(card_id) {
 
-		if (any_dialog_active>0) {
+		if (anim2.any_on() === true) {
 			sound.play('locked');
 			return
 		};
 
-
-		any_dialog_active=3;
-
 		pending_player="";
-
-		sound.play('click');
 		
+		anim2.add(objects.cards_cont,{alpha:[1, 0.5]}, true, 0.15,'linear');
+
+		sound.play('click');		
+					
 		objects.invite_feedback.text = '';
+
+		//показыаем кнопку приглашения
+		objects.invite_button.texture=gres.invite_button.texture;
 	
-		anim2.add(objects.invite_cont,{y:[-150, objects.invite_cont.sy]}, true, 0.5,'easeOutBack');
-
-
-		//копируем предварительные данные
-		cards_menu._opp_data = {uid:objects.mini_cards[cart_id].uid,name:objects.mini_cards[cart_id].name,rating:objects.mini_cards[cart_id].rating};
-
-
+		anim2.add(objects.invite_cont,{x:[800, objects.invite_cont.sx]}, true, 0.15,'linear');
+		anim2.add(objects.cards_menu_title,{x:[objects.cards_menu_title.sx,230]}, true, 0.15,'linear');
+		anim2.add(objects.players_online,{x:[objects.players_online.sx,230]}, true, 0.15,'linear');
 		
-		this.show_feedbacks(cards_menu._opp_data.uid);
-
+		//копируем предварительные данные
+		cards_menu._opp_data = {uid:objects.mini_cards[card_id].uid,name:objects.mini_cards[card_id].name,rating:objects.mini_cards[card_id].rating};
+		
+		//затемняем кнопку если это не наша карточка
+		objects.fb_my.alpha = 1;
+		if (this._opp_data.uid !== my_data.uid)
+			objects.fb_my.alpha = 0.2;		
+		
+		//флаг что это моя карточка
 		let is_it_my_card = cards_menu._opp_data.uid === my_data.uid;
-		let invite_available = !is_it_my_card;
-		invite_available=invite_available && (objects.mini_cards[cart_id].state==="o" || objects.mini_cards[cart_id].state==="b");
-		invite_available = invite_available || cards_menu._opp_data.uid==="BOT";
+		
+		//отображаем фидбэки
+		this.show_feedbacks(cards_menu._opp_data.uid);
+		
+		//определяем доступно ли приглащение
+		let invite_available = 	cards_menu._opp_data.uid !== my_data.uid;
+		invite_available=invite_available && (objects.mini_cards[card_id].state==="o" || objects.mini_cards[card_id].state==="b");
+		invite_available=invite_available || cards_menu._opp_data.uid==="BOT";
 
 		//показыаем кнопку приглашения только если это допустимо		
 		if (invite_available === true) {			
 			objects.invite_button_title.text = ['Пригласить','Invite'][LANG];			
 			objects.invite_button.pointerdown = this.send_invite.bind(this);				
 			
-		} else {
-			
-			if (is_it_my_card === true) {
-				objects.invite_button.pointerdown = this.remove_my_feedbacks.bind(this);	
-				objects.invite_button_title.text = ['Удалить отзывы','Delete feedbacks'][LANG];
-			} else {
-				objects.invite_button.pointerdown = function(){};			
-				objects.invite_button_title.text = ['(((','((('][LANG];
-			}		
-		}	
+		} else {			
+
+			objects.invite_button.pointerdown = function(){};			
+			objects.invite_button_title.text = ['(((','((('][LANG];
+		}
 		
-		
-		//заполняем карточу приглашения данными
-		objects.invite_avatar.texture=objects.mini_cards[cart_id].avatar.texture;
-		make_text(objects.invite_name,cards_menu._opp_data.name,170);
-		objects.invite_rating.text=objects.mini_cards[cart_id].rating_text.text;
-
-	},
-	
-	show_invite_dialog_from_lb: function(name, rating, uid) {
-
-		if (any_dialog_active>0) {
-			sound.play('locked');
-			return
-		};
-
-
-		any_dialog_active=3;
-
-		pending_player="";
-
-		sound.play('click');
-		
-		objects.invite_feedback.text = '';
-	
-		anim2.add(objects.invite_cont,{y:[-150, objects.invite_cont.sy]}, true, 0.5,'easeOutBack');
-		
-		this.show_feedbacks(uid);
+		//если это моя карточка то включаем возможность удаления комментариев
+		objects.fb_delete.visible = is_it_my_card
 
 		//показыаем кнопку приглашения только если это допустимо
-		objects.invite_button.visible=objects.invite_button_title.visible = false;
-		objects.invite_button_title.text = ['Пригласить','Invite'][LANG];
+		objects.invite_button.visible=objects.invite_button_title.visible=invite_available;
 
 		//заполняем карточу приглашения данными
-		make_text(objects.invite_name, name,230);
-		objects.invite_rating.text = rating;
+		objects.invite_avatar.texture=objects.mini_cards[card_id].avatar.texture;
+		make_text(objects.invite_name,cards_menu._opp_data.name,230);
+		objects.invite_rating.text=objects.mini_cards[card_id].rating_text.text;
 
 	},
 	
 	show_feedbacks: async function(uid) {
+		
+		//позвращаем текст на начальное положение
+		objects.invite_feedback.text = '';
+		objects.invite_feedback.y = objects.invite_feedback.sy;
 		
 		//получаем фидбэки
 		let _fb = await firebase.database().ref("fb/" + uid).once('value');
@@ -3464,12 +3484,13 @@ var cards_menu = {
 		
 		//выбираем последние отзывы
 		fb.sort(function(a,b) {
-			return b[1]-a[1]
-		});
+			return a[1]-b[1]
+		});		
+		
+		//очищаем фидбэки
+		objects.invite_feedback.text ='';
 		
 		let fb_cnt = fb.length;
-		
-		fb_cnt = Math.min(fb_cnt, 7);
 				
 		for (let i = 0 ; i < fb_cnt;i++) {
 			let sender_name =  fb[i][2] || 'Неизв.';
@@ -3483,15 +3504,18 @@ var cards_menu = {
 
 	close: function() {
 
-		objects.cards_cont.visible=false;
-		objects.back_button.visible=false;
-		objects.desktop.visible=false;
+
 
 		if (objects.invite_cont.visible === true)
 			this.hide_invite_dialog();
 		
 		if (objects.td_cont.visible === true)
 			this.close_table_dialog();
+
+		anim2.add(objects.cards_cont,{alpha:[0.5, 0]}, false, 0.15,'linear');
+		objects.back_button.visible=false;
+		objects.desktop.visible=false;
+
 
 		//больше ни ждем ответ ни от кого
 		pending_player="";
@@ -3505,14 +3529,75 @@ var cards_menu = {
 
 	},
 
-	hide_invite_dialog: function() {
+	wheel_event: function(dir) {
+		
+		if (this.pover === 0) return;
+		
+		if (dir === 1)
+			this.fb_down_down();
+		else
+			this.fb_up_down();
+		
+	},
+	
+	fb_up_down : function() {
+		
+		//если дошли до конца
+		if (objects.invite_feedback.y - objects.invite_feedback.height  >=220)
+			return;
+		
+		//отпускаем фидбэки ниже
+		anim2.add(objects.invite_feedback,{y:[objects.invite_feedback.y, objects.invite_feedback.y+40]}, true, 0.25,'linear');
+		
+	},
+	
+	fb_down_down : function() {		
 
-		any_dialog_active=0;
+		
+		//если дошли до конца
+		if (objects.invite_feedback.y <=400)
+			return;
+		
+		//поднимаем
+		anim2.add(objects.invite_feedback,{y:[objects.invite_feedback.y, objects.invite_feedback.y-40]}, true, 0.25,'linear');
+		
+	},
+	
+	fb_my_down : async function() {		
+		
+		if (this._opp_data.uid !== my_data.uid || objects.feedback_cont.visible === true)
+			return;
+		
+		let fb = await feedback.show(this._opp_data.uid);
+		
+		//перезагружаем отзывы если добавили один
+		if (fb[0] === 'sent')
+			this.show_feedbacks(this._opp_data.uid);
+		
+	},
+	
+	fb_delete_down : async function() {		
+		
+		
+		if (await confirm_dialog.show('Удалить коменты?\nбудет показана реклама')==='no')
+			return;
+		
+		let res = await ad.show2();
+		if (res !== 'err') {			
+			firebase.database().ref("fb/" + my_data.uid).remove();
+			objects.invite_feedback.text = '***нет отзывов***'			
+		}
+		
+	},
+
+	hide_invite_dialog: function() {
 
 		sound.play('close');
 
 		if (objects.invite_cont.visible===false)
 			return;
+		
+		anim2.add(objects.cards_cont,{alpha:[0.5, 1]}, true, 0.15,'linear');
 
 		//отправляем сообщение что мы уже не заинтересованы в игре
 		if (pending_player!=="") {
@@ -3520,32 +3605,18 @@ var cards_menu = {
 			pending_player="";
 		}
 
-
-		anim2.add(objects.invite_cont,{y:[objects.invite_cont.sy, 400]}, false, 0.5,'easeInBack');
-
-
-	},
-
-	remove_my_feedbacks : async function() {
+		//убираем инвайт контейнер и возвращаем хэдеры на свои места
+		anim2.add(objects.invite_cont,{x:[objects.invite_cont.x, 800]}, false, 0.15,'linear');
+		anim2.add(objects.cards_menu_title,{x:[230,objects.cards_menu_title.sx]}, true, 0.15,'linear');
+		anim2.add(objects.players_online,{x:[230,objects.players_online.sx]}, true, 0.15,'linear');
 		
-		
-		let res = await ad.show2();
-		console.log(res);
-		if (res !== 'err') {			
-			firebase.database().ref("fb/" + my_data.uid).remove();
-			objects.invite_feedback.text = '***нет отзывов***'			
-		}
-		objects.invite_button.pointerdown = function(){};	
-		
+
 	},
 
 	send_invite: function() {
 
 
-		if (objects.invite_cont.ready===false || objects.invite_cont.visible===false)
-			return;
-
-		if (any_dialog_active===1 && any_dialog_active!==3) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -3567,7 +3638,6 @@ var cards_menu = {
 			objects.invite_button_title.text = ['Ждите ответ...','Waiting...'][LANG];
 			firebase.database().ref("inbox/"+cards_menu._opp_data.uid).set({sender:my_data.uid,message:"INV",tm:Date.now()});
 			pending_player=cards_menu._opp_data.uid;
-			any_dialog_active=1
 
 		}
 		objects.invite_button.pointerdown = function(){};	
@@ -3603,7 +3673,7 @@ var cards_menu = {
 
 	back_button_down: function() {
 
-		if (any_dialog_active===1) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
@@ -3625,11 +3695,11 @@ var stickers = {
 	show_panel: function() {
 
 
-		if (any_dialog_active===1) {
+		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
-		any_dialog_active=1;
+
 
 		if (objects.stickers_cont.ready===false)
 			return;
@@ -3651,8 +3721,6 @@ var stickers = {
 
 		if (objects.stickers_cont.ready===false)
 			return;
-
-		any_dialog_active=0;
 
 		//анимационное появление панели стикеров
 		anim2.add(objects.stickers_cont,{y:[objects.stickers_cont.sy, -450]}, false, 0.5,'easeInBack');
@@ -4230,6 +4298,9 @@ function init_game_env() {
 		connected = 0;
 	  }
 	});
+	
+	//событие ролика мыши в карточном меню
+	window.addEventListener("wheel", event => cards_menu.wheel_event(Math.sign(event.deltaY)));
 
 	//устанавливаем начальный вид шашек
 	board_func.chk_type='quad';
