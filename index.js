@@ -153,7 +153,7 @@ class chat_record_class extends PIXI.Container {
 		this.name.y=5;
 		
 		this.msg = new PIXI.BitmapText('Имя Фамил', {fontName: 'mfont',fontSize: 20,align: 'left'}); 
-		this.msg.x=125;
+		this.msg.x=135;
 		this.msg.y=5;
 		
 		this.visible = false;
