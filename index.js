@@ -163,8 +163,21 @@ class chat_record_class extends PIXI.Container {
 	
 	async update_avatar(uid, tar_sprite) {
 		
-		let pic_url = await firebase.database().ref("players/" + uid + "/pic_url").once('value');		
-		pic_url = pic_url.val();
+		
+		let pic_url = '';
+		//если есть в кэше то =берем оттуда если нет то загружаем
+		if (cards_menu.uid_pic_url_cache[uid] !== undefined) {
+			
+			pic_url = cards_menu.uid_pic_url_cache[uid];
+			
+		} else {
+			
+			pic_url = await firebase.database().ref("players/" + uid + "/pic_url").once('value');		
+			pic_url = pic_url.val();			
+			cards_menu.uid_pic_url_cache[uid] = pic_url;
+		}
+		
+
 		
 		//сначала смотрим на загруженные аватарки в кэше
 		if (PIXI.utils.TextureCache[pic_url]===undefined || PIXI.utils.TextureCache[pic_url].width===1) {
@@ -194,11 +207,11 @@ class chat_record_class extends PIXI.Container {
 		
 	}
 	
-	set(uid,name,msg,tm, msg_id) {
+	async set(uid,name,msg,tm, msg_id) {
 						
 		//получаем pic_url из фб
 		this.avatar.texture=PIXI.Texture.WHITE;
-		this.update_avatar(uid, this.avatar);
+		await this.update_avatar(uid, this.avatar);
 
 		this.tm = tm;
 			
@@ -2961,20 +2974,19 @@ var chat = {
 
 	},
 		
-	chat_load : function(data) {
+	chat_load : async function(data) {
 		
 		if (data === null) return;
 		
 		data = Object.keys(data).map((key) => data[key]);
 		data.sort(function(a, b) {	return a[3] - b[3];});
 			
-		data.forEach(c => {
-			this.chat_updated(c);			
-		})
+		for (let c = data.length - 13; c<data.length;c++)
+			await this.chat_updated(data[c]);			
 		
 	},	
 		
-	chat_updated : function(data) {		
+	chat_updated : async function(data) {		
 		
 		console.log(data);
 		
@@ -2991,7 +3003,7 @@ var chat = {
 		
 		rec.y = this.last_record_end;
 		
-		rec.set(...data)		
+		await rec.set(...data)		
 		
 		this.last_record_end += 35;		
 		
