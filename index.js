@@ -1062,7 +1062,8 @@ var online_game = {
 		let msg_data = await feedback.show();
 		
 		if (msg_data[0] === 'sent') {			
-			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"CHAT",tm:Date.now(),data:msg_data[1]});			
+			firebase.database().ref("inbox/"+opp_data.uid).set({sender:my_data.uid,message:"CHAT",tm:Date.now(),data:msg_data[1]});	
+
 		} else {			
 			message.add('Сообщение не отправлено');
 		}
@@ -3052,14 +3053,20 @@ var chat = {
 		
 	},
 	
-	close_down : async function() {
+	close : function() {
 		
 		objects.chat_cont.visible = false;
 		firebase.database().ref('chat').off();
-		main_menu.activate();
-		
 		if (objects.feedback_cont.visible === true)
 			feedback.close();
+	},
+	
+	close_down : async function() {
+		
+		this.close();
+		main_menu.activate();
+		
+
 		
 	},
 	
