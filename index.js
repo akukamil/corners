@@ -1692,7 +1692,6 @@ feedback = {
 		if (objects.feedback_cont.visible === false || objects.feedback_cont.ready === false) return;
 		
 		key = key.toUpperCase();
-		console.log(key);		
 		
 		if (key === 'ESCAPE') key = 'ЗАКРЫТЬ';			
 		if (key === 'ENTER') key = 'ОТПРАВИТЬ';
