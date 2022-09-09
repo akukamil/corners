@@ -1756,6 +1756,7 @@ feedback = {
 			this.close();
 			this.p_resolve(['close','']);	
 			key ='';
+			sound.play('keypress');
 			return;	
 		}	
 		
@@ -1776,6 +1777,7 @@ feedback = {
 			this.close();
 			this.p_resolve(['sent',objects.feedback_msg.text]);	
 			key ='';
+			sound.play('keypress');
 			return;	
 		}	
 		
