@@ -1863,11 +1863,6 @@ var	ad = {
 		return 'err';
 		
 	}
-	
-
-
-
-
 }
 
 var confirm_dialog = {
@@ -3020,18 +3015,19 @@ var chat = {
 		
 	chat_updated : async function(data) {		
 		
-		console.log(data);
-		
 		var result = objects.chat_records.find(obj => {
 		  return obj.msg_id === data[4];
 		})
 		
 		if (result !== undefined) {			
-			result.tm = data[3];
+			//result.tm = data[3];
 			return;
 		};
 		
 		let rec = this.get_oldest_record();
+		
+		//сразу заносим айди чтобы проверять
+		rec.msg_id = data[4];
 		
 		rec.y = this.last_record_end;
 		
@@ -3039,9 +3035,7 @@ var chat = {
 		
 		this.last_record_end += 35;		
 		
-		objects.chat_records_cont.y-=35
-
-		//anim2.add(objects.chat_records_cont,{y:[objects.chat_records_cont.y, objects.chat_records_cont.y-35]}, true, 0.25,'easeInOutCubic');		
+		objects.chat_records_cont.y-=35	
 		
 	},
 	
