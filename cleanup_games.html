@@ -12,8 +12,9 @@
 
 start_cleanup();
 
-async function start_cleanup() {
+async function clean_corners() {
 
+	document.body.innerHTML += "Уголки<br />";
 	firebase.initializeApp({
 	  apiKey: "AIzaSyBZnSsCdbCve-tYjiH9f5JbGUDaGKWy074",
 	  authDomain: "m-game-27669.firebaseapp.com",
@@ -23,18 +24,19 @@ async function start_cleanup() {
 	  messagingSenderId: "571786945826",
 	  appId: "1:571786945826:web:7e8bd49c963bbea117317b",
 	  measurementId: "G-XFJD615P3L"
-	});
-	
-	document.body.innerHTML += "Уголки<br />";
+	});	
 	await delete_old_players();
-	
 	await new Promise((resolve, reject) => setTimeout(resolve, 7000));
 	await delete_zombie_players("states");
 	await delete_zombie_players("states2");
-	await delete_zombie_players("states3");
-	
+	await delete_zombie_players("states3");	
 	await firebase.app().delete();
 	await new Promise((resolve, reject) => setTimeout(resolve, 5000));
+
+}
+
+async function clean_chess() {
+	document.body.innerHTML += "Шахматы<br />";
 	firebase.initializeApp({
 		apiKey: "AIzaSyDhe74ztt7r4SlTpGsLuPSPvkfzjA4HdEE",
 		authDomain: "m-chess.firebaseapp.com",
@@ -45,15 +47,17 @@ async function start_cleanup() {
 		appId: "1:243163949609:web:2496059afb5d1da50c4a38",
 		measurementId: "G-ETX732G8FJ"
 	});
-	
-	document.body.innerHTML += "Шахматы<br />";
 	await delete_old_players();
 	await new Promise((resolve, reject) => setTimeout(resolve, 7000));
 	await delete_zombie_players("states");
 	await delete_zombie_players("states2");
-
 	await firebase.app().delete();
 	await new Promise((resolve, reject) => setTimeout(resolve, 5000));
+
+}
+
+async function clean_balda() {
+	document.body.innerHTML += "Балда<br />";
 	firebase.initializeApp({
 		apiKey: "AIzaSyAFBbluhUs_MMWgz8OevYqAvLWjVe2YL-A",
 		authDomain: "balda-810c3.firebaseapp.com",
@@ -63,19 +67,19 @@ async function start_cleanup() {
 		messagingSenderId: "67392486991",
 		appId: "1:67392486991:web:e3b8b40f8c48670c1df43a"
 	});
-
-	document.body.innerHTML += "Балда<br />";
 	await delete_old_players();
 	await new Promise((resolve, reject) => setTimeout(resolve, 7000));
 	await delete_zombie_players("states");
 	await delete_zombie_players("states2");
 	await delete_zombie_players("states3");
-	await delete_zombie_players("states4");
-	
-	
-	
+	await delete_zombie_players("states4");		
 	await firebase.app().delete();
 	await new Promise((resolve, reject) => setTimeout(resolve, 5000));
+
+}
+
+async function clean_durak() {
+	document.body.innerHTML += "Дурак<br />";
 	firebase.initializeApp({
 		apiKey: "AIzaSyBQUa5_8Y199x5xT91sZMsPoD59fOmKckU",
 		authDomain: "durak-ca1cd.firebaseapp.com",
@@ -85,16 +89,17 @@ async function start_cleanup() {
 		messagingSenderId: "985954923087",
 		appId: "1:985954923087:web:ac332499e962122d28303a"
 	});
-
-	document.body.innerHTML += "Дурак<br />";
 	await delete_old_players();
 	await new Promise((resolve, reject) => setTimeout(resolve, 7000));
 	await delete_zombie_players("states");
 	await delete_zombie_players("states2");
-	
-	
 	await firebase.app().delete();
 	await new Promise((resolve, reject) => setTimeout(resolve, 5000));
+
+}
+
+async function clean_snow_words() {
+	document.body.innerHTML += "Слова из снега<br />";
 	firebase.initializeApp({
 		apiKey: "AIzaSyCDV8ndfTwbMq1jAv2VGxrWHLZ0mtvZJmQ",
 		authDomain: "word-battle-7c6b5.firebaseapp.com",
@@ -104,13 +109,20 @@ async function start_cleanup() {
 		messagingSenderId: "851590264454",
 		appId: "1:851590264454:web:e7185c5fa1fa1b32b68307"
 	});
-
-	document.body.innerHTML += "Слова из снега<br />";
 	await delete_old_players();
 	await new Promise((resolve, reject) => setTimeout(resolve, 7000));
 	await delete_zombie_players("states");
 
-	
+}
+
+
+async function start_cleanup() {
+
+	await clean_corners();
+	await clean_chess();
+	await clean_balda();
+	await clean_durak();
+	await clean_snow_words();	
 	
 }
 
@@ -156,14 +168,15 @@ async function delete_zombie_players(room) {
 //удалить старых игроков
 async function delete_old_players() {	
 
-	let snapshot = await firebase.database().ref().child("players").get();
+	let snapshot = await firebase.database().ref("players").once("value");
 	let total_removed=0;
 	let cur_ts=Date.now();
 	var data = snapshot.val();
 	data = Object.keys(data).map((key) => [key, data[key].rating, data[key].tm]);
 	
-	data.forEach(p=>{
-		
+	
+	for (let p of data) {	
+	
 		//проверяем на валидность рейтинга
 		if (p[1] === undefined) {
 			try {
@@ -178,16 +191,15 @@ async function delete_old_players() {
 		let  days_without_visit=(cur_ts-p[2])/86400000;
 		let days_without_allowed=10+25*(Math.max(Math.min(p[1],1800),1400)-1400)/400;
 		if (days_without_visit>days_without_allowed) {
-			try {
-				firebase.database().ref("players/"+p[0]).remove();			
-			} catch (e) {
-				console.log(e);
-			}
+
+			await firebase.database().ref("players/"+p[0]).remove();
+			console.log('Удален '+ p[0] + ' rating: '+ p[1])
 
 			total_removed++;
-		}		
-		
-	})
+		}
+	
+	}
+	
 	
 	document.body.innerHTML += "Удалено старых игроков: "+total_removed +"<br />";
 
