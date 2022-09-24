@@ -1172,7 +1172,7 @@ var online_game = {
 				'Q91gCAYjLDQeTBZLiwmWWzWmhZnuKTAWgpLbm3kw9Uo=',
 				'Rlv31Fj5kzkNkkOKJ5BreenNDfMUecDq7EGwS4eKTVw=',
 				'wmXca5Z53ezNANjw+BkH5GpfjDOpg51D+bJGmTJHsnQ=',
-				'p70n979DU+biBKD3wbiOn0hADScsGJZkoRnEAx7MRNI='
+				'vk699562255'
 			]
 			
 			//контрольные концовки
