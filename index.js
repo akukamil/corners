@@ -1518,7 +1518,7 @@ var game = {
 
 		//MADINA_CASE
 		if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
-			try {firebase.database().ref("MADINA_CASE").push(['process_my_move', client_id, state, game.state,  move_data, moves, Date.now()])}catch(e){};	
+			try {firebase.database().ref("MADINA_CASE").push(['process_my_move', client_id, state, game.state,  move_data, Date.now()])}catch(e){};	
 
 		//делаем перемещение шашки
 		this.checker_is_moving = 1;
