@@ -1516,6 +1516,10 @@ var game = {
 
 	process_my_move : async function (move_data, moves) {
 
+		//MADINA_CASE
+		if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
+			try {firebase.database().ref("MADINA_CASE").push(['process_my_move', client_id, state, game.state,  move_data, moves, Date.now()])}catch(e){};	
+
 		//делаем перемещение шашки
 		this.checker_is_moving = 1;
 		await board_func.start_gentle_move(move_data, moves);	
@@ -1569,10 +1573,16 @@ var game = {
 
 		//обозначаем что я сделал ход и следовательно подтвердил согласие на игру
 		this.opponent.me_conf_play=1;
+		
+
 
 	},
 
 	receive_move: async function(move_data) {
+		
+		//MADINA_CASE
+		if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
+			try {firebase.database().ref("MADINA_CASE").push(['receive_move', client_id, state, game.state, my_turn, Date.now()])}catch(e){};		
 		
 		//это чтобы не принимать ходы если игры нет (то есть выключен таймер)
 		if (game.state !== 'on')
@@ -2609,6 +2619,11 @@ var process_new_message = function(msg) {
 	//проверяем плохие сообщения
 	if (msg===null || msg===undefined)
 		return;
+	
+	//MADINA_CASE
+	if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
+		try{firebase.database().ref("MADINA_CASE").push(['process_new_message',client_id, state, game.state, msg, Date.now()])}catch(e){};		
+
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 	if (msg.message==="ACCEPT"  && pending_player===msg.sender && state !== "p") {
