@@ -1517,8 +1517,8 @@ var game = {
 	process_my_move : async function (move_data, moves) {
 
 		//MADINA_CASE
-		if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
-			try {firebase.database().ref("MADINA_CASE").push([my_data.name,'process_my_move', client_id, state, game.state,  move_data, Date.now()])}catch(e){};	
+		if (my_data.uid === 'vk699562255')
+			try {firebase.database().ref("MADINA_CASE").push([my_data.name,'process_my_move',online_game.move_time_left, client_id, state, game.state,  move_data, Date.now()])}catch(e){};	
 
 		//делаем перемещение шашки
 		this.checker_is_moving = 1;
@@ -1581,8 +1581,8 @@ var game = {
 	receive_move: async function(move_data) {
 		
 		//MADINA_CASE
-		if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
-			try {firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'receive_move', client_id, state, game.state, my_turn, Date.now()])}catch(e){};		
+		if (my_data.uid === 'vk699562255')
+			try {firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'receive_move',online_game.move_time_left, client_id, state, game.state, my_turn, Date.now()])}catch(e){};		
 		
 		//это чтобы не принимать ходы если игры нет (то есть выключен таймер)
 		if (game.state !== 'on')
@@ -1633,8 +1633,8 @@ var game = {
 				
 				
 		//MADINA_CASE
-		if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
-			try{firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'stop',client_id, state, game.state, result, Date.now()])}catch(e){};
+		if (my_data.uid === 'vk699562255')
+			try{firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'stop',online_game.move_time_left,client_id, state, game.state, result, Date.now()])}catch(e){};
 					
 		this.state = 'pending';
 				
@@ -2626,8 +2626,8 @@ var process_new_message = function(msg) {
 		return;
 	
 	//MADINA_CASE
-	if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
-		try{firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'process_new_message',client_id, state, game.state, msg, Date.now()])}catch(e){};		
+	if (my_data.uid === 'vk699562255')
+		try{firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'process_new_message',online_game.move_time_left,client_id, state, game.state, msg, Date.now()])}catch(e){};		
 
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
@@ -4642,6 +4642,9 @@ function init_game_env() {
 	
 	//запускаем главный цикл
 	main_loop();
+	
+	
+	
 
 }
 
