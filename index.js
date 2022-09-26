@@ -1582,7 +1582,7 @@ var game = {
 		
 		//MADINA_CASE
 		if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
-			try {firebase.database().ref("MADINA_CASE").push([my_data.name, 'receive_move', client_id, state, game.state, my_turn, Date.now()])}catch(e){};		
+			try {firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'receive_move', client_id, state, game.state, my_turn, Date.now()])}catch(e){};		
 		
 		//это чтобы не принимать ходы если игры нет (то есть выключен таймер)
 		if (game.state !== 'on')
@@ -1634,7 +1634,7 @@ var game = {
 				
 		//MADINA_CASE
 		if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
-			try{firebase.database().ref("MADINA_CASE").push([my_data.name, 'stop',client_id, state, game.state, result, Date.now()])}catch(e){};
+			try{firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'stop',client_id, state, game.state, result, Date.now()])}catch(e){};
 					
 		this.state = 'pending';
 				
@@ -2627,7 +2627,7 @@ var process_new_message = function(msg) {
 	
 	//MADINA_CASE
 	if (my_data.uid === 'vk699562255' || opp_data.uid === 'vk699562255')
-		try{firebase.database().ref("MADINA_CASE").push([my_data.name, 'process_new_message',client_id, state, game.state, msg, Date.now()])}catch(e){};		
+		try{firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'process_new_message',client_id, state, game.state, msg, Date.now()])}catch(e){};		
 
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
