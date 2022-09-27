@@ -959,6 +959,9 @@ var online_game = {
 	me_conf_play : 0,
 	opp_conf_play : 0,
 	move_time_left : 0,
+	move_start_time :0,
+	time_for_move : 0,
+	prv_time : 0,
 	timer_id : 0,
 	
 	calc_new_rating : function (old_rating, game_result) {
@@ -984,8 +987,10 @@ var online_game = {
 		this.opp_conf_play = 0;
 		
 		//счетчик времени
-		this.move_time_left = 15;
-		this.timer_id = setTimeout(function(){online_game.timer_tick()}, 1000);
+		this.time_for_move = 15;
+		this.timer_id = setInterval(online_game.timer_tick.bind(online_game), 1000);
+		this.prv_time = Date.now();
+		this.move_start_time = Date.now();		
 		objects.timer_text.tint=0xffffff;
 		
 		//отображаем таймер
@@ -1013,7 +1018,13 @@ var online_game = {
 	
 	timer_tick : function () {
 		
-		this.move_time_left--;
+		this.move_time_left = this.time_for_move - ~~((Date.now() - this.move_start_time) /1000);
+		
+		let tick_check = Date.now() - this.prv_time;
+		if (tick_check > 3000) {
+			game.stop('timer_error');
+			return;
+		}		
 		
 		if (this.move_time_left < 0 && my_turn === 1)	{
 			
@@ -1024,7 +1035,7 @@ var online_game = {
 			
 			return;
 		}
-
+		
 		if (this.move_time_left < -5 && my_turn === 0) {
 			
 			if (this.opp_conf_play === 1)
@@ -1053,8 +1064,8 @@ var online_game = {
 		//обновляем текст на экране
 		objects.timer_text.text="0:"+this.move_time_left;
 		
-		//следующая секунда
-		this.timer_id = setTimeout(function(){online_game.timer_tick()}, 1000);		
+		this.prv_time = Date.now();
+		
 	},
 	
 	send_message : async function() {
@@ -1076,10 +1087,10 @@ var online_game = {
 		this.disconnect_time = 0;
 		
 		//перезапускаем таймер хода
-		this.move_time_left = 37;
-		objects.timer_text.text="0:"+this.move_time_left;
-		objects.timer_text.tint=0xffffff;
-		
+		this.time_for_move = 35;
+		this.move_start_time = Date.now();	
+		objects.timer_text.text="0:"+this.time_for_move;
+		objects.timer_text.tint=0xffffff;		
 		objects.timer_cont.x = my_turn === 1 ? 30 : 630;
 		
 	},
@@ -1102,6 +1113,7 @@ var online_game = {
 			['same_fin_after_80',DRAW , 'Ничья\nОдинаковое количество шашек в новом доме'],
 			['my_no_sync',NOSYNC , 'Похоже вы не захотели начинать игру.'],
 			['opp_no_sync',NOSYNC , 'Похоже соперник не смог начать игру.'],
+			['timer_error',LOSE , 'Ошибка таймера!'],
 			['my_no_connection',LOSE , 'Потеряна связь!\nИспользуйте надежное интернет соединение.']
 		];
 		
@@ -1516,10 +1528,6 @@ var game = {
 
 	process_my_move : async function (move_data, moves) {
 
-		//MADINA_CASE
-		if (my_data.uid === 'vk699562255')
-			try {firebase.database().ref("MADINA_CASE").push([my_data.name,'process_my_move',online_game.move_time_left, client_id, state, game.state,  move_data, Date.now()])}catch(e){};	
-
 		//делаем перемещение шашки
 		this.checker_is_moving = 1;
 		await board_func.start_gentle_move(move_data, moves);	
@@ -1580,14 +1588,11 @@ var game = {
 
 	receive_move: async function(move_data) {
 		
-		//MADINA_CASE
-		if (my_data.uid === 'vk699562255')
-			try {firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'receive_move',online_game.move_time_left, client_id, state, game.state, my_turn, Date.now()])}catch(e){};		
-		
+				
 		//это чтобы не принимать ходы если игры нет (то есть выключен таймер)
 		if (game.state !== 'on')
 			return;		
-		
+	
 		//защита от двойных ходов
 		if (my_turn === 1) return;
 		
@@ -1630,12 +1635,7 @@ var game = {
 	},
 	
 	stop : async function (result) {
-				
-				
-		//MADINA_CASE
-		if (my_data.uid === 'vk699562255')
-			try{firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'stop',online_game.move_time_left,client_id, state, game.state, result, Date.now()])}catch(e){};
-					
+
 		this.state = 'pending';
 				
 		await this.opponent.stop(result);
@@ -2624,11 +2624,6 @@ var process_new_message = function(msg) {
 	//проверяем плохие сообщения
 	if (msg===null || msg===undefined)
 		return;
-	
-	//MADINA_CASE
-	if (my_data.uid === 'vk699562255')
-		try{firebase.database().ref("MADINA_CASE").push([my_data.name,game_id, 'process_new_message',online_game.move_time_left,client_id, state, game.state, msg, Date.now()])}catch(e){};		
-
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 	if (msg.message==="ACCEPT"  && pending_player===msg.sender && state !== "p") {
@@ -2647,7 +2642,6 @@ var process_new_message = function(msg) {
 	if (msg.message==="CLIEND_ID") 
 		if (msg.client_id !== client_id)
 			kill_game();
-
 
 	//получение сообщение в состояни игры
 	if (state==="p") {
@@ -4563,8 +4557,7 @@ function init_game_env() {
 			room_name= 'states2';					
 		if (my_data.rating > rooms_ranges[2] && my_data.rating <= rooms_ranges[3])
 			room_name= 'states3';			
-
-
+		
 		//устанавливаем рейтинг в попап
 		objects.id_rating.text=objects.my_card_rating.text=my_data.rating;
 
