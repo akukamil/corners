@@ -1021,7 +1021,7 @@ var online_game = {
 		this.move_time_left = this.time_for_move - ~~((Date.now() - this.move_start_time) /1000);
 		
 		let tick_check = Date.now() - this.prv_time;
-		if (tick_check > 3000) {
+		if (tick_check > 4000) {
 			game.stop('timer_error');
 			return;
 		}		
