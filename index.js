@@ -1116,7 +1116,7 @@ var online_game = {
 			['same_fin_after_80',DRAW , 'Ничья\nОдинаковое количество шашек в новом доме'],
 			['my_no_sync',NOSYNC , 'Похоже вы не захотели начинать игру.'],
 			['opp_no_sync',NOSYNC , 'Похоже соперник не смог начать игру.'],
-			['timer_error',LOSE , 'Ошибка таймера!'],
+			['timer_error',NOSYNC , 'Ошибка таймера!'],
 			['my_no_connection',LOSE , 'Потеряна связь!\nИспользуйте надежное интернет соединение.']
 		];
 		
@@ -4559,7 +4559,7 @@ function init_game_env() {
 		if (my_data.rating > rooms_ranges[2] && my_data.rating <= rooms_ranges[3])
 			room_name= 'states3';		
 		
-		room_name= 'states4';	
+		//room_name= 'states4';	
 		//устанавливаем рейтинг в попап
 		objects.id_rating.text=objects.my_card_rating.text=my_data.rating;
 
