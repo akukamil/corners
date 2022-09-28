@@ -1023,6 +1023,7 @@ var online_game = {
 		this.move_time_left = this.time_for_move - ~~((Date.now() - this.move_start_time) /1000);
 		
 		let tick_check = Date.now() - this.prv_time;
+		console.log(tick_check);
 		if (tick_check > 5000) {
 			game.stop('timer_error');
 			return;
@@ -4556,8 +4557,9 @@ function init_game_env() {
 		if (my_data.rating > rooms_ranges[1] && my_data.rating <= rooms_ranges[2])
 			room_name= 'states2';					
 		if (my_data.rating > rooms_ranges[2] && my_data.rating <= rooms_ranges[3])
-			room_name= 'states3';			
+			room_name= 'states3';		
 		
+		room_name= 'states4';	
 		//устанавливаем рейтинг в попап
 		objects.id_rating.text=objects.my_card_rating.text=my_data.rating;
 
