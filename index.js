@@ -148,9 +148,11 @@ class chat_record_class extends PIXI.Container {
 		this.avatar.width = this.avatar.height = 30;
 
 		
-		this.name = new PIXI.BitmapText('Имя Фамил', {fontName: 'mfont',fontSize: 20,align: 'center'});
+		this.name = new PIXI.BitmapText('Имя Фамил', {fontName: 'mfont',fontSize: 17,align: 'left'});
 		this.name.x=35;
-		this.name.y=5;
+		this.name.y=15;
+		this.name.anchor.set(0,0.5);
+		this.name.maxWidth = 70;
 		
 		this.msg = new PIXI.BitmapText('Имя Фамил', {fontName: 'mfont',fontSize: 20,align: 'left'}); 
 		this.msg.x=135;
@@ -217,8 +219,8 @@ class chat_record_class extends PIXI.Container {
 			
 		this.msg_id = msg_id;
 		
-		if (name.length > 10) name = name.substring(0, 10);	
-		this.name.text=name +':';		
+		if (name.length > 20) name = name.substring(0, 20);	
+		this.name.text=name;		
 		
 		this.msg.text=msg;
 
